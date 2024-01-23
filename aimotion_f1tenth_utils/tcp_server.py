@@ -77,7 +77,7 @@ class TCPServer:
             # check if the connection has been terminated during transfer
             if data == b"": 
                 break
-
+            
             self.message_callback(data)
 
         self.close_connection(con_ID)
