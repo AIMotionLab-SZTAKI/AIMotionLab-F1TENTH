@@ -3,6 +3,8 @@ import time
 import datetime
 import struct
 import pickle
+import random
+import numpy as np
 from aimotion_f1tenth_utils.logger import get_logger
 
 
@@ -41,6 +43,8 @@ class TCPClient:
 
 # test the client
 if __name__ == "__main__":
+    X=random.randint(0,100)
+
     # Server details
     server_ip = '127.0.0.1'  # Replace with the server IP address
     server_port = 8000  # Replace with the server port
@@ -49,14 +53,13 @@ if __name__ == "__main__":
     client = TCPClient()
     client.connect(server_ip, server_port)
 
-    message = {"text": "Hello from the client!",
-           "number": 123,
-           "float": 123.456,
-           "boolean": True,
-           "list": [1, 2, 3, 4, 5],
-           "dict": {"key": "value"}}
+    message = {"text": f"Hello from the client: {X}!",
+           "array":np.random.rand(1000,1000)*X}
 
-    long_message = [message for i in range(1000000)]
-
-    client.send(long_message)
+    for i in range(100):
+        client.send(message)
+    
     client.close()
+
+# kapni cuccot 
+# delay cuccot

@@ -78,7 +78,7 @@ class TCPServer:
             if data == b"": 
                 break
             
-            self.message_callback(data)
+            self.message_callback(pickle.loads(data))
 
         self.close_connection(con_ID)
         
