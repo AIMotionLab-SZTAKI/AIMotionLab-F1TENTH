@@ -12,7 +12,7 @@ class Trajectory:
     def __init__(self) -> None:
         """Class implementation of BSpline-based trajectories for autonomous ground vehicles
         """
-        super().__init__()
+        
         self.output = {}
         self.pos_tck = None
         self.evol_tck = None
@@ -20,7 +20,7 @@ class Trajectory:
         self.length = None
 
 
-    def build_from_points_const_speed(self, path_points: np.ndarray, path_smoothing: float, path_degree: int, const_speed: float, start_delay: float = 0):
+    def build_from_points_const_speed(self, path_points: np.ndarray, path_smoothing: float, path_degree: int, const_speed: float):
         """Object responsible for storing the reference trajectory data.
 
         Args:
@@ -29,7 +29,6 @@ class Trajectory:
             degree (int): Degree of the fitted Spline
         """
 
-        self.start_delay=start_delay
         x_points = path_points[:, 0].tolist()
         y_points = path_points[:, 1].tolist()
 
@@ -240,11 +239,12 @@ class Trajectory:
 
 
 if __name__ == "__main__":
+    """Simple test for the trajectory class
+    """
     traj=Trajectory()
 
     theta=np.linspace(0,2*np.pi,100)
     path_points = np.array([5*np.cos(theta), 5*np.sin(theta)]).T
-    print(2*5*np.pi)
 
-    traj.build_from_points_const_speed(path_points=path_points, path_smoothing=0.01, path_degree=5, const_speed=2.2)
+    traj.build_from_points_const_speed(path_points=path_points, path_smoothing=0.01, path_degree=5, const_speed=1)
     traj.plot_trajectory()
