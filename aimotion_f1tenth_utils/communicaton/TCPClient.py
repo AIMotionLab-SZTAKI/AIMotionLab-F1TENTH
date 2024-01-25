@@ -19,22 +19,44 @@ class TCPClient:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.client_socket.connect((host, port))
+            self.logger.info(f"Connected to {host}:{port}")
             return True
         except ConnectionRefusedError:
             self.logger.error(f"Connection refused by {host}:{port}")
             return False
 
     def send(self, message):
+        """Function that sends a message to the server and returns the response"""
+
         serialized_message = pickle.dumps(message)
         length_prefix = struct.pack("!I", len(serialized_message))
         try:
             self.client_socket.sendall(length_prefix)
             self.client_socket.sendall(serialized_message)
-            return True
         except BrokenPipeError:
             self.logger.error("Broken pipe error!")
-            return False
+            return {}
+        
+        length_prefix = self.client_socket.recv(4)
+            
+        if not length_prefix:
+            self.logger.info(f"No response received from server!")
+            return {}
+        
+        # Unpack the length prefix
+        message_length = struct.unpack("!I", length_prefix)[0]
 
+        # Receive the serialized data in chunks
+        data = b""
+        while len(data) < message_length:
+            chunk = self.client_socket.recv(min(4096, message_length - len(data)))
+            if not chunk:
+                self.logger.info(f"No data received from server!")
+                return {}
+            data += chunk
+            
+
+        return pickle.loads(data)
 
     def close(self):
         self.client_socket.close()
@@ -53,13 +75,10 @@ if __name__ == "__main__":
     client = TCPClient()
     client.connect(server_ip, server_port)
 
-    message = {"text": f"Hello from the client: {X}!",
-           "array":np.random.rand(1000,1000)*X}
+    message = {"car_ID": "JOEBUSH1",
+           "array": np.random.rand(100,100)*X}
 
-    for i in range(100):
-        client.send(message)
-    
+    res=client.send(message)
+    print(res)
+
     client.close()
-
-# kapni cuccot 
-# delay cuccot

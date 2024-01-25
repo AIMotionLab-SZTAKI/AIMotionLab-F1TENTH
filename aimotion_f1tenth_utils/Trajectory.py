@@ -9,10 +9,10 @@ mpl.rcParams["text.usetex"] = True
 
 
 class Trajectory:
-    def __init__(self) -> None:
+    def __init__(self, trajectory_ID) -> None:
         """Class implementation of BSpline-based trajectories for autonomous ground vehicles
         """
-        
+        self.trajectory_ID = trajectory_ID 
         self.output = {}
         self.pos_tck = None
         self.evol_tck = None
@@ -66,6 +66,9 @@ class Trajectory:
 
         return tck
         
+
+    def to_send(self):
+        return self.pos_tck, self.evol_tck
 
     def _project_to_closest(self, pos: np.ndarray, param_estimate: float, projetion_window: float, projection_step: float) -> float:
         """Projects the vehicle position onto the ginven path and returns the path parameter.

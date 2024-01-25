@@ -45,7 +45,7 @@ class TCPServer:
 
             # add connection to list
             self.connections.append((self.num_of_connections, client_socket, connection_thread))
-            self.logger.info(f"New connection from {client_address[0]}:{client_address[1]}, connection ID {self.num_of_connections}")
+            self.logger.info(f"New connection from {client_address[0]}:{client_address[1]}, connection ID {con_ID}")
             
 
     def handle_connection(self, client_socket, con_ID):
@@ -58,7 +58,7 @@ class TCPServer:
             length_prefix = client_socket.recv(4)
             
             if not length_prefix:
-                self.logger.info("No data received, closing connection with ID {self.num_of_connections}")
+                self.logger.info(f"No data received, closing connection with ID {con_ID}")
                 break
         
             # Unpack the length prefix
@@ -78,7 +78,19 @@ class TCPServer:
             if data == b"": 
                 break
             
-            self.message_callback(pickle.loads(data))
+            # handle callback
+            result = self.message_callback(pickle.loads(data))
+
+            # return the result
+            result_serialized = pickle.dumps(result)
+            length_prefix = struct.pack("!I", len(result_serialized))
+            try:
+                client_socket.sendall(length_prefix)
+                client_socket.sendall(result_serialized)
+            except BrokenPipeError:
+                self.logger.error("Broken pipe error!")
+                break
+
 
         self.close_connection(con_ID)
         
@@ -104,6 +116,11 @@ class TCPServer:
         self.server_socket.close()
         print("Server has been terminated!")
 
-# Usage example
-server = TCPServer('localhost', 8000)
-server.start()
+
+if __name__=="__main__":
+    # Usage example
+
+    def callback(message):
+        return {"status": True}
+    server = TCPServer('localhost', 8000, callback)
+    server.start()
