@@ -1,6 +1,10 @@
 from aimotion_f1tenth_utils.communicaton.TCPClient import TCPClient
 from aimotion_f1tenth_utils.logger import get_logger
+from aimotion_f1tenth_utils.file_transfer.Server import tcp_file_server
 
+import socket
+import pickle
+import struct
 
 class Connection:
     def __init__(self, host, port) -> None:
@@ -17,7 +21,10 @@ class Connection:
             return True
         else:
             return False
-    
+            
+        
+
+
     def upload_trajectory(self, trajectory):
         message = {"command": "upload_trajectory",
                    "trajectory_ID": trajectory.trajectory_ID,
@@ -49,6 +56,79 @@ class F1TENTH:
         self.connection = connection
         if not self.connection.verify_vehicle(self.car_ID):
             raise Exception(f"Vehicle with ID {self.car_ID} could not be verified by the manager!")
+    def toggle_save(self):
+        """
+        Saves current log file for the vehicle
+        Starts new log file
+        Turns off logging for vehicle=> logging status must be set back to True
+        """
+
+        result = self.connection.send({"car_ID": self.car_ID, "command": "new_log"})
+        return result
+    
+
+    def toggle_active(self, ON: bool):
+        """
+        Turns on the vehicle's radio and echo function in the main_UI
+        Args: 
+        - On: 
+            - True-> turn vehicle on
+            - False-> turn vehicle off
+        """
+
+
+        result = self.connection.send({"car_ID": self.car_ID, "command": "activate", "ON": ON})
+       
+        return result
+        #TODO manage result
+    def toggle_logging(self, start: bool):
+        """
+        Switches the ros2 node's logging status variable from True to False or the other way
+        Args:
+        - start:
+            - True: turns logging on
+            - False: turns logging off
+
+        """
+
+
+
+        result = self.connection.send({"car_ID": self.car_ID, "command": "logging", "ON": start})
+
+        return result
+    def get_logs(self):
+        """
+        sends the command with the car_ID
+        receives all the logs of a certain vehicle
+        saves them to /logs
+        """
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip_address =  s.getsockname()[0] #Getting IP address
+        s.close()
+
+        message = {"car_ID": self.car_ID, "command": "get_logs", "IP": ip_address}
+
+        serialized_message = pickle.dumps(message)
+        length_prefix = struct.pack("!I", len(serialized_message))
+        try:
+            self.connection.client.client_socket.sendall(length_prefix)
+            self.connection.client.client_socket.sendall(serialized_message)
+        except BrokenPipeError:
+            self.connection.client.logger.error("Broken pipe error!")
+            return {}
+        
+        
+
+
+        
+        file_server = tcp_file_server(ip_address= ip_address, target_path="logs/")
+
+        file_server.receive_logs()
+
+        file_server.destroy()
+        
+        
 
 
     def get_state(self):
@@ -76,7 +156,7 @@ class F1TENTH:
     
 if __name__=="__main__":
     # Server details
-    server_ip = '127.0.0.1'  # Replace with the server IP address
+    server_ip = '127.0.1.1'  # Replace with the server IP address
     server_port = 8000  # Replace with the server port
     connection = Connection(server_ip, server_port)
 

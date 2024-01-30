@@ -55,7 +55,11 @@ class TCPServer:
         while self.running:
 
             # receive the length prefix of the transfered data
-            length_prefix = client_socket.recv(4)
+            try:
+                length_prefix = client_socket.recv(4)
+            except: 
+                self.logger.info(f"No data received, closing connection with ID {con_ID}")
+                break
             
             if not length_prefix:
                 self.logger.info(f"No data received, closing connection with ID {con_ID}")
