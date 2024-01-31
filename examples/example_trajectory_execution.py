@@ -6,13 +6,13 @@ from aimotion_f1tenth_utils.Trajectory import Trajectory
 
 # Create a connection to the fleet manager
 server = "192.168.2.65"#"127.0.1.1" #"localhost"
-port = 8001
+port = 8000
 conn = Connection(server, port) 
 # connection is used to send non vehicle specific messages, i.e individual trajectories and actions to upload to the server
 
 if not os.path.exists("logs"):
     os.mkdir("logs")
-# design prevoiusly known trajectories
+# design previously known trajectories
 traj1=Trajectory("traj_1")
 traj1.build_from_points_const_speed(np.array([[0,0],[1,0],[1,1],[0,1],[0,0]]), 0.001, 3, 1)
 traj2=Trajectory("traj_2")
@@ -32,11 +32,22 @@ conn.upload_trajectory(traj2)
 
 conn.upload_trajectory(traj3)
 
-print(conn.send({"command": "reload"}))
-"""
+print(conn.send({"command": "reload"})) #Reoding the manager
+
+print(conn.send({"command": "list_trajectories"})) # getting the trajectories
+
+
 # create a vehicle object
 
 print(conn.send({"command": "list_trajectories"}))
+
+
+
+car1 = F1TENTH("JoeBush1", conn)
+
+print("getting logs")
+
+(car1.get_logs())
 
 
 print("activating:")
@@ -49,15 +60,18 @@ time.sleep(5)
 car1.toggle_save()
 print(car1.toggle_active(False))
 
-"""
 
-car1 = F1TENTH("JoeBush1", conn)
 
-car1.get_logs()
 
 car1.connection.client.close()
+
+
+
+
 #car1.execute_trajectory("traj_1")
-# the vehicle abject is used to send/recieve vehicle specific messages, 
+
+
+# the vehicle object is used to send/recieve vehicle specific messages, 
 # i.e state, trajectory execution and action execution commands
 
 

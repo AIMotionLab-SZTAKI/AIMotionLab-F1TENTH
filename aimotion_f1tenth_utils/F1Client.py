@@ -1,10 +1,11 @@
 from aimotion_f1tenth_utils.communicaton.TCPClient import TCPClient
 from aimotion_f1tenth_utils.logger import get_logger
-from aimotion_f1tenth_utils.file_transfer.Server import tcp_file_server
 
 import socket
 import pickle
 import struct
+
+import os
 
 class Connection:
     def __init__(self, host, port) -> None:
@@ -102,33 +103,20 @@ class F1TENTH:
         receives all the logs of a certain vehicle
         saves them to /logs
         """
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip_address =  s.getsockname()[0] #Getting IP address
-        s.close()
-
-        message = {"car_ID": self.car_ID, "command": "get_logs", "IP": ip_address}
-
-        serialized_message = pickle.dumps(message)
-        length_prefix = struct.pack("!I", len(serialized_message))
-        try:
-            self.connection.client.client_socket.sendall(length_prefix)
-            self.connection.client.client_socket.sendall(serialized_message)
-        except BrokenPipeError:
-            self.connection.client.logger.error("Broken pipe error!")
-            return {}
         
+        message = {"car_ID": self.car_ID, "command": "get_logs"}
         
+        result = self.connection.send(message)
 
+        for i in result["files"]:
+            file_name = i
+            
+            file_path = os.path.join("logs", file_name)
 
-        
-        file_server = tcp_file_server(ip_address= ip_address, target_path="logs/")
+            with open(file_path, "bw") as file:
+                file.write(result[i])
 
-        file_server.receive_logs()
-
-        file_server.destroy()
-        
-        
+        return result
 
 
     def get_state(self):
