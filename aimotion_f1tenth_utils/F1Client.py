@@ -68,7 +68,7 @@ class F1TENTH:
         return result
     
 
-    def toggle_active(self, ON: bool):
+    def toggle_radio_active(self, ON: bool):
         """
         Turns on the vehicle's radio and echo function in the main_UI
         Args: 
@@ -97,7 +97,7 @@ class F1TENTH:
         result = self.connection.send({"car_ID": self.car_ID, "command": "logging", "ON": start})
 
         return result
-    def get_logs(self):
+    def get_logs(self, target_path=None):
         """
         sends the command with the car_ID
         receives all the logs of a certain vehicle
@@ -110,8 +110,11 @@ class F1TENTH:
 
         for i in result["files"]:
             file_name = i
-            
-            file_path = os.path.join("logs", file_name)
+        
+            if target_path is None:
+                file_path = os.path.join("logs", file_name)
+            else:
+                file_path = os.path.join(file_path, "logs", file_name)
 
             with open(file_path, "bw") as file:
                 file.write(result[i])

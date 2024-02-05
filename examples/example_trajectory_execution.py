@@ -14,11 +14,36 @@ if not os.path.exists("logs"):
     os.mkdir("logs")
 # design previously known trajectories
 traj1=Trajectory("traj_1")
-traj1.build_from_points_const_speed(np.array([[0,0],[1,0],[1,1],[0,1],[0,0]]), 0.001, 3, 1)
+traj1.build_from_points_const_speed(np.array(
+    [
+        [0, 0],
+        [1, 1],
+        [2, 2],
+        [3, 2],
+        [4, 1],
+        [4.5, 0],
+        [4, -1],
+        [3, -2],
+        [2, -2],
+        [1, -1],
+        [0, 0],
+        [-1, 1],
+        [-2, 2],
+        [-3, 2],
+        [-4, 1],
+        [-4.5, 0],
+        [-4, -2.1],
+        [-3, -2.3],
+        [-2, -2],
+        [-1, -1],
+        [0, 0],
+    ]
+)*.5, 0.001, 5, .8)
+
 traj2=Trajectory("traj_2")
 traj2.build_from_points_const_speed(np.array([[0,0],[1,1], [2,0], [3,-1], [4,0], [3,1], [2,0], [1,-1], [0,0]]), 0.001, 3, 3)
 traj3=Trajectory("traj_3")
-traj3.build_from_points_const_speed(np.array([[0,0],[1,0],[2,0],[3,0],[4,0]]), 0.001, 3, 1)
+traj3.build_from_points_const_speed(np.array([[0,0],[1,0],[2,0],[3,0],[4,0]]), 0.001, 3, 0.5)
 traj4=Trajectory("traj_4")
 
 # upload trajectories to the server
@@ -47,18 +72,20 @@ car1 = F1TENTH("JoeBush1", conn)
 
 print("getting logs")
 
+
 (car1.get_logs())
 
 
+
 print("activating:")
-print(car1.toggle_active(True))
+print(car1.toggle_radio_active(True)) # rádió indítás-> rádio
 print("getting state:")
-print(car1.get_state())
+print(car1.get_state()) 
 print("starting logging")
-car1.toggle_logging(True)
+car1.toggle_logging(True) 
 time.sleep(5)
-car1.toggle_save()
-print(car1.toggle_active(False))
+car1.toggle_save() # save_logs  
+print(car1.toggle_radio_active(False))
 
 
 
