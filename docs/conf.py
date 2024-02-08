@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'f1tenth_r2'
+project = 'aimotion_f1tenth_utils'
 copyright = '2024, SZTAKI'
 author = 'SZTAKI'
 release = '1.0.0'
