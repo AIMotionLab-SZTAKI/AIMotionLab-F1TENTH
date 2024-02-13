@@ -15,7 +15,7 @@ if not os.path.exists("logs"):
 
 
 # design previously known trajectories
-traj1=Trajectory("traj_1")
+traj1=Trajectory("traj_1_rev")
 traj1.build_from_points_const_speed(np.flip(np.array(
     [
         [0, 0],
@@ -40,7 +40,7 @@ traj1.build_from_points_const_speed(np.flip(np.array(
         [-1, -1],
         [0, 0],
     ]
-),axis=1)*.5, 0.001, 5, .8)
+),axis=1)*.5, 0.001, 5, -.8)
 
 # upload trajectories to the server
 conn.upload_trajectory(traj1)
@@ -49,9 +49,9 @@ print(conn.send({"command": "reload"})) #Reoding the manager
 print(conn.send({"command": "list_trajectories"})) # getting the trajectories
 
 # create a vehicle object
-car1 = F1TENTH("JoeBush1", conn)
-print(car1.toggle_radio_active(True)) # rádió indítás-> rádio
-print(car1.execute_trajectory("traj_1"))
+#car1 = F1TENTH("JoeBush1", conn)
+#print(car1.toggle_radio_active(True)) # rádió indítás-> rádio
+#print(car1.execute_trajectory("traj_1"))
 
 """
  # execute a previously uploaded trajectory

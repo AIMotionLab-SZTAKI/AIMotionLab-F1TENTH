@@ -27,7 +27,7 @@ Bases: `object`
 
 #### upload_action(action)
 
-#### upload_trajectory(trajectory)
+#### upload_trajectory(trajectory: [Trajectory](#aimotion_f1tenth_utils.Trajectory.Trajectory))
 
 #### verify_vehicle(car_ID)
 
