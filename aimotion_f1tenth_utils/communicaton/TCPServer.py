@@ -7,11 +7,14 @@ from aimotion_f1tenth_utils.logger import get_logger
 class TCPServer:
     def __init__(self, host, port, message_callback=None):
         """
-        TCP server class implementation for the communication between the fleet manager and the vehicles
+        TCP server class implementation for the fleet manager.
         
         :param host: IP address of the server
+        :type host: str
         :param port: Port of the server
+        :type port: int
         :param message_callback: Callback function that is called when a valid message is received
+        :type message_callback: function
         """
         self.host = host
         self.port = port
@@ -24,6 +27,7 @@ class TCPServer:
         self.logger = get_logger()
 
     def start(self):
+        """Start the TCP server, waits for connections and establishes communication channels with the clients"""
         # Create a TCP socket
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.host, self.port))
@@ -44,12 +48,18 @@ class TCPServer:
             connection_thread.start()
 
             # add connection to list
-            self.connections.append((self.num_of_connections, client_socket, connection_thread))
+            self.connections.append((con_ID, client_socket, connection_thread))
             self.logger.info(f"New connection from {client_address[0]}:{client_address[1]}, connection ID {con_ID}")
             
 
     def handle_connection(self, client_socket, con_ID):
-        """Function that handles the connection with a single connected client!"""
+        """Function that handles the connection with a single connected client This function is called in a thread for each connected client
+        
+        :param client_socket: Socket object of the connected client
+        :type client_socket: socket
+        :param con_ID: ID of the connection
+        :type con_ID: int
+        """
 
         # start infinite loop until the server is shut down
         while self.running:
@@ -103,6 +113,7 @@ class TCPServer:
         """Function that closes the connection with the given ID
         
         :param con_ID: ID of the connection to be closed
+        :type con_ID: int
         """
         connection = next((connection for connection in self.connections if connection[0] == con_ID), None)
         if connection is not None:

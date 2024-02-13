@@ -11,11 +11,24 @@ from aimotion_f1tenth_utils.logger import get_logger
 
 class TCPClient:
     def __init__(self) -> None:
-        """Class implementation for the TCP client"""
+        """TCP Client implementation used to communicate with the F1TENTH fleet manager"""
         self.client_socket = None
         self.logger = get_logger()
 
     def connect(self, host, port):
+        """Establish connection to the TCP server with the given host and port
+        
+        
+        :param host: IP address of the server
+        :type host: str
+        :param port: Port of the server
+        :type port: int
+
+        :return: Status of the connection
+        :rtype: bool
+        """
+
+
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.client_socket.connect((host, port))
@@ -26,7 +39,11 @@ class TCPClient:
             return False
 
     def send(self, message):
-        """Function that sends a message to the server and returns the response"""
+        """Function that sends a message to the server and returns the recieved response
+        
+        :param message: Message to be sent to the server. The message should be encoded in a dictinary format
+        :type message: dict
+        """
 
         serialized_message = pickle.dumps(message)
         length_prefix = struct.pack("!I", len(serialized_message))
@@ -59,6 +76,7 @@ class TCPClient:
         return pickle.loads(data)
 
     def close(self):
+        """Close the connection to the server"""
         self.client_socket.close()
         self.logger.info("Connection closed")
 

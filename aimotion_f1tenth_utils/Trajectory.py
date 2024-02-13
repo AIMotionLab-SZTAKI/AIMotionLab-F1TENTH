@@ -20,13 +20,19 @@ class Trajectory:
         self.length = None
         self.reversed = None
 
+
     def build_from_points_const_speed(self, path_points: np.ndarray, path_smoothing: float, path_degree: int, const_speed: float):
         """Object responsible for storing the reference trajectory data.
 
-        Args:
-            path_points (numpy.ndarray): Reference points of the trajectory
-            smoothing (float): Smoothing factor used for the spline interpolation
-            degree (int): Degree of the fitted Spline
+        :param path_points: Reference points of the trajectory
+        :type path_points: np.ndarray
+        :param path_smoothing: Smoothing factor used for the spline interpolation
+        :type path_smoothing: float
+        :param path_degree: Degree of the fitted Spline
+        :type path_degree: int
+        :param const_speed: Constant speed of the vehicle
+        :type const_speed: float
+
         """
         if const_speed < 0:
             const_speed = abs(const_speed)
@@ -79,14 +85,18 @@ class Trajectory:
         """Projects the vehicle position onto the ginven path and returns the path parameter.
            The path parameter is the curvilinear abscissa along the path as the Bspline that represents the path is arc length parameterized
 
-        Args:
-            pos (np.ndarray): Vehicle x,y position
-            param_esimate: Estimated value of the path parameter
-            projetion_window (float): Length of the projection window along the path
-            projection_step (float): Precision of the projection in the window
-
-        Returns:
-            float: The path parameter
+           
+        :param pos: Vehicle x,y position
+        :type pos: np.ndarray
+        :param param_estimate: Estimated value of the path parameter
+        :type param_estimate: float
+        :param projetion_window: Length of the projection window along the path
+        :type projetion_window: float
+        :param projection_step: Precision of the projection in the window
+        :type projection_step: float
+        :return: The path parameter
+        :rtype: float
+        
         """
 
         
@@ -111,7 +121,17 @@ class Trajectory:
 
 
     def evaluate(self, state, i, time, control_step) -> dict:
-        """Evaluates the trajectory based on the vehicle state & time"""
+        """Evaluates the trajectory based on the vehicle state & time
+        
+        :param state: Vehicle state
+        :type state: dict
+        :param i: Iterator valiable only used by the simulator
+        :type i: int
+        :param time: Current time
+        :type time: float
+        :param control_step: he step of the controller
+
+        """
 
         if self.pos_tck is None or self.evol_tck is None: # check if data has already been provided
             raise ValueError("Trajectory must be defined before evaluation")
@@ -165,13 +185,14 @@ class Trajectory:
     def _clamp(value: Union[float,int], bound: Union[int,float,list,tuple,np.ndarray]) -> float:
         """Helper function that clamps the given value with the specified bounds
 
-        Args:
-            value (float | int): The value to clamp
-            bound (list | tuple | np.ndarray): If int | float the function constrains the value into [-bound,bound]
-                                               If tuple| list | np.ndarray the value is constained into the range of [bound[0],bound[1]]
-
-        Returns:
-            float: The clamped value
+        
+        :param value: The value to clamp
+        :type value: Union[float,int]
+        :param bound: If int | float the function constrains the value into [-bound,bound]
+                      If tuple| list | np.ndarray the value is constained into the range of [bound[0],bound[1]]
+        :type bound: Union[int,float,list,tuple,np.ndarray]
+        :return: The clamped value
+        :rtype: float
         """
         if isinstance(bound, int) or isinstance(bound, float):
             if value < -bound:
@@ -244,12 +265,24 @@ class Trajectory:
         plt.show(block=block)
 
 
+class ScheduledTrajectory(Trajectory):
+    def __init__(self, trajectory_ID, t_start) -> None:
+        """Class implementation of a scheduled trajectory for autonomous ground vehicles
+        
+        Args:
+            trajectory_ID (str): Unique identifier of the trajectory
+            t_start (float): Starting time of the trajectory, i.e. the scheduler
+        
+        """
+
+        super().__init__(trajectory_ID)
+        self.t_start = t_start
 
 
 if __name__ == "__main__":
     """Simple test for the trajectory class
     """
-    traj=Trajectory()
+    traj=Trajectory("traj_1")
 
     theta=np.linspace(0,2*np.pi,100)
     path_points = np.array([5*np.cos(theta), 5*np.sin(theta)]).T
