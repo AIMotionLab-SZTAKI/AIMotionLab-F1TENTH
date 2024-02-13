@@ -1,6 +1,7 @@
 from aimotion_f1tenth_utils.communicaton.TCPClient import TCPClient
 from aimotion_f1tenth_utils.logger import get_logger
 
+from aimotion_f1tenth_utils.Trajectory import Trajectory
 import socket
 import pickle
 import struct
@@ -26,11 +27,12 @@ class Connection:
         
 
 
-    def upload_trajectory(self, trajectory):
+    def upload_trajectory(self, trajectory: Trajectory):
         message = {"command": "upload_trajectory",
                    "trajectory_ID": trajectory.trajectory_ID,
                    "pos_tck": trajectory.pos_tck,
-                   "evol_tck": trajectory.evol_tck}
+                   "evol_tck": trajectory.evol_tck,
+                   "reversed": trajectory.reversed}
         
         result = self.send(message)
         return result["status"]

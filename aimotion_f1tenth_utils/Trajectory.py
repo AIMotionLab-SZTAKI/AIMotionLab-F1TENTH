@@ -18,7 +18,7 @@ class Trajectory:
         self.evol_tck = None
         self.t_end = None
         self.length = None
-
+        self.reversed = None
 
     def build_from_points_const_speed(self, path_points: np.ndarray, path_smoothing: float, path_degree: int, const_speed: float):
         """Object responsible for storing the reference trajectory data.
@@ -28,6 +28,11 @@ class Trajectory:
             smoothing (float): Smoothing factor used for the spline interpolation
             degree (int): Degree of the fitted Spline
         """
+        if const_speed < 0:
+            const_speed = abs(const_speed)
+            self.reversed = True
+        else:
+            self.reversed = False
 
         x_points = path_points[:, 0].tolist()
         y_points = path_points[:, 1].tolist()
