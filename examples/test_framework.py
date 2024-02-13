@@ -17,8 +17,7 @@ if not os.path.exists("logs"):
 # design previously known trajectories
 traj1=Trajectory("traj_1_rev")
 traj1.build_from_points_const_speed(np.flip(np.array(
-    [
-        [0, 0],
+    [ [0, 0],
         [1, 1],
         [2, 2],
         [3, 2],
