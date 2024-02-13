@@ -21,6 +21,8 @@ class Trajectory:
         self.reversed = None
 
 
+
+
     def build_from_points_const_speed(self, path_points: np.ndarray, path_smoothing: float, path_degree: int, const_speed: float):
         """Object responsible for storing the reference trajectory data.
 
@@ -34,11 +36,14 @@ class Trajectory:
         :type const_speed: float
 
         """
+
+        # handle negative speeds (reversing motion)
         if const_speed < 0:
             const_speed = abs(const_speed)
             self.reversed = True
         else:
             self.reversed = False
+
 
         x_points = path_points[:, 0].tolist()
         y_points = path_points[:, 1].tolist()
@@ -79,6 +84,8 @@ class Trajectory:
         
 
     def to_send(self):
+        """Returns the trajectory data in a format that can be sent to the server"""
+        
         return self.pos_tck, self.evol_tck
 
     def _project_to_closest(self, pos: np.ndarray, param_estimate: float, projetion_window: float, projection_step: float) -> float:
@@ -212,11 +219,10 @@ class Trajectory:
     def _normalize(angle: float) -> float:
         """Normalizes the given angle into the [-pi/2, pi/2] range
 
-        Args:
-            angle (float): Input angle
-
-        Returns:
-            float: Normalized angle
+        :param angle: Input angle
+        :type angle: float
+        :return: Normalized angle
+        :rtype: float
         """
         while angle > np.pi:
             angle -= 2*np.pi
@@ -227,6 +233,8 @@ class Trajectory:
     
     def plot_trajectory(self, block=True) -> None:
         """ Plots, the defined path of the trajectory in the X-Y plane. Nota, that this function interrupts the main thread and the simulator!
+
+        :param block: If True, the function blocks the main thread until the plot is closed
         """
 
         if self.pos_tck is None or self.evol_tck is None: # check if data has already been provided
@@ -268,12 +276,13 @@ class Trajectory:
 class ScheduledTrajectory(Trajectory):
     def __init__(self, trajectory_ID, t_start) -> None:
         """Class implementation of a scheduled trajectory for autonomous ground vehicles
-        
-        Args:
-            trajectory_ID (str): Unique identifier of the trajectory
-            t_start (float): Starting time of the trajectory, i.e. the scheduler
-        
+
+        :param trajectory_ID: Unique identifier of the trajectory
+        :type trajectory_ID: str
+        :param t_start: Starting time of the trajectory, i.e. the scheduler
+        :type t_start: float
         """
+        
 
         super().__init__(trajectory_ID)
         self.t_start = t_start

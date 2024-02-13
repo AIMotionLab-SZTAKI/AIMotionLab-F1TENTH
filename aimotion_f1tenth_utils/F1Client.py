@@ -10,6 +10,16 @@ import os
 
 class Connection:
     def __init__(self, host, port) -> None:
+        """Class implementation of a connection to the fleet manager
+        
+        :param host: IP address of the server
+        :type host: str
+        :param port: Port of the server
+        :type port: int
+
+        :raises Exception: If the connection to the server could not be established
+
+        """
         self.host = host
         self.port = port
         self.client = TCPClient()
@@ -18,6 +28,13 @@ class Connection:
             raise Exception(f"Could not connect to {host}:{port}")
 
     def verify_vehicle(self, car_ID):
+        """Verifies if a vehicle exists in the server side application with the given car_ID
+        
+        :param car_ID: ID of the vehicle
+        :type car_ID: str
+        :return: Verification status
+        :rtype: bool
+        """
         result = self.client.send({"car_ID": car_ID, "command": "verify_vehicle"})
         if result["status"] == True and result["car_ID"] == car_ID:
             return True
@@ -25,9 +42,15 @@ class Connection:
             return False
             
         
-
-
     def upload_trajectory(self, trajectory: Trajectory):
+        """Uploads a trajectory to the server
+        
+        :param trajectory: Trajectory object to be uploaded
+        :type trajectory: Trajectory
+        :return: Status of the upload
+        :rtype: bool"""
+
+
         message = {"command": "upload_trajectory",
                    "trajectory_ID": trajectory.trajectory_ID,
                    "pos_tck": trajectory.pos_tck,
@@ -38,32 +61,63 @@ class Connection:
         return result["status"]
     
 
-    def upload_action(self, action):
+    def upload_choreography(self, choreography):
+        """Uploads a choreography to the server
+
+        :param choreography: Choreography object to be uploaded
+        :type choreography: Choreography
+        :return: Status of the upload
+        :rtype: bool
+        """
+
+
         message = {"command": "upload_action",
-                   "action_ID": action.action_ID,
-                   "action_data": action}
+                   "choreography_ID": choreography.choreography_ID,
+                   "choreography_data": choreography.data}
         
-        result = self.connection.send(message)
+        result = self.send(message)
         return result["status"]
 
         
     def send(self, message):
+        """Function that sends a message to the server and returns the recieved response
+        
+        :param message: Message to be sent to the server. The message should be encoded in a dictinary format
+        :type message: dict
+
+        :return: Response from the server
+        :rtype: dict
+        """
         return self.client.send(message)
 
 
 class F1TENTH:
     def __init__(self, car_ID, connection: Connection) -> None:
+        """Class implementation of a client object to handle an F1TENTH vehicle remotely
+        
+        :param car_ID: ID of the vehicle
+        :type car_ID: str
+
+        :param connection: Connection object to the fleet manager
+        :type connection: Connection
+
+        :raises Exception: If the vehicle with the given car_ID could not be verified by the manager
+
+        """
         self.car_ID = car_ID
         
         # establish TCP connection with the manager
         self.connection = connection
         if not self.connection.verify_vehicle(self.car_ID):
             raise Exception(f"Vehicle with ID {self.car_ID} could not be verified by the manager!")
+        
+
     def toggle_save(self):
         """
-        Saves current log file for the vehicle
-        Starts new log file
+        Saves current log file for the vehicle and starts new log file
         Turns off logging for vehicle=> logging status must be set back to True
+
+        :return: Status of the save
         """
 
         result = self.connection.send({"car_ID": self.car_ID, "command": "new_log"})
@@ -72,11 +126,11 @@ class F1TENTH:
 
     def toggle_radio_active(self, ON: bool):
         """
-        Turns on the vehicle's radio and echo function in the main_UI
-        Args: 
-        - On: 
-            - True-> turn vehicle on
-            - False-> turn vehicle off
+        Turns on the vehicles radio communication to stream mocap data for state estimation
+
+        :param ON: Status of the radio communication
+        :type ON: bool
+        :return: Status of the activation
         """
 
 
@@ -84,26 +138,30 @@ class F1TENTH:
        
         return result
         #TODO manage result
+    
+
     def toggle_logging(self, start: bool):
         """
         Switches the ros2 node's logging status variable from True to False or the other way
-        Args:
-        - start:
-            - True: turns logging on
-            - False: turns logging off
-
+        
+        :param start: Status of the logging
+        :type start: bool
+        :return: Status of the logging
         """
-
 
 
         result = self.connection.send({"car_ID": self.car_ID, "command": "logging", "ON": start})
 
         return result
+    
+
     def get_logs(self, target_path=None):
         """
-        sends the command with the car_ID
-        receives all the logs of a certain vehicle
-        saves them to /logs
+        Gets the log files for the vehicle and saves to the dedicated location
+
+        :param target_path: Path to save the log files
+        :type target_path: str
+        :return: Status of the log retrieval
         """
         
         message = {"car_ID": self.car_ID, "command": "get_logs"}
@@ -121,10 +179,17 @@ class F1TENTH:
             with open(file_path, "bw") as file:
                 file.write(result[i])
 
-        return result
+        return result["status"]
 
 
     def get_state(self):
+        """Requests the current state of the vehicle from the server
+        
+        :return: State of the vehicle
+        :rtype: dict
+
+        :raises Exception: If the state of the vehicle could not be retrieved
+        """
         result = self.connection.send({"car_ID": self.car_ID, "command": "get_state"})
         if result["status"] == True:
             return result["state"]
@@ -133,7 +198,17 @@ class F1TENTH:
 
 
     def execute_trajectory(self, trajectory_ID, trajectory_data = None):
+        """Executes a trajectory on the vehicle.
         
+        :param trajectory_ID: ID of the trajectory to be executed
+        :type trajectory_ID: str
+        :param trajectory_data: Optional trajectory data to be executed. If the trajectory is already saved on the server, this parameter can be omitted.
+        :type trajectory_data: list, optional
+        :return: Status of the execution
+        :rtype: bool
+        """
+
+
         message = {"car_ID": self.car_ID,
                    "command": "execute_trajectory",
                    "trajectory_ID": trajectory_ID}
