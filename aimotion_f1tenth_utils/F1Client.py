@@ -154,21 +154,6 @@ class F1TENTH:
 
         return result
     
-    def get_current_progress(self):
-        """Gets the current progress of the trajectory execution
-        :param None
-        :return: Current progress value in percentage
-        :rtype: int"""
-
-        message = {"command":"get_progress",
-                   "car_ID": self.car_ID}
-        result = self.connection.send(message)
-
-        if result["status"]:
-            return result["progress"] #If no error occures then return the progress
-        else:
-            return -1 #If there is error during the request then return -1
- 
     def get_logs(self, target_path=None):
         """
         Gets the log files for the vehicle and saves to the dedicated location
