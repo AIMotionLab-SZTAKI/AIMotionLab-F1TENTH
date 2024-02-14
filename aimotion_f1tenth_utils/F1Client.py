@@ -7,7 +7,7 @@ import pickle
 import struct
 
 import os
-import threading
+import time
 
 class Connection:
     def __init__(self, host, port) -> None:
@@ -224,7 +224,7 @@ class F1TENTH:
         :rtype: bool
         """
 
-
+        self.toggle_radio_active(True)
         message = {"car_ID": self.car_ID,
                    "command": "execute_trajectory",
                    "trajectory_ID": trajectory_ID}
@@ -245,6 +245,7 @@ class F1TENTH:
                    "car_ID": self.car_ID}   
         response = {"progress" : 0}
         while response["progress"] != 100 and response["progress"] != -1:
+            time.sleep(1/40)
             response = self.connection.send(message)
 
 

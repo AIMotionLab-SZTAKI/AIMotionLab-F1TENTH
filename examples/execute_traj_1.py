@@ -16,8 +16,10 @@ print(conn.send({"command": "list_trajectories"})) # getting the trajectories
 
 car1 = F1TENTH("JoeBush1", conn)
 
-res = car1.execute_trajectory("traj_1")
 
+res = car1.execute_trajectory("traj_1", block= True)
+#res = car1.wait_until_done()
+print(res)
 car1.connection.client.close()
 
 
