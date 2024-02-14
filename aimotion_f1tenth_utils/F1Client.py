@@ -7,6 +7,7 @@ import pickle
 import struct
 
 import os
+import threading
 
 class Connection:
     def __init__(self, host, port) -> None:
@@ -210,13 +211,15 @@ class F1TENTH:
             raise Exception(f"Could not get state of vehicle with ID {self.car_ID}; error message: {result['error']}")
 
 
-    def execute_trajectory(self, trajectory_ID, trajectory_data = None):
+    def execute_trajectory(self, trajectory_ID, trajectory_data = None, block: bool  = False):
         """Executes a trajectory on the vehicle.
         
         :param trajectory_ID: ID of the trajectory to be executed
         :type trajectory_ID: str
         :param trajectory_data: Optional trajectory data to be executed. If the trajectory is already saved on the server, this parameter can be omitted.
         :type trajectory_data: list, optional
+        :param block: Wait until the execution is done
+        :type block: bool, optional
         :return: Status of the execution
         :rtype: bool
         """
@@ -231,8 +234,25 @@ class F1TENTH:
             message["evol_tck"] = trajectory_data[1]
         
         result = self.connection.send(message) # this method should be blocking, i.e only return the result if the execution is finished or failed
-        return result["status"]
+        
+        if block:
+            return self.wait_until_done()
+        else:
+            return result["status"]
 
+    def wait_until_done(self):
+        message = {"command": "get_progress",
+                   "car_ID": self.car_ID}   
+        response = {"progress" : 0}
+        while response["progress"] != 100 and response["progress"] != -1:
+            response = self.connection.send(message)
+
+
+        if response["progress"] == 100:
+            return True
+        else:
+            return False
+        
 
     
 if __name__=="__main__":
