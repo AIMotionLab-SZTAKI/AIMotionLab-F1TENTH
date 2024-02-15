@@ -62,6 +62,31 @@ class Connection:
         return result["status"]
     
 
+    def list_trajectories(self):
+        """List the trajectories stored by the fleet manager server
+        
+        :return: Tuple containing the status flag (bool) and a list of the trajectory IDs (list[str]) if the request has been successfull else the error message
+        :rtype: tuple
+        """
+        resp = self.client.send({"command": "list_trajectories"})
+        if resp["status"]:
+            res = (True, resp["trajectories"])
+        else:
+            res = (False, resp["error"])
+        return res
+    
+    def reload_manager(self):
+        """Reloads the fleet_manager GUI
+        
+        :return: Status flag of the command
+        :rtype: bool
+        """
+        
+        res = self.client.send({"command": "reload"})
+
+        return res["status"] 
+
+
     def upload_choreography(self, choreography):
         """Uploads a choreography to the server
 
