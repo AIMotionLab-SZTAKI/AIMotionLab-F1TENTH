@@ -208,9 +208,10 @@ class F1TENTH:
 
     def get_current_progress(self):
         """Gets the current progress of the trajectory execution
-        :param None
+        
         :return: Current progress value in percentage
-        :rtype: int"""
+        :rtype: int
+        """
 
         message = {"command":"get_progress",
                    "car_ID": self.car_ID}
@@ -266,6 +267,10 @@ class F1TENTH:
             return result["status"]
 
     def wait_until_done(self):
+        """
+        Blocks thread until the execution of the current trajectory execution is finished
+        """
+        
         message = {"command": "get_progress",
                    "car_ID": self.car_ID}   
         response = {"progress" : 0}

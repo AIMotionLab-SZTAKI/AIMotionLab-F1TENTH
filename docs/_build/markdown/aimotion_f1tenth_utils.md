@@ -71,17 +71,27 @@ Verifies if a vehicle exists in the server side application with the given car_I
 
 Bases: `object`
 
-#### execute_trajectory(trajectory_ID, trajectory_data=None)
+#### execute_trajectory(trajectory_ID, trajectory_data=None, block: bool = False)
 
 Executes a trajectory on the vehicle.
 
 * **Parameters:**
   * **trajectory_ID** (*str*) – ID of the trajectory to be executed
   * **trajectory_data** (*list* *,* *optional*) – Optional trajectory data to be executed. If the trajectory is already saved on the server, this parameter can be omitted.
+  * **block** (*bool* *,* *optional*) – Wait until the execution is done
 * **Returns:**
   Status of the execution
 * **Return type:**
   bool
+
+#### get_current_progress()
+
+Gets the current progress of the trajectory execution
+
+* **Returns:**
+  Current progress value in percentage
+* **Return type:**
+  int
 
 #### get_logs(target_path=None)
 
@@ -128,6 +138,8 @@ Turns off logging for vehicle=> logging status must be set back to True
 
 * **Returns:**
   Status of the save
+
+#### wait_until_done()
 
 ## aimotion_f1tenth_utils.Trajectory module
 
