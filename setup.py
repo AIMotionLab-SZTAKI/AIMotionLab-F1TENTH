@@ -12,4 +12,7 @@ setup(
         'scipy',
         'matplotlib',
     ],
+      entry_points = {
+        'console_scripts': ['trajectory_creator=aimotion_f1tenth_utils.traj_creator:main'],
+    },
 )
