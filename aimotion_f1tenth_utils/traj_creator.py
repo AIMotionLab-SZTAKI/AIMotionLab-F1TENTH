@@ -64,10 +64,10 @@ def main():
 
     speed = input_data
 
-    if speed > 1:
-        speed = 1
-    if speed < -1:
-        speed = -1
+    if speed > 2.5:
+        speed = 2.5
+    if speed < -2.5:
+        speed = -2.5
 
     
     name = input("Enter trajectory name: ")
