@@ -1,5 +1,9 @@
 from aimotion_f1tenth_utils.Trajectory import Trajectory
 from aimotion_f1tenth_utils.F1Client import Connection
+
+import matplotlib as mpl
+mpl.rcParams["text.usetex"] = False 
+
 # 1, design the trajectory 
 traj_ID = "example_1"
 traj = Trajectory(trajectory_ID=traj_ID) # create the trajetory object
