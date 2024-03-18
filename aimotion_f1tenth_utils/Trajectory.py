@@ -3,9 +3,12 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import splprep, splev, splrep
 from scipy.integrate import quad
 from typing import Union
+import os
+from pathlib import Path
+import pickle
 import matplotlib as mpl
 
-mpl.rcParams["text.usetex"] = True
+#mpl.rcParams["text.usetex"] = True
 
 
 class Trajectory:
@@ -24,7 +27,7 @@ class Trajectory:
 
 
     def build_from_points_const_speed(self, path_points: np.ndarray, path_smoothing: float, path_degree: int, const_speed: float):
-        """Object responsible for storing the reference trajectory data.
+        """Builds a trajectory using a set of reference waypoints and a constant referecne velocity
 
         :param path_points: Reference points of the trajectory
         :type path_points: np.ndarray
@@ -68,6 +71,60 @@ class Trajectory:
         s_evol = np.linspace(0, self.length, 101)
 
         self.evol_tck = splrep(t_evol,s_evol, k=1, s=0) # NOTE: This is completely overkill for constant veloctities but can be easily adjusted for more complex speed profiles
+
+
+    def build_from_points_smooth_const_speed(self, path_points: np.ndarray, path_smoothing: float, path_degree: int, virtual_speed: float):
+        """Builds a trajectory using a set of reference waypoints and a virtual reference velocity with smoothed start and end reference
+
+        :param path_points: Reference points of the trajectory
+        :type path_points: np.ndarray
+        :param path_smoothing: Smoothing factor used for the spline interpolation
+        :type path_smoothing: float
+        :param path_degree: Degree of the fitted Spline
+        :type path_degree: int
+        :param virtual_speed: The virtual constant speed for the vehicle. In practice the designer smoothens the start and end of the trajectory
+        :type virsual_speed: float
+
+        """
+
+        # handle negative speeds (reversing motion)
+        if virtual_speed < 0:
+            virtual_speed = abs(virtual_speed)
+            self.reversed = True
+        else:
+            self.reversed = False
+
+
+        x_points = path_points[:, 0].tolist()
+        y_points = path_points[:, 1].tolist()
+
+        # fit spline and evaluate
+        tck, u, *_ = splprep([x_points, y_points], k=path_degree, s=path_smoothing)
+        XY=splev(u, tck)
+
+        # calculate arc length
+        def integrand(x):
+            dx, dy = splev(x, tck, der=1)
+            return np.sqrt(dx**2 + dy**2)
+        self.length, _ = quad(integrand, u[0], u[-1])
+
+        # build spline for the path parameter
+        self.pos_tck, _, *_ = splprep(XY, k=path_degree, s=0, u=np.linspace(0, self.length, len(XY[0])))
+
+        # calculate travel time
+        self.t_end= self.length / virtual_speed
+
+        
+        # construct third order s(t) poly, then refit it with splines
+        A = np.linalg.pinv(np.array([[self.t_end, self.t_end**2, self.t_end**3],
+                                    [0, 2*self.t_end, 3*self.t_end**2]])) @ np.array([[self.length],[0]])
+
+
+        t_evol = np.linspace(0, self.t_end, 101)
+        s_evol = A[0]*t_evol+A[1]*t_evol**2+A[2]*t_evol**3
+
+        self.evol_tck = splrep(t_evol,s_evol, k=1, s=0)
+
 
 
     def export_to_time_dependent(self):
@@ -172,7 +229,7 @@ class Trajectory:
             speed = -2.5
 
     
-        self.build_from_points_const_speed(np.array(clicked_points), 0.01, 3, speed)
+        self.build_from_points_smooth_const_speed(np.array(clicked_points), 0.01, 3, speed)
 
 
     def evaluate(self, state, i, time, control_step) -> dict:
@@ -234,6 +291,38 @@ class Trajectory:
 
         return self.output
     
+    def save(self, dir_path):
+        """Saves the trajectory file in a binary format at the predefined location
+        :param file_path: the path to sve the file
+        """
+        
+
+        traj_data = {"pos_tck": self.pos_tck,
+                        "evol_tck": self.evol_tck,
+                        "reversed": self.reversed}
+        
+        with open(os.path.join(dir_path, self.trajectory_ID+".traj"), 'wb') as f:
+            pickle.dump(obj=traj_data, file=f)
+
+
+    def load(self, file_path):
+        """Loads the trajectory class from .traj files"""
+        
+        try:
+            self.trajectory_ID=Path(file_path).stem
+        
+            with open(file_path, 'rb') as f:
+                traj_data = pickle.load(f)
+
+                self.output = {}
+                self.pos_tck = traj_data["pos_tck"]
+                self.evol_tck = traj_data["evol_tck"]
+                self.t_end = traj_data["evol_tck"][0][-1]
+                self.length = traj_data["pos_tck"][0][-1]
+                self.reversed = traj_data["reversed"]
+        except:
+            raise ValueError("Cannor load trajectory file, the file format is invalid")
+
 
 
     @staticmethod
@@ -292,9 +381,10 @@ class Trajectory:
         t_eval=np.linspace(0, self.t_end, 100)
         
         s=splev(t_eval, self.evol_tck)
+        v=splev(t_eval, self.evol_tck, der=1)
         (x,y)=splev(s, self.pos_tck)
         
-        fig, axs = plt.subplot_mosaic("AB;CC;DD")
+        fig, axs = plt.subplot_mosaic("AB;CC;DD;EE")
 
         axs["A"].plot(t_eval,x)
         axs["A"].set_xlabel("t [s]")
@@ -317,6 +407,11 @@ class Trajectory:
         axs["D"].set_ylabel("s [m]")
         axs["D"].set_title("Path parameter")
 
+        axs["E"].plot(t_eval, v)
+        axs["E"].set_xlabel("t [s]")
+        axs["E"].set_ylabel("v [m/s]")
+        axs["E"].set_title("Reference velocity")
+
         plt.tight_layout()
         plt.show(block=block)
 
@@ -334,6 +429,12 @@ class ScheduledTrajectory(Trajectory):
 
         super().__init__(trajectory_ID)
         self.t_start = t_start
+
+
+def load_trajectory_from_file(file_path):
+    traj = Trajectory("_temp_")
+    traj.load(file_path=file_path)
+    return traj
 
 
 if __name__ == "__main__":
