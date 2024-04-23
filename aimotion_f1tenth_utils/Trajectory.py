@@ -8,6 +8,8 @@ from pathlib import Path
 import pickle
 import matplotlib as mpl
 
+from aimotion_f1tenth_utils.utils import TrajectoryBase
+
 #mpl.rcParams["text.usetex"] = True
 
 
