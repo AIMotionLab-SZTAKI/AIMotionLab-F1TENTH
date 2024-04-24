@@ -207,8 +207,8 @@ class Trajectory:
         cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
 
-        ax.set_xlim([-1.5, 1.5])
-        ax.set_ylim([-1.5, 1.5])
+        ax.set_xlim(x_lims)
+        ax.set_ylim(y_lims)
 
 
         # Display the plot
@@ -322,7 +322,8 @@ class Trajectory:
                 self.t_end = traj_data["evol_tck"][0][-1]
                 self.length = traj_data["pos_tck"][0][-1]
                 self.reversed = traj_data["reversed"]
-        except:
+        except Exception as e:
+            print(e)
             raise ValueError("Cannor load trajectory file, the file format is invalid")
 
 
@@ -416,6 +417,19 @@ class Trajectory:
 
         plt.tight_layout()
         plt.show(block=block)
+    
+    def get_trajectory(self):
+        if self.pos_tck is None or self.evol_tck is None: # check if data has already been provided
+            raise ValueError("No Spline trajectory is specified!")
+        
+        # evaluate the path between the bounds and plot
+        t_eval=np.linspace(0, self.t_end, 100)
+        
+        s=splev(t_eval, self.evol_tck)
+        v=splev(t_eval, self.evol_tck, der=1)
+        (x,y)=splev(s, self.pos_tck)
+        return x, y
+
 
 
 class ScheduledTrajectory(Trajectory):
