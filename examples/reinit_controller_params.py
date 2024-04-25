@@ -34,7 +34,8 @@ GP_LPV_LQR_params = {
         "frequency": 60.0,
         "num_of_inducing": 20,
         "forgetting_factor": 20,
-        "confidence": 0.9,
+        "confidence_level": 0.9,
+        "retrain_iter": 5,
         "batch_size": 5,
         "lat_gains" : {
             'k1': [0.00266,-0.0168,0.0368,0.0357],
@@ -58,7 +59,7 @@ vehicle_params = {
         'l_r': 0.168,
         'C_m1': 52.4282,
         'C_m2': 5.2465,
-        'C_m3': 1.1194,
+        'C_m3': 2.9194,
 }
 
 
