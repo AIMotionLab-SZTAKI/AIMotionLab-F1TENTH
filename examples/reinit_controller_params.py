@@ -16,6 +16,7 @@ x_r , y_r = traj.get_trajectory()
 
 # connect to the vehicle
 car_1 = F1Client("192.168.2.62", 8069)
+print(f"Connected to {car_1.car_ID}")
 
 # select the controller
 car_1.select_controller("GP_LPV_LQR")
