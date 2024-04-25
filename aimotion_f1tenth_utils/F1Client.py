@@ -7,6 +7,7 @@ import pygame
 import socket
 import pickle
 import struct
+import yaml
 
 import os
 import time
@@ -159,24 +160,40 @@ class F1Client:
                 running = False
 
 
-    def set_GP_type(self):
-        pass
+    def reinit_GP_LPV_LQR(self, vehicle_params, GP_LPV_LQR_params):
+        res = self.client.send({"command": "reinit_GP_LPV_LQR", 
+                                "GP_LPV_LQR_params": GP_LPV_LQR_params,
+                                "vehicle_params": vehicle_params})
+        if res["status"] == False:
+            raise Exception(f"Reinitialization failed: {res['error']}")
 
-    def set_GP_mode(self):
-        pass
 
-    def GP_train(self):
-        res = self.client.send({"command": "GP_train"})
+    def reinit_LPV_LQR_from_yaml(self, yaml_path):
+        # load yaml into dict
+        params = yaml.load(open(yaml_path, "r"), Loader=yaml.FullLoader)
+        res = self.client.send({"command": "reinit_LPV_LQR",
+                                "GP_LPV_LQR_params": params["GP_LPV_LQR_params"],
+                                "vehicle_params": params["vehicle_params"]})
+        if res["status"] == False:
+            raise Exception(f"Reinitialization failed: {res['error']}")
+
+
+    def GP_train(self, states = None, inputs = None, c = None, errors = None, random_seed = None):
+        if states is not None and inputs is not None and c is not None and errors is not None:
+            # TODO: check if all arrays have the same length
+            res = self.client.send({"command": "GP_train", 
+                                    "data": {"states": states, 
+                                             "inputs": inputs,
+                                             "c": c,
+                                             "errors": errors},
+                                    "seed": random_seed})
+        else:
+            res = self.client.send({"command": "GP_train",
+                                    "data": None})
         if res["status"] == False:
             raise Exception(f"Training failed: {res['error']}")
-
-    def GP_finetune(self):
-        pass
-
-    def GP_reset(self):
-        pass
-
-
-
-
-
+        
+    def GP_to_online(self):
+        res = self.client.send({"command": "GP_to_online"})
+        if res["status"] == False:
+            raise Exception(f"Could not switch to online mode: {res['error']}")
