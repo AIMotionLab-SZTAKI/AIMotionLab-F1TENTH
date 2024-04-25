@@ -1,18 +1,19 @@
 from setuptools import setup, find_packages
 
+
+
 setup(
     name='aimotion_f1tenth_utils',
     version='1.0.0',
-    description='Comminucation and scriptign layer for the F1TENTH fleet manager',
-    author='K. Floch',
-    author_email='flochkristof@sztaki.hu',
+    description='Communication and scripting layer for the F1TENTH fleet manager',
     packages=find_packages(),
     install_requires=[
         'numpy',
         'scipy',
         'matplotlib',
-    ],
-      entry_points = {
-        'console_scripts': ['trajectory_creator=aimotion_f1tenth_utils.traj_creator:main'],
-    },
+        'pygame',
+        'pyyaml',
+        'motioncapture==1.0a1; python_version<"3.10" and platform_system != "Darwin"',
+        'motioncapture==1.0a2; python_version>"3.9" and platform_system != "Darwin"',
+    ]
 )
