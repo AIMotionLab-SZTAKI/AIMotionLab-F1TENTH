@@ -60,7 +60,7 @@ vehicle_params = {
         'l_r': 0.168,
         'C_m1': 52.4282,
         'C_m2': 5.2465,
-        'C_m3': 2.9194,
+        'C_m3': 2.9194,# increase for comparison
 }
 
 

@@ -1,12 +1,13 @@
 from aimotion_f1tenth_utils.F1Client import F1Client
+from aimotion_f1tenth_utils.Trajectory import Trajectory
+import os
 import socket
 import time
 
 
 ## TODO: load the trajectory into traj
-# traj = Trajectory("paperclip")
-# traj.load(os.path.dirname(__file__)+"/"+"paperclip.traj")
-traj = None
+traj = Trajectory("paperclip")
+traj.load(os.path.dirname(__file__)+"/"+"paperclip.traj")
 
 # SKYBRUSH PARAMS
 skyrush_ip = "192.168.2.77"
