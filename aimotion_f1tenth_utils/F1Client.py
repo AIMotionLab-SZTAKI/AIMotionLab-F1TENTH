@@ -178,7 +178,14 @@ class F1Client:
             raise Exception(f"Reinitialization failed: {res['error']}")
 
 
-    def GP_train(self, states = None, inputs = None, c = None, errors = None, random_seed = None):
+    def GP_train(self,
+                 states = None,
+                 inputs = None,
+                 c = None,
+                 errors = None,
+                 random_seed = None,
+                 retrieve_training_data = False):
+        """Train the GPs"""
         if states is not None and inputs is not None and c is not None and errors is not None:
             # TODO: check if all arrays have the same length
             res = self.client.send({"command": "GP_train", 
@@ -186,12 +193,23 @@ class F1Client:
                                              "inputs": inputs,
                                              "c": c,
                                              "errors": errors},
-                                    "seed": random_seed})
+                                    "seed": random_seed, 
+                                    "retrieve_training_data": retrieve_training_data})
         else:
             res = self.client.send({"command": "GP_train",
-                                    "data": None})
+                                    "data": None,
+                                    "random_seed": random_seed,
+                                    "retrieve_training_data": retrieve_training_data})
         if res["status"] == False:
             raise Exception(f"Training failed: {res['error']}")
+        
+        if retrieve_training_data:
+            return res["training_data"] # ((lat_x, lat_y), (long_x, long_y))
+        
+    def GP_reset(self):
+        res = self.client.send({"command": "GP_reset"})
+        if res["status"] == False:
+            raise Exception(f"Could not reset GP: {res['error']}")
         
     def GP_to_online(self):
         res = self.client.send({"command": "GP_to_online"})
