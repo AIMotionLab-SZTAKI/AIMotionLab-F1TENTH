@@ -3,13 +3,14 @@ from aimotion_f1tenth_utils.communicaton.TCPClient import TCPClient
 from aimotion_f1tenth_utils.logger import get_logger
 from aimotion_f1tenth_utils.utils import CONTROLLER_MODE
 
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"  # Disable annoying welcome message :@
 import pygame
 import socket
 import pickle
 import struct
 import yaml
 
-import os
 import time
 
 
