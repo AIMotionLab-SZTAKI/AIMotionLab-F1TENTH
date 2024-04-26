@@ -153,8 +153,11 @@ vehicle_params = {
         'C_m3': 1.7,# increase for comparison
 }
 
-car_1.reinit_GP_LPV_LQR(vehicle_params=vehicle_params,
-                        GP_LPV_LQR_params=GP_LPV_LQR_params)
+#car_1.reinit_GP_LPV_LQR(vehicle_params=vehicle_params,
+#                        GP_LPV_LQR_params=GP_LPV_LQR_params)
+
+car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "trailer_control_params.yaml"))
+
 
 # select the controller
 car_1.select_controller("GP_LPV_LQR")

@@ -1,0 +1,52 @@
+GP_LPV_LQR_params:
+  GP_type: "SGP" # GRAD_SGP, RLS_SGP,
+  frequency: 60.0
+  num_of_inducing: 20
+  forgetting_factor: 20
+  confidence_level: 0.9
+  retrain_iter: 5
+  batch_size: 5
+  lat_gains:
+    k1: 
+    - 0.00127
+    - -0.00864
+    - 0.0192
+    - 0.0159
+    k2:
+    - 0.172
+    - -1.17
+    - 2.59
+    - 3.14
+    k3: 
+    - 0.00423
+    - 0.0948
+    - 0.463
+    - 0.00936
+    k1_r: 
+    - -0.0008
+    - 0.0442
+    - -1.2247
+    k2_r: 
+    - 0.0002
+    - 0.0191 
+    - 0.9531
+
+  long_gains:
+    k1: 
+    - 0.0001
+    - -0.0014
+    - 0.1908
+    k2: 
+    - -0.0025
+    - 0.0298 
+    - 0.0095
+
+vehicle_params:
+  m: 2.9
+  C_f: 41.7372
+  C_r: 29.4662
+  l_f: 0.163
+  l_r: 0.168
+  C_m1: 52.4282
+  C_m2: 5.2465
+  C_m3: 1.7# increase for comparison

@@ -10,9 +10,6 @@ import matplotlib as mpl
 
 from aimotion_f1tenth_utils.utils import TrajectoryBase
 
-#mpl.rcParams["text.usetex"] = True
-
-
 class Trajectory:
     def __init__(self, trajectory_ID) -> None:
         """Class implementation of BSpline-based trajectories for autonomous ground vehicles

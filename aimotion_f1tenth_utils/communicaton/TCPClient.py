@@ -30,7 +30,7 @@ class TCPClient:
 
 
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_socket.settimeout(5)
+        self.client_socket.settimeout(40)
         try:
             self.client_socket.connect((host, port))
             self.logger.info(f"Connected to {host}:{port}")

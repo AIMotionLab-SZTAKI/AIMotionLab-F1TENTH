@@ -69,7 +69,7 @@ class F1Client:
         if res["status"] == False:
             raise Exception(f"Could not set manual control: {res['error']}")
 
-    def keyboard_control(self, d_max: float = 0.75, delta_max: float = 0.5, frequency: float = 40):
+    def keyboard_control(self, d_max: float = 0.075, delta_max: float = 0.5, frequency: float = 40):
         
         pygame.init()
         screen = pygame.display.set_mode((200, 20))
@@ -171,12 +171,17 @@ class F1Client:
 
     def reinit_LPV_LQR_from_yaml(self, yaml_path):
         # load yaml into dict
-        params = yaml.load(open(yaml_path, "r"), Loader=yaml.FullLoader)
-        res = self.client.send({"command": "reinit_LPV_LQR",
+        with open(yaml_path, "r") as f:
+            params = yaml.safe_load(f)
+            print(params)
+            print(params["GP_LPV_LQR_params"])
+            print(params["vehicle_params"])
+            res = self.client.send({"command": "reinit_GP_LPV_LQR",
                                 "GP_LPV_LQR_params": params["GP_LPV_LQR_params"],
                                 "vehicle_params": params["vehicle_params"]})
         if res["status"] == False:
             raise Exception(f"Reinitialization failed: {res['error']}")
+
 
 
     def GP_train(self,
@@ -195,12 +200,12 @@ class F1Client:
                                              "c": c,
                                              "errors": errors},
                                     "seed": random_seed, 
-                                    "retrieve_training_data": retrieve_training_data})
+                                    "return_training_data": retrieve_training_data})
         else:
             res = self.client.send({"command": "GP_train",
                                     "data": None,
                                     "random_seed": random_seed,
-                                    "retrieve_training_data": retrieve_training_data})
+                                    "return_training_data": retrieve_training_data})
         if res["status"] == False:
             raise Exception(f"Training failed: {res['error']}")
         
