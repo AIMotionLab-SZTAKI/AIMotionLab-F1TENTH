@@ -15,7 +15,7 @@ train_velocities = [0.7, 1, 1.3]
 
 train_trajectories = [Trajectory(f"training_v_{v}") for v in train_velocities]
 t = np.linspace(0, 2*np.pi, 9)
-a = 2.8
+a = 2.9
 b = 1.4
 x = a * np.sin(t)
 y = b * np.sin(2*t)
@@ -25,6 +25,10 @@ for train_trajectory,v in zip(train_trajectories, train_velocities):
                                                    path_smoothing=0.001, 
                                                    path_degree=5, 
                                                    const_speed=v)
+    x,y,v,c = train_trajectory.get_trajectory()
+    plt.plot(c)
+    plt.show()
+    exit()
 
 # Design the validation trajectory
 test_trajectory = Trajectory("test")
@@ -47,7 +51,7 @@ for traj in train_trajectories:
     # block the script until the execution is finished
     car_1.wait_while_running()
 
-print("Treining trajectory executions finished finished training GPs")
+print("Training trajectory executions finished finished training GPs")
 training_data = car_1.GP_train(retrieve_training_data = True)
 
 lat_x = training_data[0][0]
@@ -82,7 +86,7 @@ plt.figure()
 x_r, y_r = train_trajectories[1].get_trajectory()
 plt.plot(x_r, y_r)
 plt.plot(states[:,0], states[:,1])
-plt.legend(["Reference", "Measurement"])
+plt.legend(["Reference", "Nominal", "Adaptive"])
 
 plt.figure()
 plt.plot(states)
