@@ -120,42 +120,6 @@ skybrush_port = 6001
 car_1 = F1Client("192.168.2.62", 8069)
 print(f"Connected to {car_1.car_ID}")
 
-GP_LPV_LQR_params = {
-        "GP_type": "SGP", # GRAD_SGP, RLS_SGP,
-        "frequency": 60.0,
-        "num_of_inducing": 20,
-        "forgetting_factor": 20,
-        "confidence_level": 0.9,
-        "retrain_iter": 5,
-        "batch_size": 5,
-        "lat_gains" : {
-            'k1': [0.00266,-0.0168,0.0368,0.0357],
-            'k2':  [0.0424, -0.268, 0.588, 0.57],
-            'k3': [0.00952, -0.109,0.469, 0.0322],
-            'k1_r': [-0.0008, 0.0442, -1.2247],
-            'k2_r': [-0.0002,0.0191,-0.9531]
-            },
-        "long_gains" :{
-            'k1': [0.0001, -0.0014, 0.0908],
-            'k2': [-0.0025, 0.0298, 0.0095]
-          }
-        }
-    
-
-vehicle_params = {
-        'm': 2.9,
-        'C_f': 41.7372,
-        'C_r': 29.4662,
-        'l_f': 0.163,
-        'l_r': 0.168,
-        'C_m1': 52.4282,
-        'C_m2': 5.2465,
-        'C_m3': 1.7,# increase for comparison
-}
-
-#car_1.reinit_GP_LPV_LQR(vehicle_params=vehicle_params,
-#                        GP_LPV_LQR_params=GP_LPV_LQR_params)
-
 car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "trailer_control_params.yaml"))
 
 
@@ -189,19 +153,19 @@ trailer_ang_vel = 0.0
 car_ang_vel = 0.0
 
 # wait for skybrush signal
-#try: # try to open demo port
-#    skybrush_client_socket=socket.socket()
-#    skybrush_client_socket.connect((skybrush_ip, skybrush_port))
-#except Exception as e:
-#    print(e)
-#    break
-#print("Waiting for Skybrush signal...")
-#
-#msg=skybrush_client_socket.recv(1024)
-#skybrush_client_socket.close()
-#
-#print(f"Waiting {float(msg)} to launch!")
-#time.sleep(float(msg))
+try: # try to open demo port
+    skybrush_client_socket=socket.socket()
+    skybrush_client_socket.connect((skybrush_ip, skybrush_port))
+except Exception as e:
+    print(e)
+    exit()
+print("Waiting for Skybrush signal...")
+
+msg=skybrush_client_socket.recv(1024)
+skybrush_client_socket.close()
+
+print(f"Waiting {float(msg)} to launch!")
+time.sleep(float(msg))
 
 # execute trajectory
 res = car_1.execute_trajectory(trajectory=traj)

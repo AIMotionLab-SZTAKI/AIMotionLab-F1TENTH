@@ -49,4 +49,4 @@ vehicle_params:
   l_r: 0.168
   C_m1: 52.4282
   C_m2: 5.2465
-  C_m3: 1.7# increase for comparison
+  C_m3: 1.7
