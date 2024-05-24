@@ -139,6 +139,13 @@ class F1Client:
         errors = res["errors"]
         return states, inputs, c, errors
     
+    def get_latest_inputs(self):
+        res = self.client.send({"command": "get_latest_inputs"})
+        if res["status"] == False:
+            raise Exception(f"Cannot retrieve logs: {res['error']}")
+        inputs = res["inputs"]
+        return inputs
+    
     def reset_state_logger(self):
         res = self.client.send({"command": "reset_logger"})
         if res["status"] == False:
@@ -173,9 +180,6 @@ class F1Client:
         # load yaml into dict
         with open(yaml_path, "r") as f:
             params = yaml.safe_load(f)
-            print(params)
-            print(params["GP_LPV_LQR_params"])
-            print(params["vehicle_params"])
             res = self.client.send({"command": "reinit_GP_LPV_LQR",
                                 "GP_LPV_LQR_params": params["GP_LPV_LQR_params"],
                                 "vehicle_params": params["vehicle_params"]})

@@ -22,3 +22,5 @@ class TrajectoryBase(ABC):
     @abstractmethod
     def set_trajectory(self, pos_tck: tuple, evol_tck: tuple, reversed: bool):
         pass
+
+

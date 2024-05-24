@@ -425,9 +425,61 @@ class Trajectory:
         s=splev(t_eval, self.evol_tck)
         v=splev(t_eval, self.evol_tck, der=1)
         (x,y)=splev(s, self.pos_tck)
-        return x, y
+        (x_, y_) = splev(s, self.pos_tck, der=1)
+        (x__,y__) = splev(s, self.pos_tck,der=2)
 
 
+        # calculate path curvature
+        c=-(x__*y_-x_*y__)/((x_**2+y_**2)**(3/2))
+        return x, y, v, c
+
+
+    def build_from_waypoints(self, path_points: np.ndarray, speed_points: np.ndarray, path_smoothing: float, path_degree: int, dt: float = 0.01):
+        """Object responsible for storing the reference trajectory data.
+
+        :param path_points: Reference points of the trajectory
+        :type path_points: np.ndarray
+        :param speed_points: Speed profile of the vehicle
+        :type speed_points: np.ndarray
+        :param path_smoothing: Smoothing factor used for the spline interpolation
+        :type path_smoothing: float
+        :param path_degree: Degree of the fitted Spline
+        :type path_degree: int
+        """
+        x_points = path_points[:, 0].tolist()
+        y_points = path_points[:, 1].tolist()
+
+        # fit spline and evaluate
+        tck, u, *_ = splprep([x_points, y_points], k=path_degree, s=path_smoothing)
+        XY=splev(u, tck)
+
+        # calculate arc length
+        def integrand(x):
+            dx, dy = splev(x, tck, der=1)
+            return np.sqrt(dx**2 + dy**2)
+        self.length, _ = quad(integrand, u[0], u[-1])
+
+        # build spline for the path parameter
+        self.pos_tck, _, *_ = splprep(XY, k=path_degree, s=0, u=np.linspace(0, self.length, len(XY[0])))
+
+        # build spline for the speed profile
+        speed_tck = splrep(np.linspace(0, self.length, len(speed_points)),speed_points, k=5, s=0)
+
+        s=0
+        s_array = [s]
+        t_array = [0]
+        while s < self.length:
+            speed = splev(s, speed_tck)
+            if speed < 0.1:
+                plt.plot(splev(s_array, speed_tck))
+                plt.show()
+                raise ValueError("Invalid sped profile!")
+            s+=speed*dt
+            s_array.append(s)
+            t_array.append(t_array[-1]+dt)
+
+        self.t_end = t_array[-1]
+        self.evol_tck = splrep(t_array,s_array, k=5, s=0)
 
 class ScheduledTrajectory(Trajectory):
     def __init__(self, trajectory_ID, t_start) -> None:
