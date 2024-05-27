@@ -1,17 +1,10 @@
 import paramiko
 import os
-from aimotion_fleet_manager.utils.install_utils import create_clients
 import time
 from pathlib import Path
 import yaml
-import PyQt5
-from ament_index_python.packages import get_package_share_directory
-from PyQt5.QtWidgets import *
 import shutil
-
 import os
-from PyQt5.QtCore import QThread
-
 
 
 import os
@@ -22,6 +15,8 @@ class FileTransporterSFTPClient(paramiko.SFTPClient):
     Subclass of SFTPClient to achieve directory transport
     """
     def put_dir(self, source, target):
+        """
+        Recursively upload a full directory structure"""
         
         for item in os.listdir(source):
             if item in ["install", "build", "log"]:
@@ -33,6 +28,16 @@ class FileTransporterSFTPClient(paramiko.SFTPClient):
                 self.put_dir(os.path.join(source, item), '%s/%s' % (target, item))
 
     def mkdir(self, path, mode=511, ignore_existing=False):
+        """Makes a directory on the remote host
+        
+        :param path: The path of the directory to create
+        :type path: str
+        :param mode: The permissions to set on the directory
+        :type mode: int
+        :param ignore_existing: Whether to ignore if the directory already exists
+        :type ignore_existing: bool
+        """
+
         try:
             super(FileTransporterSFTPClient, self).mkdir(path, mode)
         except IOError:
@@ -41,6 +46,11 @@ class FileTransporterSFTPClient(paramiko.SFTPClient):
             else:
                 raise
     def rmall(self,path):
+        """Recursively remove a directory tree on the remote host
+        
+        :param path: The path of the directory to remove
+        :type path: str
+        """
         try:
             files = self.listdir(path)
         except IOError:
@@ -60,10 +70,12 @@ def create_clients(IP_ADRESS, USERNAME, PASSWORD):
     """
     Helper function that creates the SSH and SFTP clients
     
-    Arguments:
-        - IP_ADRESS(str): Remote computer adress
-        - USERNAME(str): Remote computer login name
-        - PASSWORD(str): Remote login password
+    :param IP_ADRESS: The IP adress of the machine
+    :type IP_ADRESS: str
+    :param USERNAME: The username of the machine
+    :type USERNAME: str
+    :param PASSWORD: The password of the machine
+    :type PASSWORD: str
     """
     SSH_client=paramiko.SSHClient()
     SSH_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -79,10 +91,13 @@ def create_environment(ROS_MASTER_URI, IP_ADRESS, path):
     Helper function that creates a unique env.sh file for every machine during installation.
     The env.sh is later used to source the environment on remote launches.
 
-    Arguments:
-        - ROS_MASTER_URI: The IP adress & port of the ROS master
-        - IP_ADRESS: The IP adress of the machine where the environment will be sourced
-        - path: env.sh file path    
+    :param ROS_MASTER_URI: The ROS master URI
+    :type ROS_MASTER_URI: str
+    :param IP_ADRESS: The IP adress of the machine
+    :type IP_ADRESS: str
+    :param path: The path to the env.sh file
+    :type path: str
+
     """
 
     with open(path, 'w') as f:
@@ -95,8 +110,12 @@ def create_environment(ROS_MASTER_URI, IP_ADRESS, path):
 
 
 
-def install_onboard_stack(car_ID):
-    """TODO: description"""
+def install_onboard_stack(car_ID) -> None:
+    """Installs the onboard stack on the vehicle
+    
+    :param car_ID: The ID of the vehicle
+    :type car_ID: str
+    """
 
     config_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "configs")
     target_path = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), 
@@ -150,8 +169,3 @@ def install_onboard_stack(car_ID):
             
     SSH_client.close()
     SFTP_client.close()
-
-
-# install_onboard_stack("JoeBush1")
-
-        

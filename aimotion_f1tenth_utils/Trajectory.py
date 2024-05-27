@@ -13,6 +13,9 @@ from aimotion_f1tenth_utils.utils import TrajectoryBase
 class Trajectory:
     def __init__(self, trajectory_ID) -> None:
         """Class implementation of BSpline-based trajectories for autonomous ground vehicles
+
+        :param trajectory_ID: Unique identifier of the trajectory
+        :type trajectory_ID: str
         """
         self.trajectory_ID = trajectory_ID 
         self.output = {}
@@ -25,7 +28,10 @@ class Trajectory:
 
 
 
-    def build_from_points_const_speed(self, path_points: np.ndarray, path_smoothing: float, path_degree: int, const_speed: float):
+    def build_from_points_const_speed(self, path_points: np.ndarray,
+                                      path_smoothing: float,
+                                      path_degree: int,
+                                      const_speed: float) -> None:
         """Builds a trajectory using a set of reference waypoints and a constant referecne velocity
 
         :param path_points: Reference points of the trajectory
@@ -72,7 +78,10 @@ class Trajectory:
         self.evol_tck = splrep(t_evol,s_evol, k=1, s=0) # NOTE: This is completely overkill for constant veloctities but can be easily adjusted for more complex speed profiles
 
 
-    def build_from_points_smooth_const_speed(self, path_points: np.ndarray, path_smoothing: float, path_degree: int, virtual_speed: float):
+    def build_from_points_smooth_const_speed(self, path_points: np.ndarray,
+                                             path_smoothing: float,
+                                             path_degree: int,
+                                             virtual_speed: float) -> None:
         """Builds a trajectory using a set of reference waypoints and a virtual reference velocity with smoothed start and end reference
 
         :param path_points: Reference points of the trajectory
@@ -126,8 +135,11 @@ class Trajectory:
 
 
 
-    def export_to_time_dependent(self):
-        """Exports the trajectory to a time dependent representation
+    def export_to_time_dependent(self) -> tuple:
+        """Exports the trajectory to a time dependent representation, i.e. x,y = Path(t)
+
+        :return: The time dependent representation of the trajectory
+        :rtype: tuple
         """
         t_eval=np.linspace(0, self.t_end, 100)
         
@@ -139,12 +151,19 @@ class Trajectory:
         return tck
         
 
-    def to_send(self):
-        """Returns the trajectory data in a format that can be sent to the server"""
+    def to_send(self) -> tuple:
+        """Returns the trajectory data in a format that can be sent to the server
+        
+        :return: The trajectory data
+        :rtype: tuple
+        """
         
         return self.pos_tck, self.evol_tck
 
-    def _project_to_closest(self, pos: np.ndarray, param_estimate: float, projetion_window: float, projection_step: float) -> float:
+    def _project_to_closest(self, pos: np.ndarray,
+                            param_estimate: float,
+                            projetion_window: float,
+                            projection_step: float) -> float:
         """Projects the vehicle position onto the ginven path and returns the path parameter.
            The path parameter is the curvilinear abscissa along the path as the Bspline that represents the path is arc length parameterized
 
@@ -181,8 +200,14 @@ class Trajectory:
         return floored + indx * projection_step
     
 
-    def draw_from_waypoints(self, x_lims=[-2.5,2.5], y_lims=[-3,3]):
-        """description"""
+    def draw_from_waypoints(self, x_lims=[-2.5,2.5], y_lims=[-3,3]) -> None:
+        """Opens a plot window and allows the user to draw a trajectory by clicking on the plot
+        
+        :param x_lims: X-axis limits of the plot
+        :type x_lims: list
+        :param y_lims: Y-axis limits of the plot
+        :type y_lims: list
+        """
         clicked_points=[]
         
         def onclick(event):
@@ -290,9 +315,10 @@ class Trajectory:
 
         return self.output
     
-    def save(self, dir_path):
+    def save(self, dir_path) -> None:
         """Saves the trajectory file in a binary format at the predefined location
         :param file_path: the path to sve the file
+        :type file_path: str
         """
         
 
@@ -304,8 +330,12 @@ class Trajectory:
             pickle.dump(obj=traj_data, file=f)
 
 
-    def load(self, file_path):
-        """Loads the trajectory class from .traj files"""
+    def load(self, file_path) -> None:
+        """Loads the trajectory class from .traj files
+        
+        :param file_path: The path to the file
+        :type file_path: str
+        """
         
         try:
             self.trajectory_ID=Path(file_path).stem
@@ -415,7 +445,15 @@ class Trajectory:
         plt.tight_layout()
         plt.show(block=block)
     
-    def get_trajectory(self):
+    def get_trajectory(self) -> tuple:
+        """Returns the evaluated trajectory data:
+        x, y : The x and y coordinates of the vehicle
+        v : The reference velocity
+        c : The curvature of the path
+        
+        :return: The trajectory data (x,y,v,c)
+        :rtype: tuple
+        """
         if self.pos_tck is None or self.evol_tck is None: # check if data has already been provided
             raise ValueError("No Spline trajectory is specified!")
         
@@ -434,8 +472,12 @@ class Trajectory:
         return x, y, v, c
 
 
-    def build_from_waypoints(self, path_points: np.ndarray, speed_points: np.ndarray, path_smoothing: float, path_degree: int, dt: float = 0.01):
-        """Object responsible for storing the reference trajectory data.
+    def build_from_waypoints(self, path_points: np.ndarray,
+                             speed_points: np.ndarray,
+                             path_smoothing: float,
+                             path_degree: int,
+                             dt: float = 0.01) -> None:
+        """Builds a trajectory using a set of reference waypoints and a speed profile
 
         :param path_points: Reference points of the trajectory
         :type path_points: np.ndarray
@@ -480,26 +522,6 @@ class Trajectory:
 
         self.t_end = t_array[-1]
         self.evol_tck = splrep(t_array,s_array, k=5, s=0)
-
-class ScheduledTrajectory(Trajectory):
-    def __init__(self, trajectory_ID, t_start) -> None:
-        """Class implementation of a scheduled trajectory for autonomous ground vehicles
-
-        :param trajectory_ID: Unique identifier of the trajectory
-        :type trajectory_ID: str
-        :param t_start: Starting time of the trajectory, i.e. the scheduler
-        :type t_start: float
-        """
-        
-
-        super().__init__(trajectory_ID)
-        self.t_start = t_start
-
-
-def load_trajectory_from_file(file_path):
-    traj = Trajectory("_temp_")
-    traj.load(file_path=file_path)
-    return traj
 
 
 if __name__ == "__main__":
