@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>aimotion_f1tenth_utils.Trajectory &#8212; aimotion_f1tenth_utils 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for aimotion_f1tenth_utils.Trajectory</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">splprep</span><span class="p">,</span> <span class="n">splev</span><span class="p">,</span> <span class="n">splrep</span>
+<span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">quad</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+
+<span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.utils</span> <span class="kn">import</span> <span class="n">TrajectoryBase</span>
+
+<div class="viewcode-block" id="Trajectory">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory">[docs]</a>
+<span class="k">class</span> <span class="nc">Trajectory</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trajectory_ID</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Class implementation of BSpline-based trajectories for autonomous ground vehicles</span>
+
+<span class="sd">        :param trajectory_ID: Unique identifier of the trajectory</span>
+<span class="sd">        :type trajectory_ID: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trajectory_ID</span> <span class="o">=</span> <span class="n">trajectory_ID</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reversed</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+
+
+<div class="viewcode-block" id="Trajectory.build_from_points_const_speed">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.build_from_points_const_speed">[docs]</a>
+    <span class="k">def</span> <span class="nf">build_from_points_const_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                      <span class="n">path_smoothing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                                      <span class="n">path_degree</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                                      <span class="n">const_speed</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Builds a trajectory using a set of reference waypoints and a constant referecne velocity</span>
+
+<span class="sd">        :param path_points: Reference points of the trajectory</span>
+<span class="sd">        :type path_points: np.ndarray</span>
+<span class="sd">        :param path_smoothing: Smoothing factor used for the spline interpolation</span>
+<span class="sd">        :type path_smoothing: float</span>
+<span class="sd">        :param path_degree: Degree of the fitted Spline</span>
+<span class="sd">        :type path_degree: int</span>
+<span class="sd">        :param const_speed: Constant speed of the vehicle</span>
+<span class="sd">        :type const_speed: float</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># handle negative speeds (reversing motion)</span>
+        <span class="k">if</span> <span class="n">const_speed</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">const_speed</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">const_speed</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reversed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reversed</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+        <span class="n">x_points</span> <span class="o">=</span> <span class="n">path_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">y_points</span> <span class="o">=</span> <span class="n">path_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># fit spline and evaluate</span>
+        <span class="n">tck</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">splprep</span><span class="p">([</span><span class="n">x_points</span><span class="p">,</span> <span class="n">y_points</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="n">path_degree</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">path_smoothing</span><span class="p">)</span>
+        <span class="n">XY</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">tck</span><span class="p">)</span>
+
+        <span class="c1"># calculate arc length</span>
+        <span class="k">def</span> <span class="nf">integrand</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">quad</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># build spline for the path parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">splprep</span><span class="p">(</span><span class="n">XY</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">path_degree</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">XY</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+
+        <span class="c1"># build constant speed profile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">/</span> <span class="n">const_speed</span>
+
+        <span class="n">t_evol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+        <span class="n">s_evol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span> <span class="o">=</span> <span class="n">splrep</span><span class="p">(</span><span class="n">t_evol</span><span class="p">,</span><span class="n">s_evol</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># NOTE: This is completely overkill for constant veloctities but can be easily adjusted for more complex speed profiles</span></div>
+
+
+
+<div class="viewcode-block" id="Trajectory.build_from_points_smooth_const_speed">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.build_from_points_smooth_const_speed">[docs]</a>
+    <span class="k">def</span> <span class="nf">build_from_points_smooth_const_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                             <span class="n">path_smoothing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                                             <span class="n">path_degree</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                                             <span class="n">virtual_speed</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Builds a trajectory using a set of reference waypoints and a virtual reference velocity with smoothed start and end reference</span>
+
+<span class="sd">        :param path_points: Reference points of the trajectory</span>
+<span class="sd">        :type path_points: np.ndarray</span>
+<span class="sd">        :param path_smoothing: Smoothing factor used for the spline interpolation</span>
+<span class="sd">        :type path_smoothing: float</span>
+<span class="sd">        :param path_degree: Degree of the fitted Spline</span>
+<span class="sd">        :type path_degree: int</span>
+<span class="sd">        :param virtual_speed: The virtual constant speed for the vehicle. In practice the designer smoothens the start and end of the trajectory</span>
+<span class="sd">        :type virsual_speed: float</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># handle negative speeds (reversing motion)</span>
+        <span class="k">if</span> <span class="n">virtual_speed</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">virtual_speed</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">virtual_speed</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reversed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reversed</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+        <span class="n">x_points</span> <span class="o">=</span> <span class="n">path_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">y_points</span> <span class="o">=</span> <span class="n">path_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># fit spline and evaluate</span>
+        <span class="n">tck</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">splprep</span><span class="p">([</span><span class="n">x_points</span><span class="p">,</span> <span class="n">y_points</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="n">path_degree</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">path_smoothing</span><span class="p">)</span>
+        <span class="n">XY</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">tck</span><span class="p">)</span>
+
+        <span class="c1"># calculate arc length</span>
+        <span class="k">def</span> <span class="nf">integrand</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">quad</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># build spline for the path parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">splprep</span><span class="p">(</span><span class="n">XY</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">path_degree</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">XY</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+
+        <span class="c1"># calculate travel time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">/</span> <span class="n">virtual_speed</span>
+
+        
+        <span class="c1"># construct third order s(t) poly, then refit it with splines</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="o">**</span><span class="mi">3</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="o">**</span><span class="mi">2</span><span class="p">]]))</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">],[</span><span class="mi">0</span><span class="p">]])</span>
+
+
+        <span class="n">t_evol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+        <span class="n">s_evol</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">t_evol</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">t_evol</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">t_evol</span><span class="o">**</span><span class="mi">3</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span> <span class="o">=</span> <span class="n">splrep</span><span class="p">(</span><span class="n">t_evol</span><span class="p">,</span><span class="n">s_evol</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="Trajectory.export_to_time_dependent">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.export_to_time_dependent">[docs]</a>
+    <span class="k">def</span> <span class="nf">export_to_time_dependent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exports the trajectory to a time dependent representation, i.e. x,y = Path(t)</span>
+
+<span class="sd">        :return: The time dependent representation of the trajectory</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t_eval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        
+        <span class="n">s</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">t_eval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">)</span>
+
+        <span class="n">tck</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">splprep</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">t_eval</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tck</span></div>
+
+        
+
+<div class="viewcode-block" id="Trajectory.to_send">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.to_send">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_send</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the trajectory data in a format that can be sent to the server</span>
+<span class="sd">        </span>
+<span class="sd">        :return: The trajectory data</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_project_to_closest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                            <span class="n">param_estimate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                            <span class="n">projetion_window</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                            <span class="n">projection_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Projects the vehicle position onto the ginven path and returns the path parameter.</span>
+<span class="sd">           The path parameter is the curvilinear abscissa along the path as the Bspline that represents the path is arc length parameterized</span>
+
+<span class="sd">           </span>
+<span class="sd">        :param pos: Vehicle x,y position</span>
+<span class="sd">        :type pos: np.ndarray</span>
+<span class="sd">        :param param_estimate: Estimated value of the path parameter</span>
+<span class="sd">        :type param_estimate: float</span>
+<span class="sd">        :param projetion_window: Length of the projection window along the path</span>
+<span class="sd">        :type projetion_window: float</span>
+<span class="sd">        :param projection_step: Precision of the projection in the window</span>
+<span class="sd">        :type projection_step: float</span>
+<span class="sd">        :return: The path parameter</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        
+        <span class="c1"># calulate the endpoints of the projection window</span>
+        <span class="n">floored</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clamp</span><span class="p">(</span><span class="n">param_estimate</span> <span class="o">-</span> <span class="n">projetion_window</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_bounds</span><span class="p">)</span>
+        <span class="n">ceiled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clamp</span><span class="p">(</span><span class="n">param_estimate</span> <span class="o">+</span> <span class="n">projetion_window</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_bounds</span><span class="p">)</span>
+
+
+        <span class="c1"># create a grid on the window with the given precision</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">floored</span><span class="p">,</span> <span class="n">ceiled</span><span class="p">,</span> <span class="nb">round</span><span class="p">((</span><span class="n">ceiled</span> <span class="o">-</span> <span class="n">floored</span><span class="p">)</span> <span class="o">/</span> <span class="n">projection_step</span><span class="p">))</span>
+
+
+        <span class="c1"># evaluate the path at each instance</span>
+        <span class="n">path_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">splev</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c1"># find &amp; return the closest points</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">path_points</span> <span class="o">-</span> <span class="n">pos</span>
+        <span class="n">indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">deltas</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">floored</span> <span class="o">+</span> <span class="n">indx</span> <span class="o">*</span> <span class="n">projection_step</span>
+    
+
+<div class="viewcode-block" id="Trajectory.draw_from_waypoints">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.draw_from_waypoints">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_from_waypoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_lims</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span><span class="mf">2.5</span><span class="p">],</span> <span class="n">y_lims</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Opens a plot window and allows the user to draw a trajectory by clicking on the plot</span>
+<span class="sd">        </span>
+<span class="sd">        :param x_lims: X-axis limits of the plot</span>
+<span class="sd">        :type x_lims: list</span>
+<span class="sd">        :param y_lims: Y-axis limits of the plot</span>
+<span class="sd">        :type y_lims: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">clicked_points</span><span class="o">=</span><span class="p">[]</span>
+        
+        <span class="k">def</span> <span class="nf">onclick</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+        <span class="c1"># Check if the click event occurred within the plot area</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Append the clicked point to the global list</span>
+                <span class="n">clicked_points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">])</span>
+                <span class="c1"># Display the clicked points</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clicked points: </span><span class="si">{</span><span class="n">clicked_points</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Plot the clicked points</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">clicked_points</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+        <span class="c1"># Create a figure and axis</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+        <span class="c1"># Set up the click event handler</span>
+        <span class="n">cid</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s1">&#39;button_press_event&#39;</span><span class="p">,</span> <span class="n">onclick</span><span class="p">)</span>
+
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_lims</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_lims</span><span class="p">)</span>
+
+
+        <span class="c1"># Display the plot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">clicked_points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Select at least two points&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+    
+        <span class="n">input_data</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter speed (m/s): &quot;</span><span class="p">))</span>
+
+        <span class="k">while</span> <span class="nb">type</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">float</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">input_data</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter speed (m/s): &quot;</span><span class="p">))</span>
+
+        <span class="n">speed</span> <span class="o">=</span> <span class="n">input_data</span>
+
+        <span class="k">if</span> <span class="n">speed</span> <span class="o">&gt;</span> <span class="mf">2.5</span><span class="p">:</span>
+            <span class="n">speed</span> <span class="o">=</span> <span class="mf">2.5</span>
+        <span class="k">if</span> <span class="n">speed</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">2.5</span><span class="p">:</span>
+            <span class="n">speed</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.5</span>
+
+    
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_from_points_smooth_const_speed</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">clicked_points</span><span class="p">),</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">speed</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Trajectory.evaluate">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.evaluate">[docs]</a>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">control_step</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluates the trajectory based on the vehicle state &amp; time</span>
+<span class="sd">        </span>
+<span class="sd">        :param state: Vehicle state</span>
+<span class="sd">        :type state: dict</span>
+<span class="sd">        :param i: Iterator valiable only used by the simulator</span>
+<span class="sd">        :type i: int</span>
+<span class="sd">        :param time: Current time</span>
+<span class="sd">        :type time: float</span>
+<span class="sd">        :param control_step: he step of the controller</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># check if data has already been provided</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Trajectory must be defined before evaluation&quot;</span><span class="p">)</span>
+        
+        <span class="n">pos</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;pos_x&quot;</span><span class="p">],</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;pos_y&quot;</span><span class="p">]])</span>
+
+        <span class="c1"># get the path parameter (position along the path)</span>
+        <span class="n">s_est</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">+</span><span class="nb">float</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;long_vel&quot;</span><span class="p">])</span><span class="o">*</span><span class="n">control_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_project_to_closest</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">param_estimate</span><span class="o">=</span><span class="n">s_est</span><span class="p">,</span> <span class="n">projetion_window</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">projection_step</span><span class="o">=</span><span class="mf">0.005</span><span class="p">)</span> <span class="c1"># the projection parameters cound be refined/not hardcoded</span>
+
+        <span class="c1"># check if the retrievd is satisfies the boundary constraints &amp; the path is not completed</span>
+        <span class="k">if</span> <span class="n">time</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="p">:</span> <span class="c1"># substraction is required because of the projection step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="s2">&quot;running&quot;</span><span class="p">]</span><span class="o">=</span><span class="kc">False</span> <span class="c1"># stop the controller</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="s2">&quot;running&quot;</span><span class="p">]</span><span class="o">=</span> <span class="kc">True</span> <span class="c1"># the goal has not been reached, evaluate the trajectory</span>
+
+        <span class="c1"># get path data at the parameter s</span>
+        <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">)</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">x__</span><span class="p">,</span><span class="n">y__</span><span class="p">)</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">,</span><span class="n">der</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># calculate base vectors of the moving coordinate frame</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x_</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">y_</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_</span><span class="o">**</span><span class="mi">2</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="n">z0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">y_</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">x_</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_</span><span class="o">**</span><span class="mi">2</span><span class="p">)]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># calculate path curvature</span>
+        <span class="n">c</span><span class="o">=</span><span class="nb">abs</span><span class="p">(</span><span class="n">x__</span><span class="o">*</span><span class="n">y_</span><span class="o">-</span><span class="n">x_</span><span class="o">*</span><span class="n">y__</span><span class="p">)</span><span class="o">/</span><span class="p">((</span><span class="n">x_</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">y_</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># get speed reference</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s_ref</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span><span class="p">)</span>
+        <span class="n">v_ref</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="s2">&quot;ref_pos&quot;</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="s2">&quot;s0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">s0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="s2">&quot;z0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">z0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="s2">&quot;s_ref&quot;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">s_ref</span> <span class="c1"># might be more effective if output[&quot;s&quot;] &amp; self.s are combined</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="s2">&quot;v_ref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_ref</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span></div>
+
+    
+<div class="viewcode-block" id="Trajectory.save">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dir_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves the trajectory file in a binary format at the predefined location</span>
+<span class="sd">        :param file_path: the path to sve the file</span>
+<span class="sd">        :type file_path: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+
+        <span class="n">traj_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pos_tck&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">,</span>
+                        <span class="s2">&quot;evol_tck&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span><span class="p">,</span>
+                        <span class="s2">&quot;reversed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reversed</span><span class="p">}</span>
+        
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trajectory_ID</span><span class="o">+</span><span class="s2">&quot;.traj&quot;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">traj_data</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Trajectory.load">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.load">[docs]</a>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads the trajectory class from .traj files</span>
+<span class="sd">        </span>
+<span class="sd">        :param file_path: The path to the file</span>
+<span class="sd">        :type file_path: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trajectory_ID</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+        
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">traj_data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span> <span class="o">=</span> <span class="n">traj_data</span><span class="p">[</span><span class="s2">&quot;pos_tck&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span> <span class="o">=</span> <span class="n">traj_data</span><span class="p">[</span><span class="s2">&quot;evol_tck&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span> <span class="o">=</span> <span class="n">traj_data</span><span class="p">[</span><span class="s2">&quot;evol_tck&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">traj_data</span><span class="p">[</span><span class="s2">&quot;pos_tck&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reversed</span> <span class="o">=</span> <span class="n">traj_data</span><span class="p">[</span><span class="s2">&quot;reversed&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannor load trajectory file, the file format is invalid&quot;</span><span class="p">)</span></div>
+
+
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_clamp</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span><span class="nb">int</span><span class="p">],</span> <span class="n">bound</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">,</span><span class="nb">list</span><span class="p">,</span><span class="nb">tuple</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function that clamps the given value with the specified bounds</span>
+
+<span class="sd">        </span>
+<span class="sd">        :param value: The value to clamp</span>
+<span class="sd">        :type value: Union[float,int]</span>
+<span class="sd">        :param bound: If int | float the function constrains the value into [-bound,bound]</span>
+<span class="sd">                      If tuple| list | np.ndarray the value is constained into the range of [bound[0],bound[1]]</span>
+<span class="sd">        :type bound: Union[int,float,list,tuple,np.ndarray]</span>
+<span class="sd">        :return: The clamped value</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">bound</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="n">bound</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="n">bound</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">bound</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">bound</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">bound</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="n">bound</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">bound</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_normalize</span><span class="p">(</span><span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalizes the given angle into the [-pi/2, pi/2] range</span>
+
+<span class="sd">        :param angle: Input angle</span>
+<span class="sd">        :type angle: float</span>
+<span class="sd">        :return: Normalized angle</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="n">angle</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span>
+            <span class="n">angle</span> <span class="o">-=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="k">while</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span>
+            <span class="n">angle</span> <span class="o">+=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+        <span class="k">return</span> <span class="n">angle</span>
+    
+<div class="viewcode-block" id="Trajectory.plot_trajectory">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.plot_trajectory">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Plots, the defined path of the trajectory in the X-Y plane. Nota, that this function interrupts the main thread and the simulator!</span>
+
+<span class="sd">        :param block: If True, the function blocks the main thread until the plot is closed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># check if data has already been provided</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No Spline trajectory is specified!&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># evaluate the path between the bounds and plot</span>
+        <span class="n">t_eval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        
+        <span class="n">s</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">t_eval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span><span class="p">)</span>
+        <span class="n">v</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">t_eval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">)</span>
+        
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot_mosaic</span><span class="p">(</span><span class="s2">&quot;AB;CC;DD;EE&quot;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_eval</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;t [s]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;x [m]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;X coordinate&quot;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_eval</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;t [s]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y [m]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Y coordinate&quot;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;x [m]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y [m]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;X-Y trajectory&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;D&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_eval</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;D&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;t [s]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;D&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;s [m]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;D&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Path parameter&quot;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_eval</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;t [s]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;v [m/s]&quot;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Reference velocity&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="Trajectory.get_trajectory">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.get_trajectory">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the evaluated trajectory data:</span>
+<span class="sd">        x, y : The x and y coordinates of the vehicle</span>
+<span class="sd">        v : The reference velocity</span>
+<span class="sd">        c : The curvature of the path</span>
+<span class="sd">        </span>
+<span class="sd">        :return: The trajectory data (x,y,v,c)</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># check if data has already been provided</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No Spline trajectory is specified!&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># evaluate the path between the bounds and plot</span>
+        <span class="n">t_eval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        
+        <span class="n">s</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">t_eval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span><span class="p">)</span>
+        <span class="n">v</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">t_eval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">)</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">x__</span><span class="p">,</span><span class="n">y__</span><span class="p">)</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">,</span><span class="n">der</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+
+        <span class="c1"># calculate path curvature</span>
+        <span class="n">c</span><span class="o">=-</span><span class="p">(</span><span class="n">x__</span><span class="o">*</span><span class="n">y_</span><span class="o">-</span><span class="n">x_</span><span class="o">*</span><span class="n">y__</span><span class="p">)</span><span class="o">/</span><span class="p">((</span><span class="n">x_</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">y_</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span></div>
+
+
+
+<div class="viewcode-block" id="Trajectory.build_from_waypoints">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.Trajectory.Trajectory.build_from_waypoints">[docs]</a>
+    <span class="k">def</span> <span class="nf">build_from_waypoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                             <span class="n">speed_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                             <span class="n">path_smoothing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                             <span class="n">path_degree</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                             <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Builds a trajectory using a set of reference waypoints and a speed profile</span>
+
+<span class="sd">        :param path_points: Reference points of the trajectory</span>
+<span class="sd">        :type path_points: np.ndarray</span>
+<span class="sd">        :param speed_points: Speed profile of the vehicle</span>
+<span class="sd">        :type speed_points: np.ndarray</span>
+<span class="sd">        :param path_smoothing: Smoothing factor used for the spline interpolation</span>
+<span class="sd">        :type path_smoothing: float</span>
+<span class="sd">        :param path_degree: Degree of the fitted Spline</span>
+<span class="sd">        :type path_degree: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x_points</span> <span class="o">=</span> <span class="n">path_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">y_points</span> <span class="o">=</span> <span class="n">path_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># fit spline and evaluate</span>
+        <span class="n">tck</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">splprep</span><span class="p">([</span><span class="n">x_points</span><span class="p">,</span> <span class="n">y_points</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="n">path_degree</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">path_smoothing</span><span class="p">)</span>
+        <span class="n">XY</span><span class="o">=</span><span class="n">splev</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">tck</span><span class="p">)</span>
+
+        <span class="c1"># calculate arc length</span>
+        <span class="k">def</span> <span class="nf">integrand</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">quad</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># build spline for the path parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_tck</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">splprep</span><span class="p">(</span><span class="n">XY</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">path_degree</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">XY</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+
+        <span class="c1"># build spline for the speed profile</span>
+        <span class="n">speed_tck</span> <span class="o">=</span> <span class="n">splrep</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">speed_points</span><span class="p">)),</span><span class="n">speed_points</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">s</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">s_array</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">]</span>
+        <span class="n">t_array</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">while</span> <span class="n">s</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+            <span class="n">speed</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">speed_tck</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">speed</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">splev</span><span class="p">(</span><span class="n">s_array</span><span class="p">,</span> <span class="n">speed_tck</span><span class="p">))</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid sped profile!&quot;</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">+=</span><span class="n">speed</span><span class="o">*</span><span class="n">dt</span>
+            <span class="n">s_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">t_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">dt</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_end</span> <span class="o">=</span> <span class="n">t_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evol_tck</span> <span class="o">=</span> <span class="n">splrep</span><span class="p">(</span><span class="n">t_array</span><span class="p">,</span><span class="n">s_array</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple test for the trajectory class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">traj</span><span class="o">=</span><span class="n">Trajectory</span><span class="p">(</span><span class="s2">&quot;traj_1&quot;</span><span class="p">)</span>
+
+    <span class="n">theta</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">path_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="mi">5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">traj</span><span class="o">.</span><span class="n">build_from_points_const_speed</span><span class="p">(</span><span class="n">path_points</span><span class="o">=</span><span class="n">path_points</span><span class="p">,</span> <span class="n">path_smoothing</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">path_degree</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">const_speed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">traj</span><span class="o">.</span><span class="n">plot_trajectory</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">aimotion_f1tenth_utils</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, AiMotionLab SZTAKI.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
