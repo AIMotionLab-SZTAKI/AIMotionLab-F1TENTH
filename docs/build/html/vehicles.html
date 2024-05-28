@@ -34,7 +34,26 @@
             
   <section id="working-with-the-vehicles">
 <h1>Working with the vehicles<a class="headerlink" href="#working-with-the-vehicles" title="Link to this heading">¶</a></h1>
-<p>This page details how to start up the vehicles and launch their onboard software stack.</p>
+<section id="adding-a-new-vehicle-to-the-framework">
+<h2>Adding a new vehicle to the framework<a class="headerlink" href="#adding-a-new-vehicle-to-the-framework" title="Link to this heading">¶</a></h2>
+<p>To add a new vehicle to the framework, first setup an F1TENTH platform as described in the <a class="reference internal" href="hardware_architecture.html"><span class="doc">Hardware documentation</span></a>.
+Then, retrieve the following propoerties of the vehicle:
+- IP address
+- Username
+- Password</p>
+<p>With the above information, create a login config file in the <cite>configs</cite> folder. The file should be named <cite>car_ID_login.yaml</cite>. The structure of the file should follow the provided template titled <cite>Template_login.yaml</cite>.
+After the login config, create a new parameter file in the <cite>configs</cite> folder. The file should be named <cite>car_ID_params.yaml</cite>. The structure of the file should follow the provided template titled <cite>Template_params.yaml</cite>.
+Note that these parameters will be used as default, when the vehicle is launched. The parameters can be changed during runtime using the Python API.</p>
+<p>If the configs are ready and the vehicle is connected to the network, the onboard stack can be installed with the following script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.install</span> <span class="kn">import</span> <span class="n">install_onboard_stack</span>
+
+<span class="n">install_onboard_stack</span><span class="p">(</span><span class="s1">&#39;car_ID&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the installation might take a couple of minutes.</p>
+</section>
+<section id="launching-the-vehicles">
+<h2>Launching the vehicles<a class="headerlink" href="#launching-the-vehicles" title="Link to this heading">¶</a></h2>
 <ol class="arabic">
 <li><p><strong>Connect the two plugs of the battery</strong>:</p>
 <img alt="plug1" src="_images/plug1.png" />
@@ -47,12 +66,14 @@
 </ol>
 <p>3. <strong>Connect to the vehicle via SSH and launch the onboard software stack</strong>:
 The username, IP address, and password information can be found in the <code class="docutils literal notranslate"><span class="pre">car_ID_login.yaml</span></code> file in the configs folder.
-The SSH connection can be established by the provided startup script:</p>
+After the SSH connection is established with the vehicle, run the following commands to launch the vehicle:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./lauch_vehicle.sh<span class="w"> </span>-u<span class="w"> </span>vehicle_username<span class="w"> </span>-i<span class="w"> </span>vehicle_ip_address<span class="w"> </span>-p<span class="w"> </span>vehicle_password
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>aimotion_f1tenth_system
+<span class="nb">source</span><span class="w"> </span>startup_framework.sh
 </pre></div>
 </div>
 </div></blockquote>
+</section>
 </section>
 
 
@@ -75,7 +96,11 @@ The SSH connection can be established by the provided startup script:</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="hardware_architecture.html">Lab architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_install.html">Software installation and setup instructions</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Working with the vehicles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Working with the vehicles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#adding-a-new-vehicle-to-the-framework">Adding a new vehicle to the framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#launching-the-vehicles">Launching the vehicles</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="using_the_api.html">Control the vehicles by the Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/modules.html">aimotion_f1tenth_utils</a></li>
 </ul>

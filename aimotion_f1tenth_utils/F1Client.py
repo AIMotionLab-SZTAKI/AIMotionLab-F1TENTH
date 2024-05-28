@@ -12,25 +12,46 @@ import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"  # Disable annoying welcome message :@
 
 class F1Client:
-    def __init__(self, host, port) -> None:
+    def __init__(self, car_ID= None, host = None, port = 8000) -> None:
         """TCP-based client for commuication with an F1TENTH vehicle
         
+        :param car_ID: The ID of the vehicle
         :param host: IP address of the car
         :type host: str
         :param port: Port of the car
         :type port: int
 
         :raises Exception: If the connection to the car could not be established
+        :raises Exception: If neither the ID nor the host and port are provided
 
         """
-        self.host = host
+        if car_ID is None and (host is None or port is None):
+            raise Exception("Either the car_ID or the host and port must be provided!")
+
+        if car_ID is not None and host is None: # the car_ID is provided, read the host from the config file
+            self.car_ID = car_ID
+            config_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "configs")
+            login_config_path = os.path.join(config_folder, f"{car_ID}_login.yaml")
+
+            with open(login_config_path, "r") as f:
+                config_data = yaml.safe_load(f)
+                self.host = config_data["IP"]
+
+        elif car_ID is None and host is not None: # the host is provided, read the car_ID from the config file
+            self.host = host
+
+        else:
+            raise Exception("Either the car_ID or the host and port must be provided!")
+        
+        
         self.port = port
         self.client = TCPClient()
 
         if not self.client.connect(host, port):
             raise Exception(f"Could not connect to {host}:{port}")
         
-        self.car_ID = self._get_ID()
+        if self.car_ID is None:
+            self.car_ID = self._get_ID()
        
         
     def _get_ID(self) -> str:

@@ -1,4 +1,4 @@
-Welcome to the documentation fo the F1TENTH project at AiMotionLab SZTAKI!
+Welcome to the documentation of the F1TENTH project at AiMotionLab SZTAKI!
 ===================================================================================
 
 Introduction
@@ -6,7 +6,7 @@ Introduction
 
 
 
-This is the documentation for the F1TENTH project at AiMotionLab SZTAKI. The main purpose of this documentation id to give
+This is the documentation for the F1TENTH project at AiMotionLab SZTAKI. The main purpose of this documentation is to give
 an overview of the project and to provide a guide for the users on how to set up and interact with the F1TENTH vehicle of the lab.
 
 Contents
@@ -23,8 +23,7 @@ Contents
 
 TODO:
 -----
-- Document mocap PC crazymocap setup
-- add images
+
 - docuemnt python api and add Examples
 - clean up the repo
 

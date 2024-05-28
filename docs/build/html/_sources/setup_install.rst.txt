@@ -25,9 +25,50 @@ As the Command PC runs a standalone Python package, the setup is straightforward
     .. code-block:: bash
 
         pip install -e .
-        
-F1TENTH vehicle
----------------
+
+MoCap server setup
+------------------
+
+1. **Motive setup**: In order to use the MoCap-based state estimator fot the vehicle the followign steps are necessary:
+
+   - Define a `RigidBody` in Motive corresponding to the marker configuration on the vehicle
+   - Make sure that the ID of the `RigidBody` mathces the ID of the vehicle
+   - Retrieve the IP address of the MoCap server machine
+
+2. **Crazymocap setup**:
+   - Install the `crazymocap` Python package from GitHub:
+   
+   .. code-block:: bash
+   
+      git clone https://github.com/AIMotionLab-SZTAKI/crazymocap.git
+      cd crazymocap
+      pip install -e .
+
+   - To stream MoCap data to the vehicle, the `RadioStreamer` class can be used as follows:
+   
+   .. code-block:: python
+   
+      from crazymocap.radio_streamer import RadioStreamer
+      import traceback
+   
+      streamer = RadioStreamer(devid=0, ip='mocap_server_ip', object_name='car_ID')
+      try:
+         while True:
+            streamer.send_pose()
+      except Exception as e:
+         print(f"Exception: {e!r}. Trackeback:")
+         print(traceback.format_exc())
+         streamer.close()
+
+   .. note::
+      This script is only capable of streaming the pose data of a single vehicle defined by the `object_name` parameter. 
+      For multiple vehicles, multiple instances of the `RadioStreamer` class should be created, each with a different `object_name` parameter. 
+      Furthermore, one radio is only capable of handling a single connection, so multi-vehicle configurations require multiple Crazyradio dongles.
+      Use the `devid` parameter to differentiate between the Crazyradio dongles. 
+
+
+F1TENTH vehicle setup
+----------------------
 
 1. **Prerequisites**:
 
@@ -37,7 +78,8 @@ F1TENTH vehicle
    .. note::
       The official F1TENTH onboard software stack is not required as the framework uses its own custom onboard software.
 
-2. **Configure the platform**: This can be most conveniently done by plugging a monitor and keyboard into the onboard computer, but can also be done via ssh.
+2. **Configure the platform**: This can be most conveniently done by plugging a monitor and keyboard into the onboard computer, but ssh is also an option.
+
    - Connect the F1TENTH vehicle to the local network. Be sure to check the IP address of the vehicle as it will be required later.
    - Configure ``udev`` rules for the VESC motor controller:
    
@@ -51,16 +93,16 @@ F1TENTH vehicle
 
      .. code-block:: bash
 
-        $ sudo udevadm control --reload-rules
-        $ sudo udevadm trigger
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger
 
    - Install the Python packages required for building the software environment of the onboard stack:
 
      .. code-block:: bash
 
-        $ sudo apt install python3-pip
-        $ sudo apt install build-essential libssl-dev libffi-dev python-dev
-        $ sudo apt install numpy pyyaml gpytorch casadi scipy matplotlib
+        sudo apt install python3-pip
+        sudo apt install build-essential libssl-dev libffi-dev python-dev
+        sudo apt install numpy pyyaml gpytorch casadi scipy matplotlib
 
    - Configure USB permissions for the Crazyradio as described `here <https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/>`_
 
@@ -69,4 +111,4 @@ F1TENTH vehicle
 
      .. code-block:: bash
 
-        $ usb-devices
+        usb-devices
