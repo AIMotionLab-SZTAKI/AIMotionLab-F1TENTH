@@ -190,11 +190,11 @@ class StateLogger:
                                   v_xi=state[3],
                                   v_eta=state[4],
                                   omega=state[5],
-                                  c=setpoint["c"],
-                                  s_err=errors[2],
-                                  v_err=errors[3],
-                                  e=errors[0],
-                                  theta_e=errors[1],
+                                  c=setpoint["c"],  
+                                  s_err=errors[2], # s_err: longitudinal / lag error
+                                  v_err=errors[3], # NaN
+                                  e=errors[0], # contouring error
+                                  theta_e=errors[1], # heading
                                   d=u[0],
                                   delta=u[1]))
 

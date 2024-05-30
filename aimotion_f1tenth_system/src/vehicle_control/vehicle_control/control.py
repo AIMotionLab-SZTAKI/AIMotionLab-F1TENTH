@@ -40,8 +40,24 @@ class LoaderNode(Node):
 
                 #TODO
                 # include the parameters of any other controller implemented
-                
+                # TODO:declare MPCC params
 
+                # MPCC params
+                ('controllers.MPCC.N', rclpy.Parameter.Type.INTEGER),
+                ('controllers.MPCC.Tf', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.q_con', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.q_long', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.q_theta', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.q_d', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.q_delta', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.delta_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.d_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.d_min', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.ddot_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.deltadot_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.thetahatdot_min', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.thetahatdot_max', rclpy.Parameter.Type.DOUBLE),
+                
                 # vehicle params
                 ('vehicle_params.C_m1' ,rclpy.Parameter.Type.DOUBLE),
                 ('vehicle_params.C_m2' ,rclpy.Parameter.Type.DOUBLE),
@@ -50,7 +66,8 @@ class LoaderNode(Node):
                 ('vehicle_params.C_f' ,rclpy.Parameter.Type.DOUBLE),
                 ('vehicle_params.C_r' ,rclpy.Parameter.Type.DOUBLE),
                 ('vehicle_params.l_f' ,rclpy.Parameter.Type.DOUBLE),
-                ('vehicle_params.l_r' ,rclpy.Parameter.Type.DOUBLE)
+                ('vehicle_params.l_r' ,rclpy.Parameter.Type.DOUBLE),
+                ('vehicle_params.I_z' ,rclpy.Parameter.Type.DOUBLE)
             ]
         )
         
@@ -96,7 +113,22 @@ def main():
 
           }
         }
-    
+    MPCC_params = {
+        "N": loader.get_parameter("controllers.MPCC.N").value,
+        "Tf": loader.get_parameter("controllers.MPCC.Tf").value,
+        "q_con": loader.get_parameter("controllers.MPCC.q_con").value,
+        "q_long": loader.get_parameter("controllers.MPCC.q_long").value,
+        "q_theta": loader.get_parameter("controllers.MPCC.q_theta").value,
+        "q_d": loader.get_parameter("controllers.MPCC.q_d").value,
+        "q_delta": loader.get_parameter("controllers.MPCC.q_delta").value,
+        "delta_max": loader.get_parameter("controllers.MPCC.delta_max").value,
+        "d_max": loader.get_parameter("controllers.MPCC.d_max").value,
+        "d_min": loader.get_parameter("controllers.MPCC.d_min").value,
+        "ddot_max": loader.get_parameter("controllers.MPCC.ddot_max").value,
+        "deltadot_max": loader.get_parameter("controllers.MPCC.deltadot_max").value,
+        "thetahatdot_min": loader.get_parameter("controllers.MPCC.thetahatdot_min").value,
+        "thetahatdot_max": loader.get_parameter("controllers.MPCC.thetahatdot_max").value,
+    }
     # TODO: collect params into dict and pass to tha manager as kwargs
 
 
@@ -110,6 +142,7 @@ def main():
         'C_m1': loader.get_parameter("vehicle_params.C_m1").value,
         'C_m2': loader.get_parameter("vehicle_params.C_m2").value,
         'C_m3': loader.get_parameter("vehicle_params.C_m3").value,
+        'I_z': loader.get_parameter("vehicle_params.I_z").value,
 
     }
 
@@ -124,7 +157,8 @@ def main():
                            TCP_params = TCP_params,
                            vehicle_params = vehicle_params,
                            LPV_LQR_params=LPV_LQR_params,
-                           GP_LPV_LQR_params=GP_LPV_LQR_params)
+                           GP_LPV_LQR_params=GP_LPV_LQR_params,
+                           MPCC_params = MPCC_params)
     try:
         rclpy.spin(manager)
     except Exception:

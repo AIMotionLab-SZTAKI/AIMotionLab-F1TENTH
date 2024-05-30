@@ -6,6 +6,21 @@ class Controller(ABC):
     def compute_control(self, state: np.ndarray, setpoint: dict, t:float) -> np.ndarray:
         pass
 
+    @abstractmethod
+    def set_trajectory(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def train_GP_controllers(self, *args, **kwargs):
+        pass
+    
+    @abstractmethod
+    def reset(self):
+        pass
+
+    @abstractmethod
+    def set_trajectory(self, *args,**kwargs):
+        pass
 
 def normalize(angle):
     """

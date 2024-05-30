@@ -5,10 +5,9 @@ import numpy as np
 import torch
 import threading
 from .utils import Controller, init_GP_LPV_LQR, CONTROLLER_MODE, Trajectory, state2array, StateLogger
-from .controllers.utils import normalize
-from typing import Dict
-
+from .controllers.utils import normalize, Controller
 from .TCPServer import TCPServer
+from .controllers.MPCC_controller import MPCC_Controller
 
 class ControlManager(Node):
     def __init__(self, car_ID: str, TCP_params: dict, **kwargs):
@@ -21,7 +20,7 @@ class ControlManager(Node):
         """
         super().__init__(car_ID + "_control_manager")
         self.car_ID : str = car_ID
-        self.controllers = {}
+        self.controllers : dict[Controller] = {}
         self.MODE = CONTROLLER_MODE.PROCESSING
 
         # setup tcp server for communication
@@ -37,8 +36,13 @@ class ControlManager(Node):
 
         # TODO: implement other comtroller initializations in utils and call it here
 
+        if "MPCC_params" in kwargs:
+            controller = MPCC_Controller(vehicle_params= kwargs["vehicle_params"],
+                                         MPCC_params= kwargs["MPCC_params"])
+            self.controllers["MPCC"] = controller
+            
         # declare controllers
-        self.active_controller = None
+        self.active_controller: Controller = None
         self.current_trajectory = Trajectory()
 
         # logger
@@ -246,7 +250,7 @@ class ControlManager(Node):
         try:
             self.active_controller.reset()
         except:
-            pass # might be beneficial to gie feedback
+            pass # might be beneficial to give feedback
         self.MODE = CONTROLLER_MODE.IDLE
 
     def _execute_trajectory(self, trajectory: dict):
@@ -265,6 +269,16 @@ class ControlManager(Node):
         self.current_trajectory.set_trajectory(trajectory["pos_tck"],
                                                trajectory["evol_tck"],
                                                trajectory["reversed"])
+
+
+        if self.active_controller == self.controllers["MPCC"]:
+            x0 = self.current_state
+            x0[3] = 0.001 #To calculate the initial guess the car has to be moving
+            self.active_controller.set_trajectory(pos_tck = trajectory["pos_tck"],
+                                                    evol_tck = trajectory["evol_tck"],
+                                                    x0 = x0,
+                                                    theta_start = 0.01) #The class will convert the tck into its own trajectory format
+
 
         # check if the trajectory is valid
         setpoint = self.current_trajectory.evaluate(self.current_state, 0)
@@ -333,7 +347,7 @@ class ControlManager(Node):
         # publish the control input
         self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
         
-        print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}")
+        print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
     
     def _get_time(self):
         """Get the current time in seconds that is elapsed since t0"""

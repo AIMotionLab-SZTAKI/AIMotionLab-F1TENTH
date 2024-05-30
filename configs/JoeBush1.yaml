@@ -15,6 +15,7 @@ parameter_server:
       C_m2: 5.2465
       C_m3: 1.1194
       m: 2.9
+      I_z: 0.0796 # [kg m^2]
 
     controllers:
       LPV_LQR:
@@ -44,6 +45,7 @@ parameter_server:
           - 0.469
           - 0.0322
         LONGITUDINAL_CONTROL_GAINS:
+
           k1:
           - 0.0001
           - -0.0014
@@ -52,6 +54,28 @@ parameter_server:
           - -0.0025
           - 0.0298
           - 0.0095
+      MPCC:
+        #Input constraints
+        delta_max: 0.5 # [rad]
+        d_max: 0.25
+        d_min: 0.05       
+
+        #Incremental input constraints        
+
+        ddot_max: 1000.0
+        deltadot_max: 1000.0
+        thetahatdot_min: 0.001
+        thetahatdot_max: 5.0
+
+        #Optimisation parameters:
+        N: 50 #number of shooting nodes
+        Tf: 2.0 #[s] time lenght of the opt. horizon
+        #Cost weights:
+        q_con: 50.0 
+        q_long: 30.0
+        q_theta: 3.0
+        q_d: 0.1
+        q_delta: 0.7
 
       GP_LPV_LQR:
         GP_TYPE: "RLS_SGP" # GRAD_SGP, RLS_SGP

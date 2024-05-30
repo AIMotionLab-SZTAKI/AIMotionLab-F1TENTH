@@ -3,7 +3,7 @@ from glob import glob
 import os
 
 package_name = 'vehicle_control'
-packages = [package_name, package_name + "/" + "submodules", package_name + "/" + "controllers", package_name + "/" + "GP"]
+packages = [package_name, package_name + "/" + "submodules", package_name + "/" + "controllers", package_name + "/" + "GP", package_name + "/" + "controllers", package_name + "/" + "MPCC"]
 setup(
     name=package_name,
     version='0.0.0',
