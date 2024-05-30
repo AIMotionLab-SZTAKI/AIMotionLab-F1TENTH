@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Software installation and setup instructions &#8212; AiMotionLab - F1TENTH 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Working with the vehicles" href="vehicles.html" />
+    <link rel="prev" title="Lab architecture" href="hardware_architecture.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="software-installation-and-setup-instructions">
+<h1>Software installation and setup instructions<a class="headerlink" href="#software-installation-and-setup-instructions" title="Link to this heading">¶</a></h1>
+<p>This page guides users through the full installation and setup procedure of the framework on all the hardware components outlined in the <a class="reference internal" href="hardware_architecture.html"><span class="doc">Lab architecture</span></a> section of the documentation.</p>
+<section id="command-pc-setup">
+<h2>Command PC setup<a class="headerlink" href="#command-pc-setup" title="Link to this heading">¶</a></h2>
+<p>As the Command PC runs a standalone Python package, the setup is straightforward via pip:</p>
+<ol class="arabic">
+<li><dl>
+<dt><strong>Download the f1tenth_r2 framework from GitHub</strong>:</dt><dd><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/AIMotionLab-SZTAKI/f1tenth_r2
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><strong>Create a virtual environment and activate it</strong>:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>f1tenth_r2
+python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><strong>Install the Python package as an editable</strong>:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="mocap-server-setup">
+<h2>MoCap server setup<a class="headerlink" href="#mocap-server-setup" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Motive setup</strong>: In order to use the MoCap-based state estimator fot the vehicle the followign steps are necessary:</p>
+<ul class="simple">
+<li><p>Define a <cite>RigidBody</cite> in Motive corresponding to the marker configuration on the vehicle</p></li>
+<li><p>Make sure that the ID of the <cite>RigidBody</cite> mathces the ID of the vehicle</p></li>
+<li><p>Retrieve the IP address of the MoCap server machine</p></li>
+</ul>
+</li>
+<li><p><strong>Crazymocap setup</strong>:
+- Install the <cite>crazymocap</cite> Python package from GitHub:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/AIMotionLab-SZTAKI/crazymocap.git
+<span class="nb">cd</span><span class="w"> </span>crazymocap
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>To stream MoCap data to the vehicle, the <cite>RadioStreamer</cite> class can be used as follows:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">crazymocap.radio_streamer</span> <span class="kn">import</span> <span class="n">RadioStreamer</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+<span class="n">streamer</span> <span class="o">=</span> <span class="n">RadioStreamer</span><span class="p">(</span><span class="n">devid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ip</span><span class="o">=</span><span class="s1">&#39;mocap_server_ip&#39;</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="s1">&#39;car_ID&#39;</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+   <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+      <span class="n">streamer</span><span class="o">.</span><span class="n">send_pose</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exception: </span><span class="si">{</span><span class="n">e</span><span class="si">!r}</span><span class="s2">. Trackeback:&quot;</span><span class="p">)</span>
+   <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+   <span class="n">streamer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This script is only capable of streaming the pose data of a single vehicle defined by the <cite>object_name</cite> parameter.
+For multiple vehicles, multiple instances of the <cite>RadioStreamer</cite> class should be created, each with a different <cite>object_name</cite> parameter.
+Furthermore, one radio is only capable of handling a single connection, so multi-vehicle configurations require multiple Crazyradio dongles.
+Use the <cite>devid</cite> parameter to differentiate between the Crazyradio dongles.</p>
+</div>
+</li>
+</ol>
+</section>
+<section id="f1tenth-vehicle-setup">
+<h2>F1TENTH vehicle setup<a class="headerlink" href="#f1tenth-vehicle-setup" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Prerequisites</strong>:</p>
+<ul class="simple">
+<li><p>A fully built F1TENTH vehicle</p></li>
+<li><p>A working installation of ROS2 Foxy</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The official F1TENTH onboard software stack is not required as the framework uses its own custom onboard software.</p>
+</div>
+</li>
+<li><p><strong>Configure the platform</strong>: This can be most conveniently done by plugging a monitor and keyboard into the onboard computer, but ssh is also an option.</p>
+<ul>
+<li><p>Connect the F1TENTH vehicle to the local network. Be sure to check the IP address of the vehicle as it will be required later.</p></li>
+<li><p>Configure <code class="docutils literal notranslate"><span class="pre">udev</span></code> rules for the VESC motor controller:</p>
+<p>Open <code class="docutils literal notranslate"><span class="pre">/etc/udev/rules.d/99-vesc.rules</span></code> as the root user and copy and paste the following rule for the VESC into the file:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>KERNEL==&quot;ttyACM[0-9]*&quot;, ACTION==&quot;add&quot;, ATTRS{idVendor}==&quot;0483&quot;, ATTRS{idProduct}==&quot;5740&quot;, MODE=&quot;0666&quot;, GROUP=&quot;dialout&quot;, SYMLINK+=&quot;sensors/vesc&quot;
+</pre></div>
+</div>
+<p>Finally, trigger (activate) the rule by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>udevadm<span class="w"> </span>control<span class="w"> </span>--reload-rules
+sudo<span class="w"> </span>udevadm<span class="w"> </span>trigger
+</pre></div>
+</div>
+</li>
+<li><p>Install the Python packages required for building the software environment of the onboard stack:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-pip
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>build-essential<span class="w"> </span>libssl-dev<span class="w"> </span>libffi-dev<span class="w"> </span>python-dev
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>pyyaml<span class="w"> </span>gpytorch<span class="w"> </span>casadi<span class="w"> </span>scipy<span class="w"> </span>matplotlib
+</pre></div>
+</div>
+</li>
+<li><p>Configure USB permissions for the Crazyradio as described <a class="reference external" href="https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/">here</a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<blockquote>
+<div><p>USB configuration and permissions can be checked by listing the connected USB devices:</p>
+</div></blockquote>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usb-devices
+</pre></div>
+</div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AiMotionLab - F1TENTH</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="hardware_architecture.html">Lab architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Software installation and setup instructions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#command-pc-setup">Command PC setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mocap-server-setup">MoCap server setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#f1tenth-vehicle-setup">F1TENTH vehicle setup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vehicles.html">Working with the vehicles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using_the_api.html">Control the vehicles by the Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/modules.html">aimotion_f1tenth_utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="hardware_architecture.html" title="previous chapter">Lab architecture</a></li>
+      <li>Next: <a href="vehicles.html" title="next chapter">Working with the vehicles</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, AiMotionLab SZTAKI.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/setup_install.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

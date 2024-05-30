@@ -313,7 +313,7 @@ def null_paperclip():
 
                        1.3,
                        1.1,
-                       9,
+                       .9,
                        .8,
                         .7,
                        .7,
@@ -329,10 +329,47 @@ def null_paperclip():
                        )
     return points,vel
     
+def train8(v=1):
+    points = np.array([[0,0],
+                       [0.37,0.41],
+                       [1*np.cos(-np.pi/4), 1.5+np.sin(-np.pi/4)],
+                        [1*np.cos(np.pi/8), 1.5+np.sin(-np.pi/8)],
+                       [1, 1.5],
+                       [1*np.cos(np.pi/8), 1.5+np.sin(np.pi/8)],
+                       [1*np.cos(np.pi/4), 1.5+np.sin(np.pi/4)],
+                        [1*np.cos(3*np.pi/8), 1.5+np.sin(3*np.pi/8)],
+                       [0, 2.5],
+                        [1*np.cos(5*np.pi/8), 1.5+np.sin(5*np.pi/8)],
+                       [1*np.cos(6*np.pi/8), 1.5+np.sin(6*np.pi/8)],
+                        [1*np.cos(7*np.pi/8), 1.5+np.sin(7*np.pi/8)],
+                        [-1, 1.5],
+                        [1*np.cos(9*np.pi/8), 1.5+np.sin(9*np.pi/8)],
+                       [1*np.cos(10*np.pi/8), 1.5+np.sin(10*np.pi/8)],
+                                              [-0.37,0.41],
+                       [0,0],
+                                              [0.37,-0.41],
+                       [1*np.cos(np.pi/4), -1.5+np.sin(np.pi/4)],
+                        [1*np.cos(np.pi/8), -1.5+np.sin(np.pi/8)],
+                       [1,-1.5],
+                       [1*np.cos(-np.pi/8), -1.5+np.sin(-np.pi/8)],
+                       [1*np.cos(-np.pi/4), -1.5+np.sin(-np.pi/4)],
+                        [1*np.cos(-3*np.pi/8), -1.5+np.sin(-3*np.pi/8)],
+                       [0,-2.5],
+                        [1*np.cos(-5*np.pi/8), -1.5+np.sin(-5*np.pi/8)],
+                       [1*np.cos(-6*np.pi/8), -1.5+np.sin(-6*np.pi/8)],
+                        [1*np.cos(-7*np.pi/8), -1.5+np.sin(-7*np.pi/8)],
+                       [-1,-1.5],
+                        [1*np.cos(-9*np.pi/8), -1.5+np.sin(-9*np.pi/8)],
+                        [1*np.cos(-10*np.pi/8), -1.5+np.sin(-10*np.pi/8)],
+                                               [-0.37,-0.41],
+                       [0,0]])
+    vel = v*np.ones([points.shape[0], 1])
+    return points, vel
+
 
 if __name__=="__main__":
     import matplotlib.pyplot as plt
-    path, V = null_paperclip()
+    path, V = train8()
     print(path)
     plt.plot(path[:,0], path[:,1])
     plt.scatter(path[:,0], path[:,1])

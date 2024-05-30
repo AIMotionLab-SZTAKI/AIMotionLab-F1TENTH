@@ -1,13 +1,13 @@
 import os
 from aimotion_f1tenth_utils.F1Client import F1Client
 from aimotion_f1tenth_utils.utils import CONTROLLER_MODE
-from trajectory_generators import null_infty, eight, null_paperclip
+from trajectory_generators import null_infty, eight, null_paperclip, train8
 from aimotion_f1tenth_utils.Trajectory import Trajectory
 import matplotlib as mpl
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-
+import pickle
 mpl.rcParams["text.usetex"] = False 
 
 # Design / load the trajectory
@@ -16,22 +16,17 @@ traj = Trajectory(trajectory_ID=traj_ID) # create the trajetory object
 traj.load(os.path.dirname(__file__)+"/"+traj_ID+".traj")
 
 #traj.plot_trajectory()
-path, v= null_paperclip()
-
+path, v = null_paperclip()
 traj.build_from_waypoints(path, v, 0, 5)
-x_r , y_r, v_r, c_r = traj.get_trajectory(1000)
-plt.plot(x_r, y_r)
-plt.figure()
-plt.plot(c_r)
+#traj.plot_trajectory()
+x_r, y_r, *_ = traj.get_trajectory()
 
-plt.show()
-traj.plot_trajectory()
 # connect to the vehicle
 car_1 = F1Client("192.168.2.62", 8069)
 print(f"Connected to {car_1.car_ID}")
 
 GP_LPV_LQR_params = {
-        "GP_type": "SGP", # GRAD_SGP, RLS_SGP,
+        "GP_type": "RLS", # GRAD_SGP, RLS_SGP,
         "frequency": 60.0,
         "num_of_inducing": 20,
         "forgetting_factor": 20,
@@ -53,7 +48,7 @@ GP_LPV_LQR_params = {
     
 
 vehicle_params = {
-        'm': 2.9,
+        'm': 3.151,
         'C_f': 41.7372,
         'C_r': 29.4662,
         'l_f': 0.163,
@@ -65,10 +60,15 @@ vehicle_params = {
 
 # select the controller
 car_1.select_controller("GP_LPV_LQR")
-car_1.reinit_GP_LPV_LQR(vehicle_params=vehicle_params, GP_LPV_LQR_params=GP_LPV_LQR_params)
-#car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "trailer_control_params.yaml"))
-car_1.reset_state_logger()
+#car_1.reinit_GP_LPV_LQR(vehicle_params=vehicle_params, GP_LPV_LQR_params=GP_LPV_LQR_params)
+car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "GP_control_params.yaml"))
+#car_1.reset_state_logger()
+#car_1.GP_reset()
+#car_1.GP_to_online()
+
 car_1.set_mode(CONTROLLER_MODE.IDLE)
+car_1.reset_controller()
+car_1.reset_state_logger()
 
 # execute_trajectory
 car_1.execute_trajectory(trajectory=traj)
@@ -84,14 +84,22 @@ plt.plot(x_r, y_r)
 plt.plot(states1[:,0], states1[:,1])
 plt.legend(["Reference", "Measurement1"])
 
-fig, axs = plt.subplots(2, 1)
-axs[0].plot(errors1)
+plt.figure()
+plt.plot(errors1)
 plt.legend(["lateral", "heading", "long", "velocity"])
 
 plt.figure()
 plt.plot(inputs1)
 
-plt.figure()
-plt.plot(c1)
 plt.show()
 
+res = {
+    "states": states1,
+    "inputs": inputs1,
+    "errors": errors1, 
+    "ref": [x_r, y_r]
+}
+
+
+with open("result_good.pickle", "wb") as f:
+    pickle.dump(res, f)

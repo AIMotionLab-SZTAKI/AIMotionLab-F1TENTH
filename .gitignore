@@ -2,6 +2,10 @@ __pycache__
 venv/
 *.egg-info
 /examples/logs
+<<<<<<< HEAD
 logs/
 
 TRAILER_tutorial.md
+=======
+.DS_Store
+>>>>>>> 78f571e17e68cf9f5ea83ac3d267d457952f3293

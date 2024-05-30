@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>aimotion_f1tenth_utils.install &#8212; AiMotionLab - F1TENTH 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for aimotion_f1tenth_utils.install</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">paramiko</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">paramiko</span>
+
+<div class="viewcode-block" id="FileTransporterSFTPClient">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.install.FileTransporterSFTPClient">[docs]</a>
+<span class="k">class</span> <span class="nc">FileTransporterSFTPClient</span><span class="p">(</span><span class="n">paramiko</span><span class="o">.</span><span class="n">SFTPClient</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of SFTPClient to achieve directory transport</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FileTransporterSFTPClient.put_dir">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.install.FileTransporterSFTPClient.put_dir">[docs]</a>
+    <span class="k">def</span> <span class="nf">put_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recursively upload a full directory structure&quot;&quot;&quot;</span>
+        
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">item</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">item</span><span class="p">),</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">item</span><span class="p">),</span> <span class="n">ignore_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">put_dir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">item</span><span class="p">),</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="FileTransporterSFTPClient.mkdir">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.install.FileTransporterSFTPClient.mkdir">[docs]</a>
+    <span class="k">def</span> <span class="nf">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">511</span><span class="p">,</span> <span class="n">ignore_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Makes a directory on the remote host</span>
+<span class="sd">        </span>
+<span class="sd">        :param path: The path of the directory to create</span>
+<span class="sd">        :type path: str</span>
+<span class="sd">        :param mode: The permissions to set on the directory</span>
+<span class="sd">        :type mode: int</span>
+<span class="sd">        :param ignore_existing: Whether to ignore if the directory already exists</span>
+<span class="sd">        :type ignore_existing: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">FileTransporterSFTPClient</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ignore_existing</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span></div>
+
+<div class="viewcode-block" id="FileTransporterSFTPClient.rmall">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.install.FileTransporterSFTPClient.rmall">[docs]</a>
+    <span class="k">def</span> <span class="nf">rmall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively remove a directory tree on the remote host</span>
+<span class="sd">        </span>
+<span class="sd">        :param path: The path of the directory to remove</span>
+<span class="sd">        :type path: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rmall</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+</div>
+
+
+
+
+
+<div class="viewcode-block" id="create_clients">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.install.create_clients">[docs]</a>
+<span class="k">def</span> <span class="nf">create_clients</span><span class="p">(</span><span class="n">IP_ADRESS</span><span class="p">,</span> <span class="n">USERNAME</span><span class="p">,</span> <span class="n">PASSWORD</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function that creates the SSH and SFTP clients</span>
+<span class="sd">    </span>
+<span class="sd">    :param IP_ADRESS: The IP adress of the machine</span>
+<span class="sd">    :type IP_ADRESS: str</span>
+<span class="sd">    :param USERNAME: The username of the machine</span>
+<span class="sd">    :type USERNAME: str</span>
+<span class="sd">    :param PASSWORD: The password of the machine</span>
+<span class="sd">    :type PASSWORD: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">SSH_client</span><span class="o">=</span><span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="p">()</span>
+    <span class="n">SSH_client</span><span class="o">.</span><span class="n">set_missing_host_key_policy</span><span class="p">(</span><span class="n">paramiko</span><span class="o">.</span><span class="n">AutoAddPolicy</span><span class="p">())</span>
+    <span class="n">SSH_client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">IP_ADRESS</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">PASSWORD</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="c1"># get transport &amp; open </span>
+
+    <span class="n">transport</span><span class="o">=</span><span class="n">SSH_client</span><span class="o">.</span><span class="n">get_transport</span><span class="p">()</span>
+    <span class="n">SFTP_client</span><span class="o">=</span><span class="n">FileTransporterSFTPClient</span><span class="o">.</span><span class="n">from_transport</span><span class="p">(</span><span class="n">transport</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">SSH_client</span><span class="p">,</span> <span class="n">SFTP_client</span></div>
+
+
+<div class="viewcode-block" id="create_environment">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.install.create_environment">[docs]</a>
+<span class="k">def</span> <span class="nf">create_environment</span><span class="p">(</span><span class="n">ROS_MASTER_URI</span><span class="p">,</span> <span class="n">IP_ADRESS</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function that creates a unique env.sh file for every machine during installation.</span>
+<span class="sd">    The env.sh is later used to source the environment on remote launches.</span>
+
+<span class="sd">    :param ROS_MASTER_URI: The ROS master URI</span>
+<span class="sd">    :type ROS_MASTER_URI: str</span>
+<span class="sd">    :param IP_ADRESS: The IP adress of the machine</span>
+<span class="sd">    :type IP_ADRESS: str</span>
+<span class="sd">    :param path: The path to the env.sh file</span>
+<span class="sd">    :type path: str</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="c1"># source environment/workspace</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#! /usr/bin/env bash</span><span class="se">\n</span><span class="s1">source /opt/ros/melodic/setup.bash</span><span class="se">\n</span><span class="s1">source $( cd -- &quot;$( dirname --&quot;$</span><span class="si">{BASH_SOURCE[0]}</span><span class="s1">&quot; )&quot; &amp;&gt; /dev/null &amp;&amp; pwd )/aimotion-f1tenth-system/devel/setup.bash</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># add environment variables</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;export ROS_MASTER_URI=&quot;</span><span class="si">{</span><span class="n">ROS_MASTER_URI</span><span class="si">}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">export ROS_IP=</span><span class="si">{</span><span class="n">IP_ADRESS</span><span class="si">}</span><span class="se">\n</span><span class="s1">exec &quot;$@&quot;&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="install_onboard_stack">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.install.install_onboard_stack">[docs]</a>
+<span class="k">def</span> <span class="nf">install_onboard_stack</span><span class="p">(</span><span class="n">car_ID</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Installs the onboard stack on the vehicle</span>
+<span class="sd">    </span>
+<span class="sd">    :param car_ID: The ID of the vehicle</span>
+<span class="sd">    :type car_ID: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;configs&quot;</span><span class="p">)</span>
+    <span class="n">target_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> 
+                                              <span class="s2">&quot;aimotion_f1tenth_system&quot;</span><span class="p">),</span> 
+                                              <span class="s2">&quot;src&quot;</span><span class="p">),</span>
+                                              <span class="s2">&quot;param_server&quot;</span><span class="p">),</span>
+                                              <span class="s2">&quot;config&quot;</span><span class="p">),</span>
+                                              <span class="s2">&quot;param.yaml&quot;</span><span class="p">)</span>
+    
+    <span class="n">login_config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">car_ID</span><span class="si">}</span><span class="s2">_login.yaml&quot;</span><span class="p">)</span>
+    <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">car_ID</span><span class="si">}</span><span class="s2">.yaml&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">login_config_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;Username&quot;</span><span class="p">]</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;IP&quot;</span><span class="p">]</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;Password&quot;</span><span class="p">]</span>
+
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">target_path</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connecting to </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2"> with password: </span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">SSH_client</span><span class="p">,</span> <span class="n">SFTP_client</span> <span class="o">=</span> <span class="n">create_clients</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleting existing workspace...&quot;</span><span class="p">)</span>
+
+    <span class="n">_stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">SSH_client</span><span class="o">.</span><span class="n">exec_command</span><span class="p">(</span><span class="s2">&quot;rm -rf aimotion-f1tenth-system&quot;</span><span class="p">)</span> <span class="c1">#removing previous package</span>
+       
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">SFTP_client</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;aimotion-f1tenth-system&quot;</span><span class="p">,</span> <span class="n">ignore_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Transfering files onto the vehicle...&quot;</span><span class="p">)</span>
+    <span class="c1">#_stdin, stdout, stderr = SSH_client.exec_command(&quot;cd aimotion-f1tenth-system; python3 -m venv venv; source venv/bin/activate; pip install numpy scipy pyyaml torch gpytorch pynumdiff&quot;) #removing previous package</span>
+        
+    <span class="n">sys_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))),</span><span class="s2">&quot;aimotion_f1tenth_system&quot;</span><span class="p">)</span>
+    <span class="n">SFTP_client</span><span class="o">.</span><span class="n">put_dir</span><span class="p">(</span><span class="n">sys_dir</span><span class="p">,</span> <span class="s2">&quot;aimotion-f1tenth-system&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Building ROS2 workspace...&quot;</span><span class="p">)</span>       
+
+    <span class="n">_stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">SSH_client</span><span class="o">.</span><span class="n">exec_command</span><span class="p">(</span><span class="s1">&#39;bash --login -c &quot;source /opt/ros/foxy/local_setup.bash ;cd aimotion-f1tenth-system/; colcon build&quot;&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">stdout</span><span class="o">.</span><span class="n">readline</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stdout</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">recv_exit_status</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to build ROS workspace!&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Successfully installed aimotion-f1tenth-system on vehicle&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unexpected error!&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            
+    <span class="n">SSH_client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">SFTP_client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">AiMotionLab - F1TENTH</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_architecture.html">Lab architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup_install.html">Software installation and setup instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vehicles.html">Working with the vehicles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../using_the_api.html">Control the vehicles by the Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/modules.html">aimotion_f1tenth_utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, AiMotionLab SZTAKI.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

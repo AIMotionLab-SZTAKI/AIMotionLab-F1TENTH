@@ -2,6 +2,7 @@ import os
 from aimotion_f1tenth_utils.F1Client import F1Client
 from aimotion_f1tenth_utils.utils import CONTROLLER_MODE
 from aimotion_f1tenth_utils.Trajectory import Trajectory
+from trajectory_generators import train8
 import matplotlib as mpl
 import os
 import matplotlib.pyplot as plt
@@ -15,21 +16,17 @@ train_velocities = [0.7, 1, 1.3]
 
 train_trajectories = [Trajectory(f"training_v_{v}") for v in train_velocities]
 t = np.linspace(0, 2*np.pi, 9)
-a = 2.9
+a = 2.8
 b = 1.4
 x = a * np.sin(t)
 y = b * np.sin(2*t)
 training_path=np.flip(np.vstack((x,y)).T, axis=1)
+training_path, _ = train8() 
 for train_trajectory,v in zip(train_trajectories, train_velocities): 
     train_trajectory.build_from_points_const_speed(path_points=training_path,
                                                    path_smoothing=0.001, 
                                                    path_degree=5, 
                                                    const_speed=v)
-    x,y,v,c = train_trajectory.get_trajectory()
-    plt.plot(c)
-    plt.show()
-    exit()
-
 # Design the validation trajectory
 test_trajectory = Trajectory("test")
 test_trajectory.load(os.path.join(os.path.dirname(__file__), "paperclip.traj"))   
@@ -39,6 +36,7 @@ test_trajectory.load(os.path.join(os.path.dirname(__file__), "paperclip.traj"))
 car_1 = F1Client("192.168.2.62", 8069)
 
 # select the controller
+#car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "GP_control_params.yaml"))
 car_1.select_controller("GP_LPV_LQR")
 car_1.reset_state_logger()
 car_1.GP_reset()
@@ -83,7 +81,7 @@ states, inputs, c, errors = car_1.get_logs()
 
 plt.figure()
 
-x_r, y_r = train_trajectories[1].get_trajectory()
+x_r, y_r, *rst = train_trajectories[1].get_trajectory()
 plt.plot(x_r, y_r)
 plt.plot(states[:,0], states[:,1])
 plt.legend(["Reference", "Nominal", "Adaptive"])

@@ -12,7 +12,9 @@ mpl.rcParams["text.usetex"] = False
 traj_ID = "traj_1"
 traj = Trajectory(trajectory_ID=traj_ID) # create the trajetory object
 traj.load(os.path.dirname(__file__)+"/"+traj_ID+".traj")
-x_r , y_r = traj.get_trajectory()
+#x_r , y_r = traj.get_trajectory()
+
+traj.plot_trajectory(block=True)
 
 # connect to the vehicle
 car_1 = F1Client("192.168.2.62", 8069)

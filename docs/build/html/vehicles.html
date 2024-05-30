@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Working with the vehicles &#8212; AiMotionLab - F1TENTH 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Control the vehicles by the Python API" href="using_the_api.html" />
+    <link rel="prev" title="Software installation and setup instructions" href="setup_install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="working-with-the-vehicles">
+<h1>Working with the vehicles<a class="headerlink" href="#working-with-the-vehicles" title="Link to this heading">¶</a></h1>
+<section id="adding-a-new-vehicle-to-the-framework">
+<h2>Adding a new vehicle to the framework<a class="headerlink" href="#adding-a-new-vehicle-to-the-framework" title="Link to this heading">¶</a></h2>
+<p>To add a new vehicle to the framework, first setup an F1TENTH platform as described in the <a class="reference internal" href="hardware_architecture.html"><span class="doc">Hardware documentation</span></a>.
+Then, retrieve the following propoerties of the vehicle:
+- IP address
+- Username
+- Password</p>
+<p>With the above information, create a login config file in the <cite>configs</cite> folder. The file should be named <cite>car_ID_login.yaml</cite>. The structure of the file should follow the provided template titled <cite>Template_login.yaml</cite>.
+After the login config, create a new parameter file in the <cite>configs</cite> folder. The file should be named <cite>car_ID_params.yaml</cite>. The structure of the file should follow the provided template titled <cite>Template_params.yaml</cite>.
+Note that these parameters will be used as default, when the vehicle is launched. The parameters can be changed during runtime using the Python API.</p>
+<p>If the configs are ready and the vehicle is connected to the network, the onboard stack can be installed with the following script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.install</span> <span class="kn">import</span> <span class="n">install_onboard_stack</span>
+
+<span class="n">install_onboard_stack</span><span class="p">(</span><span class="s1">&#39;car_ID&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the installation might take a couple of minutes.</p>
+</section>
+<section id="launching-the-vehicles">
+<h2>Launching the vehicles<a class="headerlink" href="#launching-the-vehicles" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Connect the two plugs of the battery</strong>:</p>
+<img alt="plug1" src="_images/plug1.png" />
+<img alt="plug2" src="_images/plug.png" />
+</li>
+<li><p><strong>Turn on the vehicle with the switch located on the power board</strong>:</p>
+<img alt="switch" src="_images/switch.png" />
+<p>The red LED will light up. The onboard computer of the vehicle should connect to the same network that the OptiTrack server and the control PC use. Help for the configuration is available <a class="reference external" href="https://f1tenth.org/build.html">here</a>.</p>
+</li>
+</ol>
+<p>3. <strong>Connect to the vehicle via SSH and launch the onboard software stack</strong>:
+The username, IP address, and password information can be found in the <code class="docutils literal notranslate"><span class="pre">car_ID_login.yaml</span></code> file in the configs folder.
+After the SSH connection is established with the vehicle, run the following commands to launch the vehicle:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>aimotion_f1tenth_system
+<span class="nb">source</span><span class="w"> </span>startup_framework.sh
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AiMotionLab - F1TENTH</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="hardware_architecture.html">Lab architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_install.html">Software installation and setup instructions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Working with the vehicles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#adding-a-new-vehicle-to-the-framework">Adding a new vehicle to the framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#launching-the-vehicles">Launching the vehicles</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="using_the_api.html">Control the vehicles by the Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/modules.html">aimotion_f1tenth_utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="setup_install.html" title="previous chapter">Software installation and setup instructions</a></li>
+      <li>Next: <a href="using_the_api.html" title="next chapter">Control the vehicles by the Python API</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, AiMotionLab SZTAKI.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/vehicles.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
