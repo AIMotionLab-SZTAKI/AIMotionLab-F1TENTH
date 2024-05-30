@@ -102,12 +102,12 @@ traj = Trajectory("paperclip")
 traj.load(os.path.join(os.path.dirname(__file__), "paperclip.traj"))
 #traj.plot_trajectory(True)
 """ # Generate and save new trajectory
-traj = Trajectory("paperclip_reversed")
-path_points = np.roll(paperclip(), shift=13, axis=0)[::-1, :]
-traj.build_from_points_const_speed(path_points=path_points, path_smoothing=1e-4, path_degree=5, const_speed=0.6)
+path_points = np.roll(paperclip(), shift=13, axis=0)
+path_points = np.hstack((np.atleast_2d(path_points[:, 1]).T, -np.atleast_2d(path_points[:, 0]).T))
+traj.build_from_points_const_speed(path_points=path_points, path_smoothing=1e-4, path_degree=5, const_speed=1.0)
 traj.save("")
-# traj.plot_trajectory(True)
-# exit()
+traj.plot_trajectory(True)
+exit()
 """
 
 # SKYBRUSH PARAMS
@@ -152,20 +152,23 @@ payload_ang_vel = 0.0
 trailer_ang_vel = 0.0
 car_ang_vel = 0.0
 
-# wait for skybrush signal
-try: # try to open demo port
-    skybrush_client_socket=socket.socket()
-    skybrush_client_socket.connect((skybrush_ip, skybrush_port))
-except Exception as e:
-    print(e)
-    exit()
-print("Waiting for Skybrush signal...")
+wait_for_skybrush = True
 
-msg=skybrush_client_socket.recv(1024)
-skybrush_client_socket.close()
+if wait_for_skybrush:
+    # wait for skybrush signal
+    try: # try to open demo port
+        skybrush_client_socket=socket.socket()
+        skybrush_client_socket.connect((skybrush_ip, skybrush_port))
+    except Exception as e:
+        print(e)
+        exit()
+    print("Waiting for Skybrush signal...")
 
-print(f"Waiting {float(msg)} to launch!")
-time.sleep(float(msg))
+    msg=skybrush_client_socket.recv(1024)
+    skybrush_client_socket.close()
+
+    print(f"Waiting {float(msg)} to launch!")
+    time.sleep(float(msg))
 
 # execute trajectory
 res = car_1.execute_trajectory(trajectory=traj)

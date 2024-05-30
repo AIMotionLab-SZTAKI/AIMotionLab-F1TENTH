@@ -139,6 +139,13 @@ class F1Client:
         errors = res["errors"]
         return states, inputs, c, errors
     
+    def get_latest_inputs(self):
+       res = self.client.send({"command": "get_latest_inputs"})
+       if res["status"] == False:
+           raise Exception(f"Cannot retrieve logs: {res['error']}")
+       inputs = res["inputs"]
+       return inputs
+    
     def reset_state_logger(self):
         res = self.client.send({"command": "reset_logger"})
         if res["status"] == False:

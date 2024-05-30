@@ -132,7 +132,8 @@ mc = motioncapture.MotionCaptureOptitrack("192.168.2.141")
 # Creating the log writer etc.
 log_names = ['time_stamp_sec', 'car_x', 'car_y', 'car_heading', 'payload_x','payload_y', 'payload_heading','trailer_x','trailer_y',
              'trailer_heading', 'car_vx', 'car_vy', 'car_ang_vel', 'payload_vx', 'payload_vy', 'payload_ang_vel', 
-             'trailer_vx', 'trailer_vy', 'trailer_ang_vel']
+             'trailer_vx', 'trailer_vy', 'trailer_ang_vel', 'car_ax', 'car_ay', 'car_ang_acc', 'trailer_ax', 'trailer_ay',
+             'trailer_ang_acc', 'd', 'delta']
 log_files = os.listdir(os.path.join(os.path.dirname(__file__), "..", "logs"))
 if not len(log_files):
     log_num = 1
@@ -143,7 +144,7 @@ writer = csv.DictWriter(csv_file, fieldnames=log_names)
 writer.writeheader()
 
 # Initialize velocity variables and moving average coefficient
-state_estimator_alpha = 0.3
+state_estimator_alpha = 0.4
 
 payload_velocity = [0.0, 0.0]
 trailer_velocity = [0.0, 0.0]
@@ -151,6 +152,10 @@ car_velocity = [0.0, 0.0]
 payload_ang_vel = 0.0
 trailer_ang_vel = 0.0
 car_ang_vel = 0.0
+trailer_accel = [0.0, 0.0]
+car_accel = [0.0, 0.0]
+trailer_ang_acc = 0.0
+car_ang_acc = 0.0
 
 # wait for skybrush signal
 #try: # try to open demo port
@@ -169,14 +174,18 @@ car_ang_vel = 0.0
 
 # execute trajectory
 res = car_1.execute_trajectory(trajectory=traj)
+car_1.reset_state_logger()
 
 start_time = time.time()
 timestamp = None
 
 while car_1.get_mode() == CONTROLLER_MODE.RUNNING:
-    # log
+    # wait for motion capture data
     mc.waitForNextFrame()
     timestamp_new = time.time() - start_time
+
+    # get car states and inputs
+    car_inputs = car_1.get_latest_inputs()
 
     payload = mc.rigidBodies.get("payload2")
     if payload is not None:
@@ -217,21 +226,32 @@ while car_1.get_mode() == CONTROLLER_MODE.RUNNING:
             heading_diff -= 2 * np.pi
         while heading_diff < -np.pi:
             heading_diff += 2 * np.pi
-        trailer_ang_vel += state_estimator_alpha * (heading_diff / dt - trailer_ang_vel)
+        trailer_ang_vel_new = trailer_ang_vel + state_estimator_alpha * (heading_diff / dt - trailer_ang_vel)
 
         heading_diff = car_heading_new - car_heading
         while heading_diff > np.pi:
             heading_diff -= 2 * np.pi
         while heading_diff < -np.pi:
             heading_diff += 2 * np.pi
-        car_ang_vel += state_estimator_alpha * (heading_diff / dt - car_ang_vel)
+        car_ang_vel_new = car_ang_vel + state_estimator_alpha * (heading_diff / dt - car_ang_vel)
+
+        trailer_ang_acc += state_estimator_alpha * ((trailer_ang_vel_new - trailer_ang_vel) / dt - trailer_ang_acc)
+        car_ang_acc += state_estimator_alpha * ((car_ang_vel_new - car_ang_vel) / dt - car_ang_acc)
 
         payload_velocity = [vel + state_estimator_alpha * ((pos_new - pos) / dt - vel) for 
                             vel, pos_new, pos in zip(payload_velocity, payload_position_new, payload_position)]
-        trailer_velocity = [vel + state_estimator_alpha * ((pos_new - pos) / dt - vel) for 
+        trailer_velocity_new = [vel + state_estimator_alpha * ((pos_new - pos) / dt - vel) for 
                             vel, pos_new, pos in zip(trailer_velocity, trailer_position_new, trailer_position)]
-        car_velocity = [vel + state_estimator_alpha * ((pos_new - pos) / dt - vel) for 
+        car_velocity_new = [vel + state_estimator_alpha * ((pos_new - pos) / dt - vel) for 
                             vel, pos_new, pos in zip(car_velocity, car_position_new, car_position)]
+        trailer_accel = [acc + state_estimator_alpha * ((vel_new - vel) / dt - acc) for
+                             acc, vel_new, vel in zip(trailer_accel, trailer_velocity_new, trailer_velocity)]
+        car_accel = [acc + state_estimator_alpha * ((vel_new - vel) / dt - acc) for
+                        acc, vel_new, vel in zip(car_accel, car_velocity_new, car_velocity)]
+        trailer_ang_vel = trailer_ang_vel_new
+        car_ang_vel = car_ang_vel_new
+        trailer_velocity = trailer_velocity_new.copy()
+        car_velocity = car_velocity_new.copy()
     
     payload_position = payload_position_new.copy()
     trailer_position = trailer_position_new.copy()
@@ -260,7 +280,15 @@ while car_1.get_mode() == CONTROLLER_MODE.RUNNING:
         'payload_ang_vel': payload_ang_vel,
         'trailer_vx': trailer_velocity[0],
         'trailer_vy': trailer_velocity[1],
-        'trailer_ang_vel': trailer_ang_vel
+        'trailer_ang_vel': trailer_ang_vel,
+        'car_ax': car_accel[0],
+        'car_ay': car_accel[1],
+        'car_ang_acc': car_ang_acc,
+        'trailer_ax': trailer_accel[0],
+        'trailer_ay': trailer_accel[1],
+        'trailer_ang_acc': trailer_ang_acc,
+        'd': car_inputs[0],
+        'delta': car_inputs[1]
         })
 
 csv_file.close()
