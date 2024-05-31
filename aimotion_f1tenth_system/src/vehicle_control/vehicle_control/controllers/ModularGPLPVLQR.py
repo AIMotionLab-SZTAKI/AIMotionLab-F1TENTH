@@ -500,3 +500,6 @@ class ModularGPLPVLQR(Controller):
 
     def __str__(self) -> str:
         return self.GP_type
+    
+    def set_trajectory(self, *args, **kwargs):
+        raise NotImplementedError("")

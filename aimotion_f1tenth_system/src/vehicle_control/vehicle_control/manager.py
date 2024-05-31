@@ -277,7 +277,7 @@ class ControlManager(Node):
             self.active_controller.set_trajectory(pos_tck = trajectory["pos_tck"],
                                                     evol_tck = trajectory["evol_tck"],
                                                     x0 = x0,
-                                                    theta_start = 0.01) #The class will convert the tck into its own trajectory format
+                                                    theta_start = 0.1) #The class will convert the tck into its own trajectory format
 
 
         # check if the trajectory is valid

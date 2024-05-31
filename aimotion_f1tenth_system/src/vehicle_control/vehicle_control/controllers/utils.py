@@ -18,9 +18,6 @@ class Controller(ABC):
     def reset(self):
         pass
 
-    @abstractmethod
-    def set_trajectory(self, *args,**kwargs):
-        pass
 
 def normalize(angle):
     """

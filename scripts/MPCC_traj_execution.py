@@ -12,12 +12,12 @@ mpl.rcParams["text.usetex"] = False
 
 # Design / load the trajectory
 traj_ID = "traj_1"
-traj = Trajectory(trajectory_ID=traj_ID) # create the trajetory object
-traj.load(os.path.dirname(__file__)+"/"+traj_ID+".traj")
+traj = Trajectory("traj1")
 
-#traj.plot_trajectory()
+traj.load("traj_1.traj")
+
+traj.plot_trajectory()
 path, v = null_paperclip()
-traj.build_from_waypoints(path, v, 0, 5)
 #traj.plot_trajectory()
 x_r, y_r, *_ = traj.get_trajectory()
 

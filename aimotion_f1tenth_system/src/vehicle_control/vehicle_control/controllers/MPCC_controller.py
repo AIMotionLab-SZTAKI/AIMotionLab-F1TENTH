@@ -62,12 +62,12 @@ class MPCC_Controller:
 
         for i in range(self.parameters.N-2):
             self.ocp_solver.set(i, "u", self.ocp_solver.get(i+1, "u"))
-
-        errors = np.array((self.trajectory.e_c(x_opt[:2,0], self.theta)[0], #Contouring error
+        print(self.trajectory.e_c(x_opt[:2,0], self.theta)[0][0])
+        errors = np.array((self.trajectory.e_c(x_opt[:2,0], self.theta)[0][0], #Contouring error
                             x_opt[2,0], #Heading error
-                            self.trajectory.e_l(x_opt[:2,0],self.theta)[0], self.theta), #Long error
-                            np.NaN, #v_error
-                            )
+                            self.trajectory.e_l(x_opt[:2,0],self.theta)[0], self.theta, #Long error
+                            np.nan, #v_error
+        ))
         
         return u_opt, errors
     
@@ -257,6 +257,9 @@ class MPCC_Controller:
     def reset(self):
         pass
 
+    def train_GP_controllers(self, *args, **kwargs):
+        raise NotImplementedError
+
     def _generate_ocp_solver(self, model: AcadosModel):
         """
         Creates the acados ocp solver
@@ -304,17 +307,19 @@ class MPCC_Controller:
         ocp.constraints.idxbu = np.arange(3)
         phi0 = float(self.trajectory.get_path_parameters_ang(self.s_start)[2])
 
-        x0 = np.array((float(self.trajectory.spl_sx(self.s_start)), #x
-                    float(self.trajectory.spl_sy(self.s_start)), #y
-                    phi0,#phi
-                    0.001, #vxi
-                    0, #veta
-                    0, # omega
-                    self.s_start+0.05,
-                    0.02, #d
-                    0, #delta
-        ))
-        ocp.constraints.x0 = x0
+        #x0 = np.array((float(self.trajectory.spl_sx(self.s_start)), #x
+        #            float(self.trajectory.spl_sy(self.s_start)), #y
+        #            phi0,#phi
+        #            0.001, #vxi
+        #            0, #veta
+        #            0, # omega
+        #            self.s_start+0.05,
+        #            0.02, #d
+        #            0, #delta
+        #))
+        x0 = np.concatenate((self.x0, np.array([self.theta]), self.input))
+
+        ocp.constraints.x0 = x0 #Set in the set_trajectory function
         ocp_solver = AcadosOcpSolver(ocp, json_file = 'acados_ocp.json')
         return ocp_solver
     
@@ -330,7 +335,11 @@ class MPCC_Controller:
         self.theta = theta_start
         self.s_start = theta_start
         
-        self.x0 = x0
+        self.x0 = x0 #The current position must be the initial condition
+
+        self.x0[3] = 0.01 #Give a small forward speed to make the problem feasable
+
+        self.input = np.array([0.5,0])
 
         s_max = evol_tck[-1]
 
@@ -342,8 +351,8 @@ class MPCC_Controller:
 
         for i in range(len(x)):
             points_list.append([i, x[i], y[i]])
-
-
+        print(f"initial state: {self.x0}")
+        #print(f"starting point: {points_list}")
         self.trajectory = Spline_2D(np.array(points_list))
 
         self.ocp_solver = self._generate_ocp_solver(self._generate_model())
@@ -358,7 +367,7 @@ class MPCC_Controller:
                                          theta_0=self.theta,
                                          trajectory=self.trajectory,
                                          N = self.parameters.N,
-                                         x_0 = x0)
+                                         x_0 = self.x0)
         self.controller_init()
 
 
