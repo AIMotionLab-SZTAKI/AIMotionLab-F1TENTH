@@ -66,7 +66,6 @@ class Spline_2D:
                 s_mid = 10000000
 
             while abs(s_mid-self.l) >= e:
-
                 tmid_arr = np.arange(t_arr[-1], tmid + dt, dt)
                 grad_mid = self.spl_t.derivative(1)(tmid_arr)
                 ds_mid = np.sqrt(grad_mid[:, 0] ** 2 + grad_mid[:, 1] ** 2)

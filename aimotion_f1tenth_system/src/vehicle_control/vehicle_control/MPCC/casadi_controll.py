@@ -250,7 +250,7 @@ class Casadi_MPCC:
 
         # Solver setup
         p_opt = {'expand': False}
-        s_opts = {'max_iter': 10000, 'print_level': 5}
+        s_opts = {'max_iter': 1500, 'print_level': 5}
         self.opti.solver('ipopt', p_opt, s_opts)
    
 

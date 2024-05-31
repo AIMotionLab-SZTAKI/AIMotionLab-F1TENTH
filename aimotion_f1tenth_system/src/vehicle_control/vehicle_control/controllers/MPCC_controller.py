@@ -65,7 +65,7 @@ class MPCC_Controller:
         print(self.trajectory.e_c(x_opt[:2,0], self.theta)[0][0])
         errors = np.array((self.trajectory.e_c(x_opt[:2,0], self.theta)[0][0], #Contouring error
                             x_opt[2,0], #Heading error
-                            self.trajectory.e_l(x_opt[:2,0],self.theta)[0], self.theta, #Long error
+                            self.trajectory.e_l(x_opt[:2,0],self.theta)[0][0], self.theta, #Long error
                             np.nan, #v_error
         ))
         
@@ -341,7 +341,7 @@ class MPCC_Controller:
 
         self.input = np.array([0.5,0])
 
-        s_max = evol_tck[-1]
+        s_max = evol_tck[0][-1]
 
         s = np.linspace(0, s_max, 100)
 
@@ -352,8 +352,29 @@ class MPCC_Controller:
         for i in range(len(x)):
             points_list.append([i, x[i], y[i]])
         print(f"initial state: {self.x0}")
-        #print(f"starting point: {points_list}")
-        self.trajectory = Spline_2D(np.array(points_list))
+        print(f"starting point: {points_list[0]}")
+        t_end = evol_tck[0][-1]
+
+
+        t_eval=np.linspace(0, t_end, 1000)
+
+        s=splev(t_eval, evol_tck)
+
+        (x,y) = splev(s, pos_tck)
+
+        points_list = []
+
+
+        for i in range(len(x)):
+    
+            points_list.append([i, x[i], y[i]])
+
+        self.trajectory = Spline_2D(np.array([[0,0,0],[1,1,1],[2,2,2]]))
+
+        self.trajectory.spl_sx = cs.interpolant("traj", "bspline", [s], x)
+        self.trajectory.spl_sy = cs.interpolant("traj", "bspline", [s], y)
+
+
 
         self.ocp_solver = self._generate_ocp_solver(self._generate_model())
         self.casadi_solver = Casadi_MPCC(MPCC_params=self.MPCC_params,
