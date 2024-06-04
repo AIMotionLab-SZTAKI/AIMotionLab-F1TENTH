@@ -43,7 +43,7 @@ class Casadi_MPCC:
         #Virtual input initital guess
         temp = np.zeros((2,1))
         
-        temp[0] = 0.1 #intial value of d
+        temp[0][0] = 0.08 #intial value of d
         temp = np.reshape(temp,(-1,1))
 
         self.v_U_init = np.repeat(temp, N-1, axis= 1)
@@ -51,8 +51,10 @@ class Casadi_MPCC:
         temp = np.zeros((2,1))
         
         
+        
         temp = np.reshape(temp,(-1,1)) # I use this to create the initial guess for U (U_init)
 
+        temp = np.zeros((2,1))
 
         self.U_init = np.repeat(temp, N-2, axis= 1) ##I assume that there is no steering input
         
@@ -167,7 +169,7 @@ class Casadi_MPCC:
 
         self.opti.subject_to(self.theta[0] == self.theta_0 + self.dt * self.v_t_0)  # init path parameter
 
-        self.opti.subject_to(self.U[:,0] == self.U_0) ##Initial input constraint: dd and ddelta
+        #self.opti.subject_to(self.U[:,0] == self.U_0) ##Initial input constraint: dd and ddelta
 
         self.opti.subject_to(self.v_U[:,0] == self.v_U_0+ self.dt*self.U_0) #init virtual input (d & delta)
 
@@ -227,9 +229,9 @@ class Casadi_MPCC:
 
         #Error constraints:
 
-        e_l = self.e_l(cs.vcat((self.X[0, :], self.X[1, :])), self.theta)
-        e_c = self.e_c(cs.vcat((self.X[0, :], self.X[1, :])), self.theta)
-        e_smooth = self.e_smooth()
+        #e_l = self.e_l(cs.vcat((self.X[0, :], self.X[1, :])), self.theta)
+        #e_c = self.e_c(cs.vcat((self.X[0, :], self.X[1, :])), self.theta)
+        #e_smooth = self.e_smooth()
 
         #self.opti.subject_to(cs.mmax(e_c) < 0.05)
         
@@ -238,8 +240,8 @@ class Casadi_MPCC:
 
 
         #self.opti.subject_to(e_c.T @ e_c < 0.1)
-        self.opti.subject_to([e_smooth[0] < 5]) #d smoothness
-        self.opti.subject_to(e_smooth[1] < 500) #delta smoothness
+        #self.opti.subject_to([e_smooth[0] < 5]) #d smoothness
+        #self.opti.subject_to(e_smooth[1] < 500) #delta smoothness
         
 
         # Path speed constraints

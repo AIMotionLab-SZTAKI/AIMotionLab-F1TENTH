@@ -273,11 +273,14 @@ class ControlManager(Node):
 
         if self.active_controller == self.controllers["MPCC"]:
             x0 = self.current_state
-            x0[3] = 0.001 #To calculate the initial guess the car has to be moving
+            x0[3] = 0.01 #To calculate the initial guess the car has to be moving
+            x0[5] = 0.0
+            x0[4] = 0.0 
+ 
             self.active_controller.set_trajectory(pos_tck = trajectory["pos_tck"],
                                                     evol_tck = trajectory["evol_tck"],
                                                     x0 = x0,
-                                                    theta_start = 0.1) #The class will convert the tck into its own trajectory format
+                                                    theta_start = 0.05) #The class will convert the tck into its own trajectory format
 
 
         # check if the trajectory is valid
@@ -343,9 +346,9 @@ class ControlManager(Node):
         u, errors = self.active_controller.compute_control(self.current_state, setpoint)
 
         self.state_logger.log_state(t,self.current_state, setpoint, errors, u)
-
-        # publish the control input
-        self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
+        if self._is_running():
+            # publish the control input
+            self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
         
         print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
     

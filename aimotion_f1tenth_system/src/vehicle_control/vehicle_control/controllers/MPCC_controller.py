@@ -7,7 +7,7 @@ from scipy.interpolate import splev
 from scipy.integrate import ode
 import os
 from ..MPCC.casadi_controll import Casadi_MPCC
-
+import time
 class MPCC_Controller:
     def __init__(self, vehicle_params: dict, MPCC_params: dict):
         """
@@ -23,7 +23,7 @@ class MPCC_Controller:
         self.s_start = 0.0
         self.x0 = np.zeros((1,6))
 
-        self.input = np.array([0.5,0])
+        self.input = np.array([0.08,0])
        
         self.ocp_solver = None #acados solver to compute control
 
@@ -38,7 +38,10 @@ class MPCC_Controller:
         :return u_opt (optimal input vector)
         :return errors (contouring longitudinal errors, phi, theta)
         """
+        time_start = time.time()
         
+        
+
         x0 = np.concatenate((x0, np.array([self.theta]), self.input))
 
         self.ocp_solver.set(0, 'lbx', x0)
@@ -48,13 +51,14 @@ class MPCC_Controller:
 
         self.ocp_solver.solve()
         #u_opt = np.reshape(self.ocp_solver.get(0, "u"),(-1,1))
-
+        time_end = time.time()
+        print(f"Current frequency: {1/(time_end-time_start)}, solver time: {time_end-time_start} ")
         x_opt = np.reshape(self.ocp_solver.get(1, "x"),(-1,1)) #Full predictied optimal state vector (x,y,phi, vxi, veta, omega, thetahat, d, delta)
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
         u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0] 
-
-        u_opt = np.reshape(u_opt, (-1,1))
+        print(f"optimal input: {u_opt}")
+        #u_opt = np.reshape(u_opt, (-1,1))
 
         
         for i in range(self.parameters.N-1):
@@ -62,13 +66,18 @@ class MPCC_Controller:
 
         for i in range(self.parameters.N-2):
             self.ocp_solver.set(i, "u", self.ocp_solver.get(i+1, "u"))
-        print(self.trajectory.e_c(x_opt[:2,0], self.theta)[0][0])
-        errors = np.array((self.trajectory.e_c(x_opt[:2,0], self.theta)[0][0], #Contouring error
-                            x_opt[2,0], #Heading error
-                            self.trajectory.e_l(x_opt[:2,0],self.theta)[0][0], self.theta, #Long error
-                            np.nan, #v_error
-        ))
-        
+
+
+        e_con = self.trajectory.e_c(x_opt[:2,0], self.theta)[0][0]
+
+        e_long = self.trajectory.e_l(x_opt[:2,0],self.theta)[0][0]
+
+        #print(e_con)
+        #print(e_long)
+        #print(x_opt[2,0])
+        #print(self.theta)
+        #errors = np.array([e_con, x_opt[2,0],e_long,self.theta, -1])
+        errors = np.array([0,0,0,0,0]) #TODO
         return u_opt, errors
     
 
@@ -339,7 +348,7 @@ class MPCC_Controller:
 
         self.x0[3] = 0.01 #Give a small forward speed to make the problem feasable
 
-        self.input = np.array([0.5,0])
+        self.input = np.array([0.08,0])
 
         s_max = evol_tck[0][-1]
 

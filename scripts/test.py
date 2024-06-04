@@ -6,7 +6,7 @@ from scipy.interpolate import splev
 import casadi as cs
 traj = Trajectory("traj_1.traj")
 
-traj.load("example_1.traj")
+traj.load("traj_1.traj")
 
 traj.plot_trajectory()
 t_end = traj.evol_tck[0][-1]

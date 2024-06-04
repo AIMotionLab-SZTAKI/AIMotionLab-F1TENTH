@@ -13,9 +13,9 @@ mpl.rcParams["text.usetex"] = False
 # Design / load the trajectory
 traj_ID = "traj_1"
 traj = Trajectory("traj1")
-
-traj.load("traj_1.traj")
-
+points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
+traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
+#traj.load("paperclip.traj")
 traj.plot_trajectory()
 path, v = null_paperclip()
 #traj.plot_trajectory()
@@ -35,7 +35,7 @@ car_1.select_controller("MPCC")
 
 car_1.set_mode(CONTROLLER_MODE.IDLE)
 #car_1.reset_controller()
-car_1.reset_state_logger()
+#car_1.reset_state_logger()
 
 # execute_trajectory
 car_1.execute_trajectory(trajectory=traj)
@@ -50,7 +50,7 @@ plt.figure()
 plt.plot(x_r, y_r)
 plt.plot(states1[:,0], states1[:,1])
 plt.legend(["Reference", "Measurement1"])
-
+plt.axis('equal')
 plt.figure()
 plt.plot(errors1)
 plt.legend(["lateral", "heading", "long", "velocity"])
