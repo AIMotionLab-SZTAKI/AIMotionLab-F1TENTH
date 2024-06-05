@@ -351,7 +351,7 @@ class Trajectory:
                 self.reversed = traj_data["reversed"]
         except Exception as e:
             print(e)
-            raise ValueError("Cannor load trajectory file, the file format is invalid")
+            raise ValueError("Cannot load trajectory file, the file format is invalid")
 
 
 

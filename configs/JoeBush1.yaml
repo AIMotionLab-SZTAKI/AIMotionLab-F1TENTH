@@ -57,7 +57,7 @@ parameter_server:
       MPCC:
         #Input constraints
         delta_max: 0.5 # [rad]
-        d_max: 0.1
+        d_max: 0.15
         d_min: 0.05       
 
         #Incremental input constraints        
@@ -71,7 +71,7 @@ parameter_server:
         N: 60 #number of shooting nodes
         Tf: 1 #[s] time lenght of the opt. horizon
         #Cost weights:
-        q_con: 70.0 
+        q_con: 90.0 
         q_long: 30.0
         q_theta: 3.0
         q_d: 0.1

@@ -72,12 +72,10 @@ class MPCC_Controller:
 
         e_long = self.trajectory.e_l(x_opt[:2,0],self.theta)[0][0]
 
-        #print(e_con)
-        #print(e_long)
-        #print(x_opt[2,0])
-        #print(self.theta)
-        #errors = np.array([e_con, x_opt[2,0],e_long,self.theta, -1])
-        errors = np.array([0,0,0,0,0]) #TODO
+        
+        errors = np.array([float(e_con), float(x_opt[2,0]),float(e_long),float(self.theta), float(x_opt[3,0])])
+
+
         return u_opt, errors
     
 
@@ -350,21 +348,10 @@ class MPCC_Controller:
 
         self.input = np.array([0.08,0])
 
-        s_max = evol_tck[0][-1]
 
-        s = np.linspace(0, s_max, 100)
-
-        (x,y) = splev(s, pos_tck)
-
-        points_list = []
-
-        for i in range(len(x)):
-            points_list.append([i, x[i], y[i]])
-        print(f"initial state: {self.x0}")
-        print(f"starting point: {points_list[0]}")
         t_end = evol_tck[0][-1]
 
-
+        
         t_eval=np.linspace(0, t_end, 1000)
 
         s=splev(t_eval, evol_tck)
@@ -382,8 +369,10 @@ class MPCC_Controller:
 
         self.trajectory.spl_sx = cs.interpolant("traj", "bspline", [s], x)
         self.trajectory.spl_sy = cs.interpolant("traj", "bspline", [s], y)
+        self.trajectory.L = s[-1]
+        print(f"initial state: {self.x0}")
 
-
+        print(f"starting point: {self.trajectory.get_path_parameters_ang(self.theta)}")
 
         self.ocp_solver = self._generate_ocp_solver(self._generate_model())
         self.casadi_solver = Casadi_MPCC(MPCC_params=self.MPCC_params,
@@ -409,10 +398,10 @@ class MPCC_Controller:
         :param inputs: Input vector
         :return: Derivative of states
         '''
-        states = np.reshape(states, (1,-1))
-        inputs = np.reshape(inputs, (1,-1))
-        states = states[0, :]
-        inputs = inputs[0,:]
+        #states = np.reshape(states, (1,-1))
+        #inputs = np.reshape(inputs, (1,-1))
+        #states = states[0, :]
+        #inputs = inputs[0,:]
         x = states[0]
         y = states[1]
         phi = states[2]
@@ -424,22 +413,22 @@ class MPCC_Controller:
         delta = inputs[1]
 
         # slip angles
-        alpha_r = cs.arctan((-v_eta + self.sim_par.l_r*omega)/(v_xi+0.001))
-        alpha_f = delta - cs.arctan((v_eta + self.sim_par.l_f * omega)/(v_xi+0.001))
+        alpha_r = cs.arctan((-v_eta + self.parameters.l_r*omega)/(v_xi+0.001))
+        alpha_f = delta - cs.arctan((v_eta + self.parameters.l_f * omega)/(v_xi+0.001))
 
         # tire forces
-        F_xi = self.sim_par.C_m1*d - self.sim_par.C_m2*v_xi - self.sim_par.C_m3*cs.sign(v_xi)
-        F_reta = self.sim_par.C_r*alpha_r
-        F_feta = self.sim_par.C_f*alpha_f
+        F_xi = self.parameters.C_m1*d - self.parameters.C_m2*v_xi - self.parameters.C_m3*cs.sign(v_xi)
+        F_reta = self.parameters.C_r*alpha_r
+        F_feta = self.parameters.C_f*alpha_f
 
         # nonlinear state equations
         dx = v_xi * cs.cos(phi) - v_eta * cs.sin(phi)
         dy = v_xi * cs.sin(phi) + v_eta * cs.cos(phi)
         dphi = omega
 
-        dv_xi = 1 / self.sim_par.m * (F_xi + F_xi * cs.cos(delta) - F_feta * cs.sin(delta) + self.sim_par.m * v_eta * omega)
-        dv_eta = 1 / self.sim_par.m * (F_reta + F_xi * cs.sin(delta) + F_feta * cs.cos(delta) - self.sim_par.m * v_xi * omega)
-        domega = 1 / self.sim_par.I_z * (F_feta * self.sim_par.l_f * cs.cos(delta) + F_xi * self.sim_par.l_f * cs.sin(delta) - F_reta * self.sim_par.l_r)
+        dv_xi = 1 / self.parameters.m * (F_xi + F_xi * cs.cos(delta) - F_feta * cs.sin(delta) + self.parameters.m * v_eta * omega)
+        dv_eta = 1 / self.parameters.m * (F_reta + F_xi * cs.sin(delta) + F_feta * cs.cos(delta) - self.parameters.m * v_xi * omega)
+        domega = 1 / self.parameters.I_z * (F_feta * self.parameters.l_f * cs.cos(delta) + F_xi * self.parameters.l_f * cs.sin(delta) - F_reta * self.parameters.l_r)
         d_states = cs.vertcat(dx, dy, dphi, dv_xi, dv_eta, domega)
         return d_states
 
@@ -480,6 +469,6 @@ class MPCC_Controller:
         sim = ode(self.nonlin_dynamics).set_integrator('lsoda')
         sim.set_initial_value(states, t).set_f_params(inputs)
 
-        return np.reshape(sim.integrate(dt), (-1, 1)), sim.t+dt
+        return sim.integrate(dt), sim.t+dt
 
         
