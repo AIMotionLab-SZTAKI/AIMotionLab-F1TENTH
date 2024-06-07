@@ -11,8 +11,10 @@ import time
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"  # Disable annoying welcome message :@
 
+
+
 class F1Client:
-    def __init__(self, car_ID= None, host = None, port = 8000) -> None:
+    def __init__(self, car_ID= None, host = None, port = 8069) -> None:
         """TCP-based client for commuication with an F1TENTH vehicle
         
         :param car_ID: The ID of the vehicle
@@ -47,11 +49,11 @@ class F1Client:
         self.port = port
         self.client = TCPClient()
 
-        if not self.client.connect(host, port):
-            raise Exception(f"Could not connect to {host}:{port}")
+        if not self.client.connect(self.host, self.port):
+            raise Exception(f"Could not connect to {self.host}:{self.port}")
         
-        if self.car_ID is None:
-            self.car_ID = self._get_ID()
+        if car_ID is None:
+            self.car_ID = self._get_ID() # TODO: chak if the IDs match
        
         
     def _get_ID(self) -> str:

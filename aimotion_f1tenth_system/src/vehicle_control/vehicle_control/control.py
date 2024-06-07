@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from .manager import ControlManager
 import traceback
+import signal
 
 class LoaderNode(Node):
     def __init__(self):
@@ -125,6 +126,13 @@ def main():
                            vehicle_params = vehicle_params,
                            LPV_LQR_params=LPV_LQR_params,
                            GP_LPV_LQR_params=GP_LPV_LQR_params)
+    
+
+    def signal_handler(sig, frame):
+        rclpy.shutdown()
+
+    signal.signal(signal.SIGINT, signal_handler)
+
     try:
         rclpy.spin(manager)
     except Exception:

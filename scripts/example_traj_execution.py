@@ -13,7 +13,7 @@ mpl.rcParams["text.usetex"] = False
 # Design / load the trajectory
 traj_ID = "traj_1"
 traj = Trajectory(trajectory_ID=traj_ID) # create the trajetory object
-traj.load(os.path.dirname(__file__)+"/"+traj_ID+".traj")
+#traj.load(os.path.join(os.path.dirname(__file__),"..", traj_ID+".traj"))
 
 #traj.plot_trajectory()
 path, v = null_paperclip()
@@ -22,8 +22,9 @@ traj.build_from_waypoints(path, v, 0, 5)
 x_r, y_r, *_ = traj.get_trajectory()
 
 # connect to the vehicle
-car_1 = F1Client("192.168.2.62", 8069)
+car_1 = F1Client("JoeBush1")
 print(f"Connected to {car_1.car_ID}")
+print(car_1.get_mode())
 
 GP_LPV_LQR_params = {
         "GP_type": "RLS", # GRAD_SGP, RLS_SGP,
@@ -61,7 +62,7 @@ vehicle_params = {
 # select the controller
 car_1.select_controller("GP_LPV_LQR")
 #car_1.reinit_GP_LPV_LQR(vehicle_params=vehicle_params, GP_LPV_LQR_params=GP_LPV_LQR_params)
-car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "GP_control_params.yaml"))
+#car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "GP_control_params.yaml"))
 #car_1.reset_state_logger()
 #car_1.GP_reset()
 #car_1.GP_to_online()

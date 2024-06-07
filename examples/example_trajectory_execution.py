@@ -16,7 +16,7 @@ traj.load(os.path.join(os.path.dirname(__file__) , traj_ID+".traj"))
 traj.plot_trajectory(block=False)
 
 # connect to the vehicle
-car_1 = F1Client("192.168.2.62", 8069)
+car_1 = F1Client(host = "192.168.2.62", port = 8069)
 print(f"Connected to {car_1.car_ID}")
 
 

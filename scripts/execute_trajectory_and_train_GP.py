@@ -12,7 +12,7 @@ import numpy as np
 mpl.rcParams["text.usetex"] = False 
 
 # Design / load the trajectory used for the training
-train_velocities = [0.7, 1, 1.3]
+train_velocities = [0.75, 1.1, 1.5]
 
 train_trajectories = [Trajectory(f"training_v_{v}") for v in train_velocities]
 t = np.linspace(0, 2*np.pi, 9)
@@ -21,7 +21,7 @@ b = 1.4
 x = a * np.sin(t)
 y = b * np.sin(2*t)
 training_path=np.flip(np.vstack((x,y)).T, axis=1)
-training_path, _ = train8() 
+test_path, _ = train8() 
 for train_trajectory,v in zip(train_trajectories, train_velocities): 
     train_trajectory.build_from_points_const_speed(path_points=training_path,
                                                    path_smoothing=0.001, 
@@ -29,17 +29,28 @@ for train_trajectory,v in zip(train_trajectories, train_velocities):
                                                    const_speed=v)
 # Design the validation trajectory
 test_trajectory = Trajectory("test")
-test_trajectory.load(os.path.join(os.path.dirname(__file__), "paperclip.traj"))   
-
+test_trajectory.build_from_points_const_speed(path_points=test_path,
+                                              path_smoothing=0.001, 
+                                                path_degree=5,
+                                                const_speed=1)
+#test_trajectory.load(os.path.join(os.path.dirname(__file__), "..", "trajectories/paperclip.traj"))   
 
 # connect to the vehicle
-car_1 = F1Client("192.168.2.62", 8069)
+car_1 = F1Client("JoeBush1")
 
 # select the controller
 #car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "GP_control_params.yaml"))
 car_1.select_controller("GP_LPV_LQR")
 car_1.reset_state_logger()
 car_1.GP_reset()
+
+# nominal round
+car_1.execute_trajectory(trajectory=test_trajectory)
+car_1.wait_while_running()
+
+n_states, n_inputs, n_c, n_errors = car_1.get_logs()
+car_1.reset_controller()
+car_1.reset_state_logger()
 
 for traj in train_trajectories:
     print(f"Executing {traj.trajectory_ID}")
@@ -74,15 +85,16 @@ plt.show()
 car_1.reset_controller()
 car_1.reset_state_logger()
 
-car_1.execute_trajectory(trajectory=train_trajectories[1])
+car_1.execute_trajectory(trajectory=test_trajectory)
 car_1.wait_while_running()
 
 states, inputs, c, errors = car_1.get_logs()
 
 plt.figure()
 
-x_r, y_r, *rst = train_trajectories[1].get_trajectory()
+x_r, y_r, *rst = test_trajectory.get_trajectory()
 plt.plot(x_r, y_r)
+plt.plot(n_states[:,0], n_states[:,1])
 plt.plot(states[:,0], states[:,1])
 plt.legend(["Reference", "Nominal", "Adaptive"])
 

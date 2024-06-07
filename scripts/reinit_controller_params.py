@@ -15,7 +15,7 @@ traj.load(os.path.dirname(__file__)+"/"+traj_ID+".traj")
 x_r , y_r = traj.get_trajectory()
 
 # connect to the vehicle
-car_1 = F1Client("192.168.2.62", 8069)
+car_1 = F1Client("JoeBush1")
 print(f"Connected to {car_1.car_ID}")
 
 # select the controller

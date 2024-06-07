@@ -54,8 +54,10 @@ class ControlManager(Node):
     def _TCP_callback(self, message: dict):
         """Callback function to handle incoming TCP messages
         
-        :param message: dict containing the message information
-        :return: dict containing the response
+        :param message: Dictionary containing the message information
+        :type message: dict
+        :return: Dictionary containing the response
+        :rtype: dict
         """
         # commands to handle
         # - select controller
@@ -63,6 +65,7 @@ class ControlManager(Node):
         # - stop controller
         # - reset controller
         # - GP related: collect_data, train, mode: (online, offline, reset)
+        
         cmd = message["command"]
 
         # identification
@@ -310,31 +313,35 @@ class ControlManager(Node):
         return self.MODE == CONTROLLER_MODE.RUNNING
 
     def _state_callback(self, data):
-        #try:
-        self.current_state = state2array(data)
+        print("State callback happened")
+        try:
+            self.current_state = state2array(data)
 
-        if not self._is_running(): return
+            if not self._is_running(): return
 
-        t = self._get_time()
+            t = self._get_time()
 
-        # get setpoint from the trajectory & evaluate the controller
+            # get setpoint from the trajectory & evaluate the controller
+            print("Obtaining setpoint")
+            setpoint = self.current_trajectory.evaluate(self.current_state, t)
+            print(f"Setpoint: {setpoint}")
+            # check if the goal is reached
+            if not setpoint["running"]:
+                self._stop()
+                return
+
+            u, errors = self.active_controller.compute_control(self.current_state, setpoint)
+            print(f"Control: {u}, Errors: {errors}")
+            self.state_logger.log_state(t,self.current_state, setpoint, errors, u)
+            print("State logged")
+            # publish the control input
+            self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
         
-        setpoint = self.current_trajectory.evaluate(self.current_state, t)
-    
-        # check if the goal is reached
-        if not setpoint["running"]:
-            self._stop()
-            return
+            print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}")
+        except Exception as e:
+            print(f"Error: {e}")
+            print(f"TRACEBACK: {e.__traceback__}")
 
-        u, errors = self.active_controller.compute_control(self.current_state, setpoint)
-
-        self.state_logger.log_state(t,self.current_state, setpoint, errors, u)
-
-        # publish the control input
-        self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
-        
-        print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}")
-    
     def _get_time(self):
         """Get the current time in seconds that is elapsed since t0"""
         t_tuple = self.get_clock().now().seconds_nanoseconds()

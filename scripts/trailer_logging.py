@@ -117,7 +117,7 @@ skybrush_port = 6001
 # establish connetion to manger
 
 # create car object 
-car_1 = F1Client("192.168.2.62", 8069)
+car_1 = F1Client("JoeBush1")
 print(f"Connected to {car_1.car_ID}")
 
 car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "trailer_control_params.yaml"))
