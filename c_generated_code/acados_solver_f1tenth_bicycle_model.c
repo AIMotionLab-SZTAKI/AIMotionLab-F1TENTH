@@ -409,7 +409,7 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
         f1tenth_bicycle_model_acados_update_time_steps(capsule, N, new_time_steps);
     }
     else
-    {double time_step = 0.016666666666666666;
+    {double time_step = 0.013333333333333334;
         for (int i = 0; i < N; i++)
         {
             ocp_nlp_in_set(nlp_config, nlp_dims, nlp_in, i, "Ts", &time_step);
@@ -548,7 +548,7 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
     double* ubx = lubx + NBX;
     
     lbx[0] = 0.05;
-    ubx[0] = 0.15;
+    ubx[0] = 0.11;
     lbx[1] = -0.5;
     ubx[1] = 0.5;
 
@@ -672,7 +672,7 @@ void f1tenth_bicycle_model_acados_create_6_set_opts(f1tenth_bicycle_model_solver
     int rti_log_residuals = 0;
     ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "rti_log_residuals", &rti_log_residuals);
 
-    int qp_solver_iter_max = 10000;
+    int qp_solver_iter_max = 1000;
     ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "qp_iter_max", &qp_solver_iter_max);
 
 
@@ -1033,7 +1033,7 @@ void f1tenth_bicycle_model_acados_print_stats(f1tenth_bicycle_model_solver_capsu
     ocp_nlp_get(capsule->nlp_config, capsule->nlp_solver, "stat_m", &stat_m);
 
     
-    double stat[120000];
+    double stat[1200000];
     ocp_nlp_get(capsule->nlp_config, capsule->nlp_solver, "statistics", stat);
 
     int nrow = sqp_iter+1 < stat_m ? sqp_iter+1 : stat_m;

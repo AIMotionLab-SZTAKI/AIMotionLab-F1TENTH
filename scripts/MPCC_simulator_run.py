@@ -6,6 +6,7 @@ import os
 import numpy as np
 from scipy.interpolate import splev
 import matplotlib.pyplot as plt
+from time import time
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
 file_name = os.path.join(parent_dir, "configs/JoeBush1.yaml")
@@ -47,7 +48,7 @@ controller.set_trajectory(pos_tck = traj.pos_tck,
 
 
 
-iteration = 300
+iteration = 400
 Tf = args["MPCC_params"]["Tf"]
 N = args["MPCC_params"]["N"]
 
@@ -60,23 +61,44 @@ x_sim = np.array(np.reshape(x0, (-1,1)))
 
 errors = np.array(np.zeros((5,1)))
 
-print(errors)
-for i in range(iteration):
-    u, error = controller.compute_control(x0=x0)
-    x0,t= controller.simulate(x0, u, dt)
 
+freq = np.array([0])
+
+for i in range(iteration):
+    t_s = time()
+    u, error = controller.compute_control(x0=x0)
+    freq = np.append(freq, 1/(time()-t_s))
+    x0,t= controller.simulate(x0, u, dt)
+    #x0[3] = x0[3]*np.random.normal(1,0.05)
     x_sim = np.append(x_sim, np.reshape(x0, (-1,1)), axis= 1)
 
     errors = np.append(errors, np.reshape(error, (-1,1)), axis = 1)
-
 s = np.linspace(0, controller.trajectory.L)
 
 plt.figure()
+plt.title("Trajectory")
 plt.plot(controller.trajectory.spl_sx(s), controller.trajectory.spl_sy(s))
 plt.plot(x_sim[0,:], x_sim[1,:])
 plt.axis("equal")
 
+plt.xlabel("x[m]")
+plt.ylabel("y[m]")
+
+
+plt.figure()
+plt.title("Contouring error")
+plt.plot(np.arange(len(x_sim[0,:])),errors[0,:])
+plt.xlabel("iteration[-]")
+plt.ylabel("Error[m]")
+
+
 plt.figure()
 
-plt.plot(np.arange(len(x_sim[0,:])),errors[0,:])
+plt.title("Controller Frequency")
+
+plt.xlabel("Iteration")
+plt.ylabel("Frequency [Hz]")
+plt.plot(np.arange(len(x_sim[0,:])),freq)
+
+
 plt.show()

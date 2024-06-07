@@ -135,7 +135,7 @@ class Casadi_MPCC:
 
 
         self.lam_g_init = sol.value(self.opti.lam_g)
-        return sol.value(self.X), sol.value(self.v_U), sol.value(self.theta[:])
+        return sol.value(self.X), sol.value(self.v_U),sol.value(self.U), sol.value(self.theta[:]), sol.value(self.v_t)
     
 
     def __init_optimizer(self):

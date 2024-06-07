@@ -38,7 +38,6 @@ class MPCC_Controller:
         :return u_opt (optimal input vector)
         :return errors (contouring longitudinal errors, phi, theta)
         """
-        time_start = time.time()
         
         
 
@@ -47,17 +46,24 @@ class MPCC_Controller:
         self.ocp_solver.set(0, 'lbx', x0)
         self.ocp_solver.set(0, 'ubx', x0)
         self.ocp_solver.set(0, 'x', x0)
-       
+        tol = 10**-2
+        t = 0
+        for i in range(5):
+            self.ocp_solver.solve()
+            res = self.ocp_solver.get_residuals()
 
-        self.ocp_solver.solve()
+            t += self.ocp_solver.get_stats("time_tot")
+            num_iter = i
+            if max(res) < tol:
+                break
         #u_opt = np.reshape(self.ocp_solver.get(0, "u"),(-1,1))
-        time_end = time.time()
-        print(f"Current frequency: {1/(time_end-time_start)}, solver time: {time_end-time_start} ")
+        #print i/len(some_list)*100," percent complete         \r",
+        print(f"\rCurrent frequency: {(1/(t)):4f}, solver time: {t:.5f}, number of QP iterations: {num_iter:3}                  \r", end = '', flush=True)
         x_opt = np.reshape(self.ocp_solver.get(1, "x"),(-1,1)) #Full predictied optimal state vector (x,y,phi, vxi, veta, omega, thetahat, d, delta)
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
         u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0] 
-        print(f"optimal input: {u_opt}")
+        #print(f"optimal input: {u_opt}")
         #u_opt = np.reshape(u_opt, (-1,1))
 
         
@@ -83,16 +89,26 @@ class MPCC_Controller:
         """
         Calculate intial guess for the state horizon.
         """
-        X, v_U, theta = self.casadi_solver.opti_step(self.x0) #Call casadi solver for optimal initial guess
+        X, v_U,U, theta, dtheta = self.casadi_solver.opti_step(self.x0) #Call casadi solver for optimal initial guess
 
 
-        x_0 = np.concatenate((self.x0, np.array([self.theta]), np.array([0.5,0])))
-
+        x_0 = np.concatenate((self.x0, np.array([self.theta]), v_U[:,0]))
         self.ocp_solver.set(0, "x", x_0)
+        u_0 = np.concatenate((U[:,0], np.array([dtheta[0]])))
+        self.ocp_solver.set(0, "u", u_0)
+
+
+        print(f"x0: {x_0}")
+        print(f"u0: {u_0}")
         for i in range(self.parameters.N-1):
-            temp = np.concatenate((X[:,i+1],np.array([theta[i+1]]), v_U[:,i+1]))
-            temp = np.reshape(temp, (-1,1))
-            self.ocp_solver.set(i+1, "x", temp[:,0])
+            x = np.concatenate((X[:,i+1],np.array([theta[i+1]]), v_U[:,i+1]))
+            x = np.reshape(x, (-1,1))
+            self.ocp_solver.set(i+1, "x", x)
+
+            u = np.concatenate((U[:,i], np.array([dtheta[i]])))
+            self.ocp_solver.set(i, "u", u)
+
+
         
 
     def _generate_model(self):
@@ -285,11 +301,11 @@ class MPCC_Controller:
         ocp.solver_options.qp_solver = 'PARTIAL_CONDENSING_HPIPM'#'PARTIAL_CONDENSING_HPIPM' # FULL_CONDENSING_QPOASES
         ocp.solver_options.integrator_type = 'ERK'
         ocp.solver_options.nlp_solver_type = "SQP_RTI"  # SQP_RTI
-        ocp.solver_options.nlp_solver_max_iter = 10000
-        ocp.solver_options.nlp_solver_tol_stat = 1e-6
+        ocp.solver_options.nlp_solver_max_iter = 100000
+        ocp.solver_options.nlp_solver_tol_stat = 1e-3
         ocp.solver_options.levenberg_marquardt = 10.0
         ocp.solver_options.print_level = 0
-        ocp.solver_options.qp_solver_iter_max = 10000
+        ocp.solver_options.qp_solver_iter_max = 1000
         ocp.code_export_directory = 'c_generated_code'
         ocp.solver_options.hessian_approx = 'EXACT'
 
