@@ -74,7 +74,7 @@ int f1tenth_bicycle_model_acados_sim_create(f1tenth_bicycle_model_sim_solver_cap
     bool tmp_bool;
 
     
-    double Tsim = 0.013333333333333334;
+    double Tsim = 0.03;
 
     
     // explicit ode

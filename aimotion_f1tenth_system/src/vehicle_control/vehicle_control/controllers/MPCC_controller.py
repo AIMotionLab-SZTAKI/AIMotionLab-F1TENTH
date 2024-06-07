@@ -58,7 +58,6 @@ class MPCC_Controller:
                 break
         #u_opt = np.reshape(self.ocp_solver.get(0, "u"),(-1,1))
         #print i/len(some_list)*100," percent complete         \r",
-        print(f"\rCurrent frequency: {(1/(t)):4f}, solver time: {t:.5f}, number of QP iterations: {num_iter:3}                  \r", end = '', flush=True)
         x_opt = np.reshape(self.ocp_solver.get(1, "x"),(-1,1)) #Full predictied optimal state vector (x,y,phi, vxi, veta, omega, thetahat, d, delta)
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
@@ -66,6 +65,7 @@ class MPCC_Controller:
         #print(f"optimal input: {u_opt}")
         #u_opt = np.reshape(u_opt, (-1,1))
 
+        print(f"\rCurrent frequency: {(1/(t)):4f}, solver time: {t:.5f}, number of QP iterations: {num_iter:3}, progress: {self.theta/self.trajectory.L*100:.2f}%                  \r", end = '', flush=True)
         
         for i in range(self.parameters.N-1):
             self.ocp_solver.set(i, "x", self.ocp_solver.get(i+1, "x"))
@@ -309,12 +309,12 @@ class MPCC_Controller:
         ocp.code_export_directory = 'c_generated_code'
         ocp.solver_options.hessian_approx = 'EXACT'
 
-        lbx = np.array((self.parameters.d_min, -self.parameters.delta_max))
-        ubx = np.array((self.parameters.d_max, self.parameters.delta_max))
+        lbx = np.array((0,self.parameters.d_min, -self.parameters.delta_max))
+        ubx = np.array((self.trajectory.L*1.05,self.parameters.d_max, self.parameters.delta_max)) #TODO: max value of theta 
 
         ocp.constraints.lbx = lbx
         ocp.constraints.ubx = ubx
-        ocp.constraints.idxbx = np.array((7,8)) #d and delta
+        ocp.constraints.idxbx = np.array((6,7,8)) #d and delta
 
         lbu = np.array((self.parameters.thetahatdot_min,
                         -self.parameters.ddot_max, 

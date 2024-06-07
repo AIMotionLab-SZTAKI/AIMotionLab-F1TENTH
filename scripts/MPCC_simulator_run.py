@@ -6,6 +6,7 @@ import os
 import numpy as np
 from scipy.interpolate import splev
 import matplotlib.pyplot as plt
+from trajectory_generators import null_infty, eight, null_paperclip, train8
 from time import time
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
@@ -31,12 +32,15 @@ traj.load(traj_file)
 points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
 #traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
 
+path, v = null_paperclip()
+traj.build_from_waypoints(path, v, 0, 5)
+
 
 traj.plot_trajectory()
 
 theta_start = 0.15
 (x,y) = (splev(theta_start-0.1, traj.pos_tck))
-phi = -1.51
+phi = 0.84
 x0 = np.array([x+0.01,y-0.01,phi, 0.01, 0.0,0.0])
 
 print(x0)
@@ -48,7 +52,7 @@ controller.set_trajectory(pos_tck = traj.pos_tck,
 
 
 
-iteration = 400
+iteration = 1400
 Tf = args["MPCC_params"]["Tf"]
 N = args["MPCC_params"]["N"]
 
@@ -63,6 +67,11 @@ errors = np.array(np.zeros((5,1)))
 
 
 freq = np.array([0])
+for i in range(50):
+    u, error = controller.compute_control(x0=x0)
+
+u_sim = np.array([[0,0]])
+print(u_sim)
 
 for i in range(iteration):
     t_s = time()
@@ -73,6 +82,8 @@ for i in range(iteration):
     x_sim = np.append(x_sim, np.reshape(x0, (-1,1)), axis= 1)
 
     errors = np.append(errors, np.reshape(error, (-1,1)), axis = 1)
+    #u_sim = np.append(u_sim, np.reshape(u,(-1,1)), axis = 1)
+
 s = np.linspace(0, controller.trajectory.L)
 
 plt.figure()
@@ -100,5 +111,15 @@ plt.xlabel("Iteration")
 plt.ylabel("Frequency [Hz]")
 plt.plot(np.arange(len(x_sim[0,:])),freq)
 
+
+plt.figure()
+
+plt.title("Motor reference (d)")
+
+plt.xlabel("iteration[-]")
+plt.ylabel("d[-]")
+
+
+#plt.plot(np.arange(len(x_sim[0,:])-1), u_sim[0,:])
 
 plt.show()

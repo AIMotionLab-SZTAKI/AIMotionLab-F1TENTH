@@ -68,14 +68,14 @@ parameter_server:
         thetahatdot_max: 5.0
 
         #Optimisation parameters:
-        N: 60 #number of shooting nodes
-        Tf: 0.8 #[s] time lenght of the opt. horizon
+        N: 50 #number of shooting nodes
+        Tf: 1.5 #[s] time lenght of the opt. horizon
         #Cost weights:
         q_con: 60.0 
         q_long: 30.0
         q_theta: 3.0
         q_d: 0.1
-        q_delta: 3
+        q_delta: 2
 
       GP_LPV_LQR:
         GP_TYPE: "RLS_SGP" # GRAD_SGP, RLS_SGP

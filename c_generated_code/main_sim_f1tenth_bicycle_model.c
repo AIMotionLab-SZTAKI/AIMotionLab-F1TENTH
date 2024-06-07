@@ -74,9 +74,9 @@ int main()
     x_current[8] = 0.0;
 
   
-    x_current[0] = -0.7955584151634846;
-    x_current[1] = 0.03964039526005353;
-    x_current[2] = -1.51;
+    x_current[0] = 0.14055124600420385;
+    x_current[1] = 0.1445755143425512;
+    x_current[2] = 0.84;
     x_current[3] = 0.01;
     x_current[4] = 0;
     x_current[5] = 0;
