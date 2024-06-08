@@ -10,13 +10,13 @@ As the Command PC runs a standalone Python package, the setup is straightforward
 1. **Download the f1tenth_r2 framework from GitHub**:   
     .. code-block:: bash
 
-        git clone https://github.com/AIMotionLab-SZTAKI/f1tenth_r2
+        https://github.com/AIMotionLab-SZTAKI/AIMotionLab-F1TENTH.git
 
 2. **Create a virtual environment and activate it**:
 
     .. code-block:: bash
 
-        cd f1tenth_r2
+        cd AIMotionLab-F1TENTH
         python3 -m venv venv
         source venv/bin/activate
 
