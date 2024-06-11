@@ -12,7 +12,7 @@ r = 1
 
 
 class Casadi_MPCC:
-    def __init__(self,MPCC_params:dict, vehicle_param:dict, dt: float, q_c: float, q_l: float, q_t: float,q_delta:float, q_d: float, N: int, x_0, theta_0:float, trajectory: Spline_2D):
+    def __init__(self,MPCC_params:dict,input_0, vehicle_param:dict, dt: float, q_c: float, q_l: float, q_t: float,q_delta:float, q_d: float, N: int, x_0, theta_0:float, trajectory: Spline_2D):
         """
         Args:
             q_c (float): Contouring error weight
@@ -24,7 +24,7 @@ class Casadi_MPCC:
         self.model = Model(vehicle_params=vehicle_param, MPPC_params=MPCC_params)
         self.nx = self.model.nx # = 6
         self.nu = self.model.nu # = 2
-
+        
         self.dt = dt
         self.q_c = q_c
         self.q_l = q_l
@@ -41,10 +41,8 @@ class Casadi_MPCC:
         self.X_init[1, :] = np.reshape(self.trajectory.spl_sy(np.linspace(theta_0, theta_0 + self.N * self.dt * 2, self.N)), (-1))
         
         #Virtual input initital guess
-        temp = np.zeros((2,1))
-        
-        temp[0][0] = 0.08 #intial value of d
-        temp = np.reshape(temp,(-1,1))
+
+        temp = np.reshape(input_0,(-1,1))
 
         self.v_U_init = np.repeat(temp, N-1, axis= 1)
 
@@ -252,7 +250,7 @@ class Casadi_MPCC:
 
         # Solver setup
         p_opt = {'expand': False}
-        s_opts = {'max_iter': 1500, 'print_level': 5}
+        s_opts = {'max_iter': 2400, 'print_level': 0}
         self.opti.solver('ipopt', p_opt, s_opts)
    
 

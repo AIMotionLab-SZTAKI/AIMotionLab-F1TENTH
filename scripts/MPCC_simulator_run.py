@@ -20,7 +20,7 @@ args["vehicle_params"] = params["parameter_server"]["ros__parameters"]["vehicle_
 args["MPCC_params"] = params["parameter_server"]["ros__parameters"]["controllers"]["MPCC"]
 
 
-controller = MPCC_Controller(vehicle_params= args["vehicle_params"], MPCC_params= args["MPCC_params"])
+controller = MPCC_Controller(vehicle_params= args["vehicle_params"], mute = False, MPCC_params= args["MPCC_params"])
 
 
 
@@ -41,7 +41,7 @@ traj.plot_trajectory()
 theta_start = 0.15
 (x,y) = (splev(theta_start-0.1, traj.pos_tck))
 phi = 0.84
-x0 = np.array([x+0.01,y-0.01,phi, 0.01, 0.0,0.0])
+x0 = np.array([x-0.05,y-0.05,phi, 0.01, 0.0,0.0])
 
 print(x0)
 
@@ -60,7 +60,7 @@ dt = Tf/N
 
 dt = 1/60
 print(f"Integration time: {dt}")
-input("Press enter to run sim")
+#input("Press enter to run sim")
 x_sim = np.array(np.reshape(x0, (-1,1)))
 
 errors = np.array(np.zeros((5,1)))
@@ -70,26 +70,36 @@ freq = np.array([0])
 for i in range(50):
     u, error = controller.compute_control(x0=x0)
 
-u_sim = np.array([[0,0]])
-print(u_sim)
-
+u_sim = np.zeros((2,1))
+theta_sim = np.array([0])
 for i in range(iteration):
     t_s = time()
     u, error = controller.compute_control(x0=x0)
     freq = np.append(freq, 1/(time()-t_s))
     x0,t= controller.simulate(x0, u, dt)
-    #x0[3] = x0[3]*np.random.normal(1,0.05)
+
+    #Simulating noise: 
+    x0[3] = x0[3]*np.random.normal(1,0.005)
+    #x0[0] = x0[0]*np.random.normal(1,0.0005)
+    #x0[1] = x0[1]*np.random.normal(1,0.0005)
+    
     x_sim = np.append(x_sim, np.reshape(x0, (-1,1)), axis= 1)
 
     errors = np.append(errors, np.reshape(error, (-1,1)), axis = 1)
-    #u_sim = np.append(u_sim, np.reshape(u,(-1,1)), axis = 1)
-
+    u_sim = np.append(u_sim, np.reshape(u,(-1,1)), axis = 1)
+    theta_sim = np.append(theta_sim, controller.theta)
+    if(controller.theta >= controller.trajectory.L*0.97):
+        break
 s = np.linspace(0, controller.trajectory.L)
+
+
+print()
 
 plt.figure()
 plt.title("Trajectory")
 plt.plot(controller.trajectory.spl_sx(s), controller.trajectory.spl_sy(s))
 plt.plot(x_sim[0,:], x_sim[1,:])
+plt.scatter(x_sim[0,:], x_sim[1,:], c = x_sim[3,:],s = 15,cmap = "Reds")
 plt.axis("equal")
 
 plt.xlabel("x[m]")
@@ -98,8 +108,8 @@ plt.ylabel("y[m]")
 
 plt.figure()
 plt.title("Contouring error")
-plt.plot(np.arange(len(x_sim[0,:])),errors[0,:])
-plt.xlabel("iteration[-]")
+plt.plot(theta_sim,errors[0,:])
+plt.xlabel("theta[m]")
 plt.ylabel("Error[m]")
 
 
@@ -107,19 +117,19 @@ plt.figure()
 
 plt.title("Controller Frequency")
 
-plt.xlabel("Iteration")
+plt.xlabel("theta[m]")
 plt.ylabel("Frequency [Hz]")
-plt.plot(np.arange(len(x_sim[0,:])),freq)
+plt.plot(theta_sim[1:],freq[1:])
 
 
 plt.figure()
 
 plt.title("Motor reference (d)")
 
-plt.xlabel("iteration[-]")
+plt.xlabel("theta[m]")
 plt.ylabel("d[-]")
 
 
-#plt.plot(np.arange(len(x_sim[0,:])-1), u_sim[0,:])
+plt.plot(theta_sim, u_sim[0,:])
 
 plt.show()

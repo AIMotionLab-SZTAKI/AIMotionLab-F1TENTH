@@ -157,7 +157,6 @@ ACADOS_SYMBOL_EXPORT int f1tenth_bicycle_model_acados_update_params(f1tenth_bicy
 ACADOS_SYMBOL_EXPORT int f1tenth_bicycle_model_acados_update_params_sparse(f1tenth_bicycle_model_solver_capsule * capsule, int stage, int *idx, double *p, int n_update);
 
 ACADOS_SYMBOL_EXPORT int f1tenth_bicycle_model_acados_solve(f1tenth_bicycle_model_solver_capsule * capsule);
-ACADOS_SYMBOL_EXPORT void f1tenth_bicycle_model_acados_batch_solve(f1tenth_bicycle_model_solver_capsule ** capsules, int N_batch);
 ACADOS_SYMBOL_EXPORT int f1tenth_bicycle_model_acados_free(f1tenth_bicycle_model_solver_capsule * capsule);
 ACADOS_SYMBOL_EXPORT void f1tenth_bicycle_model_acados_print_stats(f1tenth_bicycle_model_solver_capsule * capsule);
 ACADOS_SYMBOL_EXPORT int f1tenth_bicycle_model_acados_custom_update(f1tenth_bicycle_model_solver_capsule* capsule, double* data, int data_len);

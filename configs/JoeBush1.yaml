@@ -57,9 +57,9 @@ parameter_server:
       MPCC:
         #Input constraints
         delta_max: 0.5 # [rad]
-        d_max: 0.11
+        d_max: 0.35
         d_min: 0.05       
-
+        opt_tol: 0.5
         #Incremental input constraints        
 
         ddot_max: 1000.0
@@ -69,13 +69,13 @@ parameter_server:
 
         #Optimisation parameters:
         N: 50 #number of shooting nodes
-        Tf: 1.5 #[s] time lenght of the opt. horizon
+        Tf: 1.1 #[s] time lenght of the opt. horizon
         #Cost weights:
-        q_con: 60.0 
+        q_con: 80.0 
         q_long: 30.0
-        q_theta: 3.0
-        q_d: 0.1
-        q_delta: 2
+        q_theta: 4.0
+        q_d: 0.5
+        q_delta: 20.0
 
       GP_LPV_LQR:
         GP_TYPE: "RLS_SGP" # GRAD_SGP, RLS_SGP

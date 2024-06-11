@@ -9,12 +9,13 @@ import os
 from ..MPCC.casadi_controll import Casadi_MPCC
 import time
 class MPCC_Controller:
-    def __init__(self, vehicle_params: dict, MPCC_params: dict):
+    def __init__(self, vehicle_params: dict, MPCC_params: dict, mute = True):
         """
         Init controller parameters
         :param vehicle_params: dict
         :param MPCC_params: dict
         """
+        self.mute = mute
         self.vehicle_params = vehicle_params
         self.MPCC_params = MPCC_params
         self.trajectory = None
@@ -46,26 +47,26 @@ class MPCC_Controller:
         self.ocp_solver.set(0, 'lbx', x0)
         self.ocp_solver.set(0, 'ubx', x0)
         self.ocp_solver.set(0, 'x', x0)
-        tol = 10**-2
+        tol = self.MPCC_params["opt_tol"]
         t = 0
         for i in range(5):
             self.ocp_solver.solve()
             res = self.ocp_solver.get_residuals()
 
             t += self.ocp_solver.get_stats("time_tot")
-            num_iter = i
+            num_iter = i+1
             if max(res) < tol:
+                break #Tolerance limit reached
+            if t > 1/60: #If the controller frequency is below 60 Hz break
                 break
-        #u_opt = np.reshape(self.ocp_solver.get(0, "u"),(-1,1))
-        #print i/len(some_list)*100," percent complete         \r",
+
+
         x_opt = np.reshape(self.ocp_solver.get(1, "x"),(-1,1)) #Full predictied optimal state vector (x,y,phi, vxi, veta, omega, thetahat, d, delta)
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
         u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0] 
-        #print(f"optimal input: {u_opt}")
-        #u_opt = np.reshape(u_opt, (-1,1))
-
-        print(f"\rCurrent frequency: {(1/(t)):4f}, solver time: {t:.5f}, number of QP iterations: {num_iter:3}, progress: {self.theta/self.trajectory.L*100:.2f}%                  \r", end = '', flush=True)
+        if self.mute == False:
+            print(f"\rCurrent frequency: {(1/(t)):4f}, solver time: {t:.5f}, number of QP iterations: {num_iter:3}, progress: {self.theta/self.trajectory.L*100:.2f}%                  \r", end = '', flush=True)
         
         for i in range(self.parameters.N-1):
             self.ocp_solver.set(i, "x", self.ocp_solver.get(i+1, "x"))
@@ -343,6 +344,7 @@ class MPCC_Controller:
         x0 = np.concatenate((self.x0, np.array([self.theta]), self.input))
 
         ocp.constraints.x0 = x0 #Set in the set_trajectory function
+
         ocp_solver = AcadosOcpSolver(ocp, json_file = 'acados_ocp.json')
         return ocp_solver
     
@@ -362,7 +364,7 @@ class MPCC_Controller:
 
         self.x0[3] = 0.01 #Give a small forward speed to make the problem feasable
 
-        self.input = np.array([0.08,0])
+        self.input = np.array([self.MPCC_params["d_max"],0])
 
 
         t_end = evol_tck[0][-1]
@@ -400,6 +402,7 @@ class MPCC_Controller:
                                          q_delta=self.parameters.q_delta,
                                          q_d = self.parameters.q_d,
                                          theta_0=self.theta,
+                                         input_0 = self.input,
                                          trajectory=self.trajectory,
                                          N = self.parameters.N,
                                          x_0 = self.x0)
@@ -486,5 +489,3 @@ class MPCC_Controller:
         sim.set_initial_value(states, t).set_f_params(inputs)
 
         return sim.integrate(dt), sim.t+dt
-
-        

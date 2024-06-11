@@ -342,8 +342,13 @@ class ControlManager(Node):
         if not setpoint["running"]:
             self._stop()
             return
+        try:
+            u, errors = self.active_controller.compute_control(self.current_state, setpoint)
+        except Exception as e:
+            self._logger.fatal(e)
+            self.MODE =CONTROLLER_MODE.IDLE
+            self.pub.publish(InputValues(d = 0.0, delta = 0.0))
 
-        u, errors = self.active_controller.compute_control(self.current_state, setpoint)
 
         self.state_logger.log_state(t,self.current_state, setpoint, errors, u)
         if self._is_running():
