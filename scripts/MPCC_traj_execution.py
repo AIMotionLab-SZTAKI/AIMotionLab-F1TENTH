@@ -11,15 +11,36 @@ import pickle
 mpl.rcParams["text.usetex"] = False 
 
 # Design / load the trajectory
-traj_ID = "traj_1"
-traj = Trajectory("traj1")
-points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
-traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
-#traj.load("paperclip.traj")
-traj.plot_trajectory()
-path, v = null_paperclip()
+
+#traj_ID = "traj_1"
+#traj = Trajectory("traj1")
+#points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
+#traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
+##traj.load("paperclip.traj")
 #traj.plot_trajectory()
+#path, v = null_paperclip()
+##traj.plot_trajectory()
+
+
+parent_dir = os.path.dirname(os.path.dirname(__file__))
+
+traj_name = "paperclip.traj"
+traj_file = os.path.join(parent_dir, "scripts", traj_name)
+traj = Trajectory("traj_1")
+
+traj.load(traj_file)
+points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
+#traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
+
+path, v = null_paperclip()
+traj.build_from_waypoints(path, v, 0, 5)
+
+
+traj.plot_trajectory()
+
 x_r, y_r, *_ = traj.get_trajectory()
+
+
 
 # connect to the vehicle
 car_1 = F1Client("192.168.2.62", 8069)

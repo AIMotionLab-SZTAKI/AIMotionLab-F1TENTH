@@ -15,7 +15,7 @@ class MPCC_Controller:
         :param vehicle_params: dict
         :param MPCC_params: dict
         """
-        self.mute = mute
+        self.muted = mute
         self.vehicle_params = vehicle_params
         self.MPCC_params = MPCC_params
         self.trajectory = None
@@ -24,7 +24,7 @@ class MPCC_Controller:
         self.s_start = 0.0
         self.x0 = np.zeros((1,6))
 
-        self.input = np.array([0.08,0])
+        self.input = np.array([self.MPCC_params["d_max"],0])
        
         self.ocp_solver = None #acados solver to compute control
 
@@ -40,7 +40,8 @@ class MPCC_Controller:
         :return errors (contouring longitudinal errors, phi, theta)
         """
         
-        
+        if x0[3] <0.001:
+            x0[3] = 0.001
 
         x0 = np.concatenate((x0, np.array([self.theta]), self.input))
 
@@ -58,6 +59,8 @@ class MPCC_Controller:
             if max(res) < tol:
                 break #Tolerance limit reached
             if t > 1/60: #If the controller frequency is below 60 Hz break
+                if self.muted == False:
+                    print("Time limit reached")
                 break
 
 
@@ -65,7 +68,7 @@ class MPCC_Controller:
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
         u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0] 
-        if self.mute == False:
+        if self.muted == False:
             print(f"\rCurrent frequency: {(1/(t)):4f}, solver time: {t:.5f}, number of QP iterations: {num_iter:3}, progress: {self.theta/self.trajectory.L*100:.2f}%                  \r", end = '', flush=True)
         
         for i in range(self.parameters.N-1):
@@ -98,6 +101,7 @@ class MPCC_Controller:
         u_0 = np.concatenate((U[:,0], np.array([dtheta[0]])))
         self.ocp_solver.set(0, "u", u_0)
 
+    
 
         print(f"x0: {x_0}")
         print(f"u0: {u_0}")
@@ -110,7 +114,23 @@ class MPCC_Controller:
             self.ocp_solver.set(i, "u", u)
 
 
-        
+        #Acados controller init: 
+
+        self.ocp_solver.set(0, 'lbx', x_0)
+        self.ocp_solver.set(0, 'ubx', x_0)
+        self.ocp_solver.set(0, 'x', x_0)
+        tol =   0.01
+        t = 0
+        for i in range(30):
+            self.ocp_solver.solve()
+            res = self.ocp_solver.get_residuals()
+
+            t += self.ocp_solver.get_stats("time_tot")
+            num_iter = i+1
+            if max(res) < tol:
+                break #Tolerance limit reached
+
+
 
     def _generate_model(self):
         """
@@ -362,7 +382,7 @@ class MPCC_Controller:
         
         self.x0 = x0 #The current position must be the initial condition
 
-        self.x0[3] = 0.01 #Give a small forward speed to make the problem feasable
+        self.x0[3] = 0.001 #Give a small forward speed to make the problem feasable
 
         self.input = np.array([self.MPCC_params["d_max"],0])
 

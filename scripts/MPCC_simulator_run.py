@@ -67,9 +67,11 @@ errors = np.array(np.zeros((5,1)))
 
 
 freq = np.array([0])
-for i in range(50):
+for i in range(100):
+    controller.muted = True
     u, error = controller.compute_control(x0=x0)
 
+controller.muted = False
 u_sim = np.zeros((2,1))
 theta_sim = np.array([0])
 for i in range(iteration):
@@ -79,7 +81,7 @@ for i in range(iteration):
     x0,t= controller.simulate(x0, u, dt)
 
     #Simulating noise: 
-    x0[3] = x0[3]*np.random.normal(1,0.005)
+    #x0[3] = x0[3]*np.random.normal(1,0.005)
     #x0[0] = x0[0]*np.random.normal(1,0.0005)
     #x0[1] = x0[1]*np.random.normal(1,0.0005)
     
@@ -130,6 +132,6 @@ plt.xlabel("theta[m]")
 plt.ylabel("d[-]")
 
 
-plt.plot(theta_sim, u_sim[0,:])
+plt.plot(theta_sim[1:], u_sim[0,1:])
 
 plt.show()

@@ -57,6 +57,8 @@ class LoaderNode(Node):
                 ('controllers.MPCC.deltadot_max', rclpy.Parameter.Type.DOUBLE),
                 ('controllers.MPCC.thetahatdot_min', rclpy.Parameter.Type.DOUBLE),
                 ('controllers.MPCC.thetahatdot_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.opt_tol', rclpy.Parameter.Type.DOUBLE),
+
                 
                 # vehicle params
                 ('vehicle_params.C_m1' ,rclpy.Parameter.Type.DOUBLE),
@@ -128,6 +130,8 @@ def main():
         "deltadot_max": loader.get_parameter("controllers.MPCC.deltadot_max").value,
         "thetahatdot_min": loader.get_parameter("controllers.MPCC.thetahatdot_min").value,
         "thetahatdot_max": loader.get_parameter("controllers.MPCC.thetahatdot_max").value,
+        "opt_tol": loader.get_parameter("controllers.MPCC.opt_tol").value,
+
     }
     # TODO: collect params into dict and pass to tha manager as kwargs
 
