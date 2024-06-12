@@ -9,7 +9,7 @@ import os
 from ..MPCC.casadi_controll import Casadi_MPCC
 import time
 class MPCC_Controller:
-    def __init__(self, vehicle_params: dict, MPCC_params: dict, mute = True):
+    def __init__(self, vehicle_params: dict, MPCC_params: dict, mute = False):
         """
         Init controller parameters
         :param vehicle_params: dict
@@ -95,7 +95,7 @@ class MPCC_Controller:
         """
         if self.muted == False:
             print("Casadi init started...")
-            
+
         X, v_U,U, theta, dtheta = self.casadi_solver.opti_step(self.x0) #Call casadi solver for optimal initial guess
 
         x_0 = np.concatenate((self.x0, np.array([self.theta]), v_U[:,0]))

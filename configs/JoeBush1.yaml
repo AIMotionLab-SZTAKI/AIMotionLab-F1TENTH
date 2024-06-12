@@ -59,7 +59,7 @@ parameter_server:
         delta_max: 0.5 # [rad]
         d_max: 0.15
         d_min: 0.05       
-        opt_tol: 0.5
+        opt_tol: 1.5
         #Incremental input constraints        
 
         ddot_max: 10000.0
@@ -73,9 +73,9 @@ parameter_server:
         #Cost weights:
         q_con: 80.0 
         q_long: 30.0
-        q_theta: 1.0
-        q_d: 0.001
-        q_delta: 20.0
+        q_theta: 2.0
+        q_d: 0.01
+        q_delta: 5.0
 
       GP_LPV_LQR:
         GP_TYPE: "RLS_SGP" # GRAD_SGP, RLS_SGP

@@ -73,7 +73,7 @@ parameter_server:
         #Cost weights:
         q_con: 80.0 
         q_long: 30.0
-        q_theta: 4.0
+        q_theta: 2.0
         q_d: 0.001
         q_delta: 20.0
 
