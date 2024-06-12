@@ -90,7 +90,7 @@ for i in range(iteration):
     errors = np.append(errors, np.reshape(error, (-1,1)), axis = 1)
     u_sim = np.append(u_sim, np.reshape(u,(-1,1)), axis = 1)
     theta_sim = np.append(theta_sim, controller.theta)
-    if(controller.theta >= controller.trajectory.L*0.97):
+    if(controller.theta >= controller.trajectory.L*0.98):
         break
 s = np.linspace(0, controller.trajectory.L)
 

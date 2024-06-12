@@ -93,8 +93,10 @@ class MPCC_Controller:
         """
         Calculate intial guess for the state horizon.
         """
+        if self.muted == False:
+            print("Casadi init started...")
+            
         X, v_U,U, theta, dtheta = self.casadi_solver.opti_step(self.x0) #Call casadi solver for optimal initial guess
-
 
         x_0 = np.concatenate((self.x0, np.array([self.theta]), v_U[:,0]))
         self.ocp_solver.set(0, "x", x_0)
@@ -102,26 +104,29 @@ class MPCC_Controller:
         self.ocp_solver.set(0, "u", u_0)
 
     
-
-        print(f"x0: {x_0}")
-        print(f"u0: {u_0}")
+        if self.muted == False:
+            print(f"x0: {x_0}")
+            print(f"u0: {u_0}")
+        
         for i in range(self.parameters.N-1):
             x = np.concatenate((X[:,i+1],np.array([theta[i+1]]), v_U[:,i+1]))
-            x = np.reshape(x, (-1,1))
+            #x = np.reshape(x, (-1,1))
             self.ocp_solver.set(i+1, "x", x)
 
-            u = np.concatenate((U[:,i], np.array([dtheta[i]])))
+            u = np.concatenate((np.array([dtheta[i]]),U[:,i]))
             self.ocp_solver.set(i, "u", u)
 
 
         #Acados controller init: 
+        if self.muted == False:
+            print("Acados init started...")
 
         self.ocp_solver.set(0, 'lbx', x_0)
         self.ocp_solver.set(0, 'ubx', x_0)
         self.ocp_solver.set(0, 'x', x_0)
         tol =   0.01
         t = 0
-        for i in range(30):
+        for i in range(10):
             self.ocp_solver.solve()
             res = self.ocp_solver.get_residuals()
 
@@ -129,8 +134,10 @@ class MPCC_Controller:
             num_iter = i+1
             if max(res) < tol:
                 break #Tolerance limit reached
-
-
+        
+        if self.muted == False:
+            print(f"Number of init iterations: {num_iter}")
+            print("")
 
     def _generate_model(self):
         """
