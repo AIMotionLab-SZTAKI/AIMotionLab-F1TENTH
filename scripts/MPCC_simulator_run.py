@@ -36,9 +36,9 @@ path, v = null_paperclip()
 traj.build_from_waypoints(path, v, 0, 5)
 
 
-traj.plot_trajectory()
+#traj.plot_trajectory()
 
-theta_start = 0.15
+theta_start = 0.10
 (x,y) = (splev(theta_start-0.1, traj.pos_tck))
 phi = 0.84
 x0 = np.array([x-0.05,y-0.05,phi, 0.01, 0.0,0.0])
@@ -58,7 +58,7 @@ N = args["MPCC_params"]["N"]
 
 dt = Tf/N
 
-dt = 1/60
+dt = 1/40
 print(f"Integration time: {dt}")
 #input("Press enter to run sim")
 x_sim = np.array(np.reshape(x0, (-1,1)))
@@ -81,7 +81,7 @@ for i in range(iteration):
     x0,t= controller.simulate(x0, u, dt)
 
     #Simulating noise: 
-    x0[3] = x0[3]*np.random.normal(1,0.05)
+    #x0[3] = x0[3]*np.random.normal(1,0.05)
     #x0[0] = x0[0]*np.random.normal(1,0.0005)
     #x0[1] = x0[1]*np.random.normal(1,0.0005)
     
@@ -116,7 +116,6 @@ plt.ylabel("Error[m]")
 
 
 plt.figure()
-
 plt.title("Controller Frequency")
 
 plt.xlabel("theta[m]")
@@ -125,13 +124,24 @@ plt.plot(theta_sim[1:],freq[1:])
 
 
 plt.figure()
+plt.subplot(2,1,1)
 
 plt.title("Motor reference (d)")
 
 plt.xlabel("theta[m]")
 plt.ylabel("d[-]")
 
-
 plt.plot(theta_sim[1:], u_sim[0,1:])
+
+plt.subplot(2,1,2)
+
+plt.title("Speed")
+
+plt.xlabel("theta[m]")
+plt.ylabel("speed[m/s]")
+
+plt.plot(theta_sim, x_sim[3,:])
+
+
 
 plt.show()

@@ -59,23 +59,23 @@ parameter_server:
         delta_max: 0.5 # [rad]
         d_max: 0.15
         d_min: 0.05       
-        opt_tol: 1.5
+        opt_tol: 0.05
         #Incremental input constraints        
 
-        ddot_max: 10000.0
-        deltadot_max: 10000.0
+        ddot_max: 1000.0
+        deltadot_max: 1000.0
         thetahatdot_min: 0.001
-        thetahatdot_max: 5.0
+        thetahatdot_max: 3.0
 
         #Optimisation parameters:
-        N: 60 #number of shooting nodes
-        Tf: 1 #[s] time lenght of the opt. horizon
+        N: 21 #number of shooting nodes
+        Tf: 0.525 #[s] time lenght of the opt. horizon
         #Cost weights:
-        q_con: 80.0 
+        q_con: 30.0 
         q_long: 30.0
         q_theta: 2.0
-        q_d: 0.01
-        q_delta: 5.0
+        q_d: 0.05
+        q_delta: 0.05
 
       GP_LPV_LQR:
         GP_TYPE: "RLS_SGP" # GRAD_SGP, RLS_SGP
@@ -122,7 +122,7 @@ parameter_server:
 
     crazy_observer:
       CUTOFF: 2.0
-      FREQUENCY: 60.0
+      FREQUENCY: 40.0
       MARKER_OFFSET: 0.0
     drive_bridge:
       MOTOR_LIMIT: 0.25

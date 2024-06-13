@@ -50,7 +50,7 @@ class MPCC_Controller:
         self.ocp_solver.set(0, 'x', x0)
         tol = self.MPCC_params["opt_tol"]
         t = 0
-        for i in range(5):
+        for i in range(50):
             self.ocp_solver.solve()
             res = self.ocp_solver.get_residuals()
 
@@ -58,10 +58,11 @@ class MPCC_Controller:
             num_iter = i+1
             if max(res) < tol:
                 break #Tolerance limit reached
-            if t > 1/60: #If the controller frequency is below 60 Hz break
+            if t > self.MPCC_params["N"]/self.MPCC_params["Tf"]: #If the controller frequency is below 60 Hz break
                 if self.muted == False:
-                    print("Time limit reached")
-                break
+                    pass
+                    #print("Time limit reached")
+                #break
 
 
         x_opt = np.reshape(self.ocp_solver.get(1, "x"),(-1,1)) #Full predictied optimal state vector (x,y,phi, vxi, veta, omega, thetahat, d, delta)
@@ -329,7 +330,7 @@ class MPCC_Controller:
         ocp.solver_options.qp_solver = 'PARTIAL_CONDENSING_HPIPM'#'PARTIAL_CONDENSING_HPIPM' # FULL_CONDENSING_QPOASES
         ocp.solver_options.integrator_type = 'ERK'
         ocp.solver_options.nlp_solver_type = "SQP_RTI"  # SQP_RTI
-        ocp.solver_options.nlp_solver_max_iter = 100000
+        ocp.solver_options.nlp_solver_max_iter = 1000
         ocp.solver_options.nlp_solver_tol_stat = 1e-3
         ocp.solver_options.levenberg_marquardt = 10.0
         ocp.solver_options.print_level = 0
