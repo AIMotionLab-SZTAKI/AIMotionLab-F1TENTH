@@ -41,9 +41,10 @@ traj.load(traj_file)
 
 traj.plot_trajectory()
 
+car_1.set_mode(mode= CONTROLLER_MODE.IDLE)
 car_1.execute_trajectory(traj)
 
 
 if car_1.get_mode() == CONTROLLER_MODE.RUNNING:
-    print(car_1.get_MPCC_horizon())
+    #print(car_1.get_MPCC_horizon())
     time.sleep(1/10)
