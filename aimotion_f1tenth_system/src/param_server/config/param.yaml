@@ -72,8 +72,8 @@ parameter_server:
         Tf: 0.525 #[s] time lenght of the opt. horizon
         #Cost weights:
         q_con: 30.0 
-        q_long: 20.0
-        q_theta: 3.0
+        q_long: 30.0
+        q_theta: 2.0
         q_d: 0.05
         q_delta: 0.05
 

@@ -61,6 +61,34 @@ class F1Client:
         if res["status"] == False:
             raise Exception(f"Could not set controller: {res['error']}") 
         
+    def get_MPCC_horizon(self):
+        """Get current solution through the optimization horizon
+        :return: states"""
+        
+        res = self.client.send({"command": "MPCC_get_current_horizon"})
+
+        
+        if res["status"] == False:
+            raise Exception(f"Could not get current solution horizon {res['error']}")
+        return res["states"]
+
+    def get_MPCC_params(self)->dict:
+        """Get the current parameter list of the acados optimiser.
+        :type: dict
+        :return: Current parameter dict"""
+        res = self.client.send({"command": "MPCC_param_get"})
+        if res["status"] == False:
+            raise Exception(f"Could not get the current parameters: {res['error']}")
+        return res['MPCC_params']
+
+    def set_MPCC_params(self, params: dict):
+        """Set the parameters for the acados and casadi solvers.
+        :param params: A dictionary of the parameters"""
+        
+        res = self.client.send({"command": "MPCC_param_update", "MPCC_params": params})
+
+        if res["status"] == False:
+            raise Exception(f"Could not set parameters: {res['error']}")
 
     def get_controllers(self) -> list[str]:
         """Retrieves the available controllers of the vehicle

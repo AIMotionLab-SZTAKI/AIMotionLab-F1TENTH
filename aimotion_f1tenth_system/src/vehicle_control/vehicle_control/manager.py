@@ -89,6 +89,44 @@ class ControlManager(Node):
             controllers = list(self.controllers.keys())
             return {"status": True, "controllers": controllers}
 
+        # get available controllers
+        elif cmd == "get_controllers":
+            controllers = list(self.controllers.keys())
+            return {"status": True, "controllers": controllers}
+        
+        # get current solution through the horizon
+        elif cmd == "MPCC_get_current_horizon":
+            try:
+                if self.active_controller != self.controllers["MPCC"]: #MPCC isn't the current active controller
+                    raise Exception("MPCC controller inactive!") 
+                
+                if self.controllers["MPCC"].ocp_solver == None: #No solver found-> trajectory hasn't been set
+                    raise Exception("Trajectory execution hasn't been started!")
+                
+                coordinates = np.array([[]])
+                for i in range(self.controllers["MPCC"].MPCC_params["N"]):
+                    x = self.controllers["MPCC"].ocp_solver.get(i, 'x')
+                    x = np.reshape(x, (-1,1))
+                    states = np.append(coordinates, states, axis=1)
+                return {"status": True, "states": states}
+            except Exception as e:
+                return {"status": False, "error": e}
+ 
+        # set MPCC parameters
+        elif cmd == "MPCC_param_get":
+            try:
+                return {"status": True, "MPCC_params": self.controllers["MPCC"].MPCC_params}
+            except Exception as e:
+                return {"status": False, "error": e}
+            
+        # set MPCC parameters
+        elif cmd == "MPCC_param_update":
+            try:
+                self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
+                return {"status": True, "params:": message["MPCC_params"]}
+            except Exception as e:
+                return {"status": False, "error": e}
+        
         # mode selection
         elif cmd == "set_mode":
             # cannot accept command if controller is processing
