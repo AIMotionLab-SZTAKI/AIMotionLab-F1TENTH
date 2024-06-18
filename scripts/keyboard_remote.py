@@ -6,3 +6,4 @@ car_1 = F1Client("JoeBush1")
 
 car_1.set_mode(mode = CONTROLLER_MODE.MANUAL)
 car_1.keyboard_control(delta_max=.4)
+car_1.set_mode(mode = CONTROLLER_MODE.IDLE)

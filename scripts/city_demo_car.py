@@ -25,7 +25,7 @@ for traj_ID in traj_IDs:
 car = F1Client("JoeBush1")
 car.set_mode(CONTROLLER_MODE.IDLE)
 
-
+1
 
 
 GP_LPV_LQR_params = {
@@ -98,7 +98,7 @@ print("Trajectory execution started!")
 for i, trajectory in enumerate(trajectories):
     # send trajectory index in demo mode
     if Socket is not None:
-        serialized=pickle.dumps((warning_time, trajectory.to_send()))
+        serialized=pickle.dumps((warning_time, trajectory.export_to_skybrush()))
         assert len(serialized)< 65536
         Socket.sendall(serialized)
 
@@ -111,5 +111,5 @@ for i, trajectory in enumerate(trajectories):
     car.wait_while_running()
 
 if Socket is not None:
-    Socket.sendall(b'-1')
+#    Socket.sendall(b'-1')
     Socket.close()
