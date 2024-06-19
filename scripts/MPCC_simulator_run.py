@@ -3,11 +3,12 @@ from aimotion_f1tenth_utils.Trajectory import Trajectory
 from aimotion_f1tenth_system.src.vehicle_control.vehicle_control.MPCC.trajectory import Spline_2D
 import yaml
 import os
+import time
 import numpy as np
 from scipy.interpolate import splev
 import matplotlib.pyplot as plt
 from trajectory_generators import null_infty, eight, null_paperclip, train8
-from time import time
+from MPCC_plotter import MPCC_plotter
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
 file_name = os.path.join(parent_dir, "configs/JoeBush1.yaml")
@@ -58,8 +59,6 @@ N = args["MPCC_params"]["N"]
 
 dt = Tf/N
 
-dt = 1/40
-print(f"Integration time: {dt}")
 #input("Press enter to run sim")
 x_sim = np.array(np.reshape(x0, (-1,1)))
 
@@ -74,10 +73,22 @@ for i in range(100):
 controller.muted = False
 u_sim = np.zeros((2,1))
 theta_sim = np.array([0])
+
+
+plotter = MPCC_plotter()
+
+s = np.linspace(0, controller.trajectory.L)
+
+plotter.set_ref(np.array(controller.trajectory.spl_sx(s)), np.array(controller.trajectory.spl_sy(s)))
+
+plotter.show()
+
+
+
 for i in range(iteration):
-    t_s = time()
+    t_s = time.time()
     u, error = controller.compute_control(x0=x0)
-    freq = np.append(freq, 1/(time()-t_s))
+    freq = np.append(freq, 1/(time.time()-t_s))
     x0,t= controller.simulate(x0, u, dt)
 
     #Simulating noise: 
@@ -92,10 +103,17 @@ for i in range(iteration):
     theta_sim = np.append(theta_sim, controller.theta)
     if(controller.theta >= controller.trajectory.L*0.98):
         break
+
+
+    horizon = np.array(np.reshape(controller.ocp_solver.get(0, 'x'),(-1,1)))
+    for i in range(controller.parameters.N-1):
+        x   = controller.ocp_solver.get(i+1, 'x')
+        x = np.reshape(x, (-1,1))
+        horizon = np.append(horizon, x, axis = 1)
+    plotter.update_plot(new_x = horizon[0,:], new_y = horizon[1,:])
+    time.sleep(dt)
 s = np.linspace(0, controller.trajectory.L)
 
-
-print()
 
 plt.figure()
 plt.title("Trajectory")
@@ -145,3 +163,5 @@ plt.plot(theta_sim, x_sim[3,:])
 
 
 plt.show()
+
+input("Press enter to exit...")
