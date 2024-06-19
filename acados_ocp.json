@@ -171,7 +171,7 @@
         "zu_e": []
     },
     "cython_include_dirs": [
-        "/home/bodlaire/work/AIMotionLab-F1TENTH/venv/lib/python3.10/site-packages/numpy/core/include",
+        "/home/bodlaire/work/AIMotionLab-F1TENTH/venv/lib/python3.10/site-packages/numpy/_core/include",
         "/usr/include/python3.10"
     ],
     "dims": {
@@ -231,8 +231,8 @@
         "cost_conl_custom_outer_hess": null,
         "cost_conl_custom_outer_hess_0": null,
         "cost_conl_custom_outer_hess_e": null,
-        "cost_expr_ext_cost": "@1=vertcat(x, y), (((((30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(20*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(3*thetadot))+(0.05*sq(ddot)))+(0.05*sq(deltadot)))",
-        "cost_expr_ext_cost_0": "@1=vertcat(x, y), (((((30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(20*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(3*thetadot))+(0.05*sq(ddot)))+(0.05*sq(deltadot)))",
+        "cost_expr_ext_cost": "@1=vertcat(x, y), (((((30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.*thetadot))+(0.05*sq(ddot)))+(0.1*sq(deltadot)))",
+        "cost_expr_ext_cost_0": "@1=vertcat(x, y), (((((30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.*thetadot))+(0.05*sq(ddot)))+(0.1*sq(deltadot)))",
         "cost_expr_ext_cost_custom_hess": null,
         "cost_expr_ext_cost_custom_hess_0": null,
         "cost_expr_ext_cost_custom_hess_e": null,

@@ -98,17 +98,19 @@ class ControlManager(Node):
         elif cmd == "MPCC_get_current_horizon":
             try:
                 if self.active_controller != self.controllers["MPCC"]: #MPCC isn't the current active controller
-                    raise Exception("MPCC controller inactive!") 
+                    raise Exception(f"MPCC controller inactive!") 
                 
                 if self.controllers["MPCC"].ocp_solver == None: #No solver found-> trajectory hasn't been set
                     raise Exception("Trajectory execution hasn't been started!")
                 
-                coordinates = np.array([[]])
-                for i in range(self.controllers["MPCC"].MPCC_params["N"]):
-                    x = self.controllers["MPCC"].ocp_solver.get(i, 'x')
+
+                
+                states = np.reshape(self.controllers["MPCC"].ocp_solver.get(0, 'x'), (-1,1))
+                for i in range(self.controllers["MPCC"].MPCC_params["N"]-1):
+                    x = self.controllers["MPCC"].ocp_solver.get(i+1, 'x')
                     x = np.reshape(x, (-1,1))
-                    states = np.append(coordinates, states, axis=1)
-                return {"status": True, "states": states}
+                    states = np.append(states, x, axis=1)
+                return {"status": True, "states": states.tolist()} #If no error occured send back the state vectors converted to a list
             except Exception as e:
                 return {"status": False, "error": e}
  
@@ -123,6 +125,8 @@ class ControlManager(Node):
         elif cmd == "MPCC_param_update":
             try:
                 self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
+                self.controllers["MPCC"].load_parameters()
+                
                 return {"status": True, "params:": message["MPCC_params"]}
             except Exception as e:
                 return {"status": False, "error": e}

@@ -30,7 +30,64 @@ class MPCC_Controller:
 
         self.casadi_solver = None #casadi_solver for initial guess
 
-     
+        self.load_parameters()
+
+    def load_parameters(self):
+        """
+        Load self parameters from the dict-s
+        """
+        self.parameters = cs.types.SimpleNamespace()
+
+        m = float(self.vehicle_params["m"])
+        l_f = float(self.vehicle_params["l_f"])
+        l_r = float(self.vehicle_params["l_r"])
+        I_z = float(self.vehicle_params["I_z"])
+
+        C_m1 = float(self.vehicle_params["C_m1"])
+        C_m2 = float(self.vehicle_params["C_m2"])
+        C_m3 = float(self.vehicle_params["C_m3"])
+
+        C_f = float(self.vehicle_params["C_f"])
+        C_r = float(self.vehicle_params["C_r"])
+
+        
+
+        self.parameters.m = m
+        self.parameters.l_f = l_f
+        self.parameters.l_r = l_r
+        self.parameters.I_z = I_z
+        self.parameters.C_m1 = C_m1
+        self.parameters.C_m2 = C_m2
+        self.parameters.C_m3 = C_m3
+        self.parameters.C_f = C_f
+        self.parameters.C_r = C_r
+
+        #incremental input constraints:
+
+        self.parameters.ddot_max= float(self.MPCC_params["ddot_max"])
+        self.parameters.deltadot_max = float(self.MPCC_params["deltadot_max"])
+        self.parameters.thetahatdot_min = float(self.MPCC_params["thetahatdot_min"])
+        self.parameters.thetahatdot_max = float(self.MPCC_params["thetahatdot_max"])
+
+        #input constraints:
+        delta_max = float(self.MPCC_params["delta_max"])
+        d_max = float(self.MPCC_params["d_max"])
+        d_min = float(self.MPCC_params["d_min"])
+        #ocp parameters:
+        self.parameters.N = int(self.MPCC_params["N"])
+        self.parameters.Tf = float(self.MPCC_params["Tf"])
+        self.parameters.opt_tol = float(self.MPCC_params["opt_tol"])
+        self.parameters.max_QP_iter = int(self.MPCC_params["max_QP_iter"])
+        #cost weights:
+        self.parameters.delta_max = delta_max
+        self.parameters.d_max = d_max
+        self.parameters.d_min = d_min
+        self.parameters.q_con = float(self.MPCC_params["q_con"])
+        self.parameters.q_lat = float(self.MPCC_params["q_long"])
+        self.parameters.q_theta = float(self.MPCC_params["q_theta"])
+        self.parameters.q_d = float(self.MPCC_params["q_d"])
+        self.parameters.q_delta = float(self.MPCC_params["q_delta"])
+
     def compute_control(self, x0, setpoint = None):
         """
         Calculating the optimal inputs
@@ -48,9 +105,9 @@ class MPCC_Controller:
         self.ocp_solver.set(0, 'lbx', x0)
         self.ocp_solver.set(0, 'ubx', x0)
         self.ocp_solver.set(0, 'x', x0)
-        tol = self.MPCC_params["opt_tol"]
+        tol = self.parameters.opt_tol
         t = 0
-        for i in range(50):
+        for i in range(self.parameters.max_QP_iter):
             self.ocp_solver.solve()
             res = self.ocp_solver.get_residuals()
 
@@ -146,58 +203,15 @@ class MPCC_Controller:
         Sets self.parameters used by the casadi solver.
         """
         
-
-        self.parameters = cs.types.SimpleNamespace()
-        self.sim_par = cs.types.SimpleNamespace()
-
-        m = float(self.vehicle_params["m"])
-        l_f = float(self.vehicle_params["l_f"])
-        l_r = float(self.vehicle_params["l_r"])
-        I_z = float(self.vehicle_params["I_z"])
-
-        C_m1 = float(self.vehicle_params["C_m1"])
-        C_m2 = float(self.vehicle_params["C_m2"])
-        C_m3 = float(self.vehicle_params["C_m3"])
-
-        C_f = float(self.vehicle_params["C_f"])
-        C_r = float(self.vehicle_params["C_r"])
-
-        
-
-        self.parameters.m = m
-        self.parameters.l_f = l_f
-        self.parameters.l_r = l_r
-        self.parameters.I_z = I_z
-        self.parameters.C_m1 = C_m1
-        self.parameters.C_m2 = C_m2
-        self.parameters.C_m3 = C_m3
-        self.parameters.C_f = C_f
-        self.parameters.C_r = C_r
-
-        #incremental input constraints:
-
-        self.parameters.ddot_max= float(self.MPCC_params["ddot_max"])
-        self.parameters.deltadot_max = float(self.MPCC_params["deltadot_max"])
-        self.parameters.thetahatdot_min = float(self.MPCC_params["thetahatdot_min"])
-        self.parameters.thetahatdot_max = float(self.MPCC_params["thetahatdot_max"])
-
-        #input constraints:
-        delta_max = float(self.MPCC_params["delta_max"])
-        d_max = float(self.MPCC_params["d_max"])
-        d_min = float(self.MPCC_params["d_min"])
-        #ocp parameters:
-        self.parameters.N = int(self.MPCC_params["N"])
-        self.parameters.Tf = float(self.MPCC_params["Tf"])
-
-        #cost weights:
-        self.parameters.delta_max = delta_max
-        self.parameters.d_max = d_max
-        self.parameters.d_min = d_min
-        self.parameters.q_con = float(self.MPCC_params["q_con"])
-        self.parameters.q_lat = float(self.MPCC_params["q_long"])
-        self.parameters.q_theta = float(self.MPCC_params["q_theta"])
-        self.parameters.q_d = float(self.MPCC_params["q_d"])
-        self.parameters.q_delta = float(self.MPCC_params["q_delta"])
+        m= self.parameters.m
+        l_f=self.parameters.l_f 
+        l_r=self.parameters.l_r 
+        I_z=self.parameters.I_z 
+        C_m1=self.parameters.C_m1
+        C_m2=self.parameters.C_m2
+        C_m3=self.parameters.C_m3
+        C_f=self.parameters.C_f 
+        C_r=self.parameters.C_r 
 
         model = AcadosModel()
 
