@@ -1,7 +1,7 @@
 {
     "acados_include_path": "/home/bodlaire/acados/include",
     "acados_lib_path": "/home/bodlaire/acados/lib",
-    "code_export_directory": "/home/bodlaire/work/AIMotionLab-F1TENTH/c_generated_code",
+    "code_export_directory": "/home/bodlaire/work/AIMotionLab-F1TENTH/scripts/c_generated_code",
     "constraints": {
         "C": [],
         "C_e": [],
@@ -72,7 +72,7 @@
             0.0,
             0.0,
             0.1,
-            0.5,
+            0.2,
             0.0
         ],
         "lbx_e": [],
@@ -102,7 +102,7 @@
         ],
         "ubx": [
             22.17594050323228,
-            0.5,
+            0.2,
             0.5
         ],
         "ubx_0": [
@@ -113,7 +113,7 @@
             0.0,
             0.0,
             0.1,
-            0.5,
+            0.2,
             0.0
         ],
         "ubx_e": [],
@@ -231,8 +231,8 @@
         "cost_conl_custom_outer_hess": null,
         "cost_conl_custom_outer_hess_0": null,
         "cost_conl_custom_outer_hess_e": null,
-        "cost_expr_ext_cost": "@1=vertcat(x, y), (((((60*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.5*thetadot))+(0.005*sq(ddot)))+(0.0075*sq(deltadot)))",
-        "cost_expr_ext_cost_0": "@1=vertcat(x, y), (((((60*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.5*thetadot))+(0.005*sq(ddot)))+(0.0075*sq(deltadot)))",
+        "cost_expr_ext_cost": "@1=vertcat(x, y), (((((80*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.5*thetadot))+(0.005*sq(ddot)))+(0.0075*sq(deltadot)))",
+        "cost_expr_ext_cost_0": "@1=vertcat(x, y), (((((80*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.5*thetadot))+(0.005*sq(ddot)))+(0.0075*sq(deltadot)))",
         "cost_expr_ext_cost_custom_hess": null,
         "cost_expr_ext_cost_custom_hess_0": null,
         "cost_expr_ext_cost_custom_hess_e": null,

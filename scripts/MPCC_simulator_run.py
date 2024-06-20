@@ -101,7 +101,7 @@ for i in range(iteration):
     errors = np.append(errors, np.reshape(error, (-1,1)), axis = 1)
     u_sim = np.append(u_sim, np.reshape(u,(-1,1)), axis = 1)
     theta_sim = np.append(theta_sim, controller.theta)
-    if(controller.theta >= controller.trajectory.L*0.98):
+    if(controller.theta >= controller.trajectory.L):
         break
 
 
@@ -112,6 +112,7 @@ for i in range(iteration):
         horizon = np.append(horizon, x, axis = 1)
     plotter.update_plot(new_x = horizon[0,:], new_y = horizon[1,:])
     time.sleep(dt)
+    plotter.ax.set_title(f"Current speed: {x_sim[3,-1]:.3f}m/s")
 s = np.linspace(0, controller.trajectory.L)
 
 
@@ -164,4 +165,5 @@ plt.plot(theta_sim, x_sim[3,:])
 
 plt.show()
 
+print()
 input("Press enter to exit...")

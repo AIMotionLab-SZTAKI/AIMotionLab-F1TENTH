@@ -15,7 +15,7 @@ extern "C" {
   #define _CASADI_NAMESPACE_CONCAT(NS, ID) NS ## ID
   #define CASADI_PREFIX(ID) CASADI_NAMESPACE_CONCAT(CODEGEN_PREFIX, ID)
 #else
-  #define CASADI_PREFIX(ID) f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_ ## ID
+  #define CASADI_PREFIX(ID) f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_ ## ID
 #endif
 
 #include <math.h>
@@ -61,8 +61,6 @@ extern "C" {
 #define casadi_f19 CASADI_PREFIX(f19)
 #define casadi_f2 CASADI_PREFIX(f2)
 #define casadi_f20 CASADI_PREFIX(f20)
-#define casadi_f21 CASADI_PREFIX(f21)
-#define casadi_f22 CASADI_PREFIX(f22)
 #define casadi_f3 CASADI_PREFIX(f3)
 #define casadi_f4 CASADI_PREFIX(f4)
 #define casadi_f5 CASADI_PREFIX(f5)
@@ -639,42 +637,8 @@ static int casadi_f14(const casadi_real** arg, casadi_real** res, casadi_int* iw
   return 0;
 }
 
-/* fwd1_traj:(x,out_f[1x1,0nz],fwd_x)->(fwd_f) */
-static int casadi_f15(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
-  casadi_real w0, w1;
-  /* #0: @0 = input[0][0] */
-  w0 = arg[0] ? arg[0][0] : 0;
-  /* #1: @1 = BSpline(@0) */
-  casadi_clear((&w1), 1);
-  CASADI_PREFIX(nd_boor_eval)((&w1),1,casadi_c0,casadi_s0,casadi_s1,casadi_s2,casadi_c2,1,(&w0),casadi_s1, iw, w);
-  /* #2: @0 = input[2][0] */
-  w0 = arg[2] ? arg[2][0] : 0;
-  /* #3: @1 = (@1*@0) */
-  w1 *= w0;
-  /* #4: output[0][0] = @1 */
-  if (res[0]) res[0][0] = w1;
-  return 0;
-}
-
-/* fwd1_traj:(x,out_f[1x1,0nz],fwd_x)->(fwd_f) */
-static int casadi_f16(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
-  casadi_real w0, w1;
-  /* #0: @0 = input[0][0] */
-  w0 = arg[0] ? arg[0][0] : 0;
-  /* #1: @1 = BSpline(@0) */
-  casadi_clear((&w1), 1);
-  CASADI_PREFIX(nd_boor_eval)((&w1),1,casadi_c0,casadi_s0,casadi_s1,casadi_s2,casadi_c1,1,(&w0),casadi_s1, iw, w);
-  /* #2: @0 = input[2][0] */
-  w0 = arg[2] ? arg[2][0] : 0;
-  /* #3: @1 = (@1*@0) */
-  w1 *= w0;
-  /* #4: output[0][0] = @1 */
-  if (res[0]) res[0][0] = w1;
-  return 0;
-}
-
 /* fwd1_jac_traj:(x,out_f[1x1,0nz],out_jac_f_x[1x1,0nz],fwd_x,fwd_out_f[1x1,0nz])->(fwd_jac_f_x) */
-static int casadi_f17(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
+static int casadi_f15(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
   casadi_real w0, w1;
   /* #0: @0 = input[0][0] */
   w0 = arg[0] ? arg[0][0] : 0;
@@ -691,7 +655,7 @@ static int casadi_f17(const casadi_real** arg, casadi_real** res, casadi_int* iw
 }
 
 /* fwd1_jac_traj:(x,out_f[1x1,0nz],out_jac_f_x[1x1,0nz],fwd_x,fwd_out_f[1x1,0nz])->(fwd_jac_f_x) */
-static int casadi_f18(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
+static int casadi_f16(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
   casadi_real w0, w1;
   /* #0: @0 = input[0][0] */
   w0 = arg[0] ? arg[0][0] : 0;
@@ -704,6 +668,68 @@ static int casadi_f18(const casadi_real** arg, casadi_real** res, casadi_int* iw
   w1 *= w0;
   /* #4: output[0][0] = @1 */
   if (res[0]) res[0][0] = w1;
+  return 0;
+}
+
+/* fwd1_jac_jac_traj:(x,out_f[1x1,0nz],out_jac_f_x[1x1,0nz],out_jac_jac_f_x_x[1x1,0nz],out_jac_jac_f_x_out_f[1x1,0nz],fwd_x,fwd_out_f[1x1,0nz],fwd_out_jac_f_x[1x1,0nz])->(fwd_jac_jac_f_x_x,fwd_jac_jac_f_x_out_f[1x1,0nz]) */
+static int casadi_f17(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
+  casadi_real *rr, *ss;
+  casadi_real w0, w1, w2, w3;
+  /* #0: @0 = zeros(2x1,1nz) */
+  w0 = 0.;
+  /* #1: @1 = ones(2x1,1nz) */
+  w1 = 1.;
+  /* #2: {@2, NULL} = vertsplit(@1) */
+  w2 = w1;
+  /* #3: @1 = input[0][0] */
+  w1 = arg[0] ? arg[0][0] : 0;
+  /* #4: @3 = BSpline(@1) */
+  casadi_clear((&w3), 1);
+  CASADI_PREFIX(nd_boor_eval)((&w3),1,casadi_c9,casadi_s6,casadi_s7,casadi_s2,casadi_c10,1,(&w1),casadi_s1, iw, w);
+  /* #5: @1 = input[5][0] */
+  w1 = arg[5] ? arg[5][0] : 0;
+  /* #6: @3 = (@3*@1) */
+  w3 *= w1;
+  /* #7: @2 = (@2*@3) */
+  w2 *= w3;
+  /* #8: (@0[0] += @2) */
+  for (rr=(&w0)+0, ss=(&w2); rr!=(&w0)+1; rr+=1) *rr += *ss++;
+  /* #9: @0 = @0' */
+  /* #10: {@2, NULL} = horzsplit(@0) */
+  w2 = w0;
+  /* #11: output[0][0] = @2 */
+  if (res[0]) res[0][0] = w2;
+  return 0;
+}
+
+/* fwd1_jac_jac_traj:(x,out_f[1x1,0nz],out_jac_f_x[1x1,0nz],out_jac_jac_f_x_x[1x1,0nz],out_jac_jac_f_x_out_f[1x1,0nz],fwd_x,fwd_out_f[1x1,0nz],fwd_out_jac_f_x[1x1,0nz])->(fwd_jac_jac_f_x_x,fwd_jac_jac_f_x_out_f[1x1,0nz]) */
+static int casadi_f18(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
+  casadi_real *rr, *ss;
+  casadi_real w0, w1, w2, w3;
+  /* #0: @0 = zeros(2x1,1nz) */
+  w0 = 0.;
+  /* #1: @1 = ones(2x1,1nz) */
+  w1 = 1.;
+  /* #2: {@2, NULL} = vertsplit(@1) */
+  w2 = w1;
+  /* #3: @1 = input[0][0] */
+  w1 = arg[0] ? arg[0][0] : 0;
+  /* #4: @3 = BSpline(@1) */
+  casadi_clear((&w3), 1);
+  CASADI_PREFIX(nd_boor_eval)((&w3),1,casadi_c9,casadi_s6,casadi_s7,casadi_s2,casadi_c11,1,(&w1),casadi_s1, iw, w);
+  /* #5: @1 = input[5][0] */
+  w1 = arg[5] ? arg[5][0] : 0;
+  /* #6: @3 = (@3*@1) */
+  w3 *= w1;
+  /* #7: @2 = (@2*@3) */
+  w2 *= w3;
+  /* #8: (@0[0] += @2) */
+  for (rr=(&w0)+0, ss=(&w2); rr!=(&w0)+1; rr+=1) *rr += *ss++;
+  /* #9: @0 = @0' */
+  /* #10: {@2, NULL} = horzsplit(@0) */
+  w2 = w0;
+  /* #11: output[0][0] = @2 */
+  if (res[0]) res[0][0] = w2;
   return 0;
 }
 
@@ -721,7 +747,7 @@ static int casadi_f19(const casadi_real** arg, casadi_real** res, casadi_int* iw
   w1 = arg[0] ? arg[0][0] : 0;
   /* #4: @3 = BSpline(@1) */
   casadi_clear((&w3), 1);
-  CASADI_PREFIX(nd_boor_eval)((&w3),1,casadi_c9,casadi_s6,casadi_s7,casadi_s2,casadi_c10,1,(&w1),casadi_s1, iw, w);
+  CASADI_PREFIX(nd_boor_eval)((&w3),1,casadi_c9,casadi_s6,casadi_s7,casadi_s2,casadi_c11,1,(&w1),casadi_s1, iw, w);
   /* #5: @1 = input[5][0] */
   w1 = arg[5] ? arg[5][0] : 0;
   /* #6: @3 = (@3*@1) */
@@ -752,68 +778,6 @@ static int casadi_f20(const casadi_real** arg, casadi_real** res, casadi_int* iw
   w1 = arg[0] ? arg[0][0] : 0;
   /* #4: @3 = BSpline(@1) */
   casadi_clear((&w3), 1);
-  CASADI_PREFIX(nd_boor_eval)((&w3),1,casadi_c9,casadi_s6,casadi_s7,casadi_s2,casadi_c11,1,(&w1),casadi_s1, iw, w);
-  /* #5: @1 = input[5][0] */
-  w1 = arg[5] ? arg[5][0] : 0;
-  /* #6: @3 = (@3*@1) */
-  w3 *= w1;
-  /* #7: @2 = (@2*@3) */
-  w2 *= w3;
-  /* #8: (@0[0] += @2) */
-  for (rr=(&w0)+0, ss=(&w2); rr!=(&w0)+1; rr+=1) *rr += *ss++;
-  /* #9: @0 = @0' */
-  /* #10: {@2, NULL} = horzsplit(@0) */
-  w2 = w0;
-  /* #11: output[0][0] = @2 */
-  if (res[0]) res[0][0] = w2;
-  return 0;
-}
-
-/* fwd1_jac_jac_traj:(x,out_f[1x1,0nz],out_jac_f_x[1x1,0nz],out_jac_jac_f_x_x[1x1,0nz],out_jac_jac_f_x_out_f[1x1,0nz],fwd_x,fwd_out_f[1x1,0nz],fwd_out_jac_f_x[1x1,0nz])->(fwd_jac_jac_f_x_x,fwd_jac_jac_f_x_out_f[1x1,0nz]) */
-static int casadi_f21(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
-  casadi_real *rr, *ss;
-  casadi_real w0, w1, w2, w3;
-  /* #0: @0 = zeros(2x1,1nz) */
-  w0 = 0.;
-  /* #1: @1 = ones(2x1,1nz) */
-  w1 = 1.;
-  /* #2: {@2, NULL} = vertsplit(@1) */
-  w2 = w1;
-  /* #3: @1 = input[0][0] */
-  w1 = arg[0] ? arg[0][0] : 0;
-  /* #4: @3 = BSpline(@1) */
-  casadi_clear((&w3), 1);
-  CASADI_PREFIX(nd_boor_eval)((&w3),1,casadi_c9,casadi_s6,casadi_s7,casadi_s2,casadi_c11,1,(&w1),casadi_s1, iw, w);
-  /* #5: @1 = input[5][0] */
-  w1 = arg[5] ? arg[5][0] : 0;
-  /* #6: @3 = (@3*@1) */
-  w3 *= w1;
-  /* #7: @2 = (@2*@3) */
-  w2 *= w3;
-  /* #8: (@0[0] += @2) */
-  for (rr=(&w0)+0, ss=(&w2); rr!=(&w0)+1; rr+=1) *rr += *ss++;
-  /* #9: @0 = @0' */
-  /* #10: {@2, NULL} = horzsplit(@0) */
-  w2 = w0;
-  /* #11: output[0][0] = @2 */
-  if (res[0]) res[0][0] = w2;
-  return 0;
-}
-
-/* fwd1_jac_jac_traj:(x,out_f[1x1,0nz],out_jac_f_x[1x1,0nz],out_jac_jac_f_x_x[1x1,0nz],out_jac_jac_f_x_out_f[1x1,0nz],fwd_x,fwd_out_f[1x1,0nz],fwd_out_jac_f_x[1x1,0nz])->(fwd_jac_jac_f_x_x,fwd_jac_jac_f_x_out_f[1x1,0nz]) */
-static int casadi_f22(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
-  casadi_real *rr, *ss;
-  casadi_real w0, w1, w2, w3;
-  /* #0: @0 = zeros(2x1,1nz) */
-  w0 = 0.;
-  /* #1: @1 = ones(2x1,1nz) */
-  w1 = 1.;
-  /* #2: {@2, NULL} = vertsplit(@1) */
-  w2 = w1;
-  /* #3: @1 = input[0][0] */
-  w1 = arg[0] ? arg[0][0] : 0;
-  /* #4: @3 = BSpline(@1) */
-  casadi_clear((&w3), 1);
   CASADI_PREFIX(nd_boor_eval)((&w3),1,casadi_c9,casadi_s6,casadi_s7,casadi_s2,casadi_c10,1,(&w1),casadi_s1, iw, w);
   /* #5: @1 = input[5][0] */
   w1 = arg[5] ? arg[5][0] : 0;
@@ -831,15 +795,15 @@ static int casadi_f22(const casadi_real** arg, casadi_real** res, casadi_int* iw
   return 0;
 }
 
-/* f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess:(i0[9],i1[3],i2[],i3[])->(o0,o1[12],o2[12x12,11nz],o3[],o4[0x12]) */
+/* f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess:(i0[9],i1[3],i2[],i3[])->(o0,o1[12],o2[12x12,11nz],o3[],o4[0x12]) */
 static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
   casadi_int i;
   casadi_real **res1=res+5, *rr, *ss;
   const casadi_int *cii;
   const casadi_real **arg1=arg+4, *cr, *cs;
   casadi_real w0, w1, w3, w5, *w6=w+16, *w7=w+18, *w8=w+20, w10, w12, *w13=w+24, *w14=w+26, w15, w16, w17, *w18=w+31, w19, *w20=w+34, w21, w22, w28, w29, w30, w31, w33, w34, w36, w37, w38, w40, w42, w43, w44, w46, w48, w49, w50, w52, *w55=w+56, *w56=w+62, *w57=w+74, *w58=w+85, *w60=w+95, *w61=w+100, *w64=w+105, *w65=w+108, *w66=w+111, *w71=w+113;
-  /* #0: @0 = 60 */
-  w0 = 60.;
+  /* #0: @0 = 80 */
+  w0 = 80.;
   /* #1: @1 = input[0][6] */
   w1 = arg[0] ? arg[0][6] : 0;
   /* #2: @2 = 00 */
@@ -976,8 +940,8 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   w15 = (2.* w15 );
   /* #57: @15 = (@16*@15) */
   w15  = (w16*w15);
-  /* #58: @17 = 60 */
-  w17 = 60.;
+  /* #58: @17 = 80 */
+  w17 = 80.;
   /* #59: @3 = (2.*@3) */
   w3 = (2.* w3 );
   /* #60: @3 = (@17*@3) */
@@ -1464,14 +1428,14 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   arg1[1]=0;
   arg1[2]=(&w12);
   res1[0]=(&w5);
-  if (casadi_f15(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f11(arg1, res1, iw, w, 0)) return 1;
   /* #284: @26 = 00 */
   /* #285: @22 = fwd1_traj(@1, @26, @12) */
   arg1[0]=(&w1);
   arg1[1]=0;
   arg1[2]=(&w12);
   res1[0]=(&w22);
-  if (casadi_f16(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f12(arg1, res1, iw, w, 0)) return 1;
   /* #286: @8 = horzcat(@5, @22) */
   rr=w8;
   *rr++ = w5;
@@ -1488,7 +1452,7 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   arg1[3]=(&w12);
   arg1[4]=0;
   res1[0]=(&w22);
-  if (casadi_f17(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f15(arg1, res1, iw, w, 0)) return 1;
   /* #292: @26 = 00 */
   /* #293: @62 = 00 */
   /* #294: @16 = fwd1_jac_traj(@1, @4, @26, @12, @62) */
@@ -1498,7 +1462,7 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   arg1[3]=(&w12);
   arg1[4]=0;
   res1[0]=(&w16);
-  if (casadi_f18(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f16(arg1, res1, iw, w, 0)) return 1;
   /* #295: @16 = (-@16) */
   w16 = (- w16 );
   /* #296: @66 = horzcat(@22, @16) */
@@ -1581,7 +1545,7 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   arg1[7]=0;
   res1[0]=(&w29);
   res1[1]=0;
-  if (casadi_f19(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f17(arg1, res1, iw, w, 0)) return 1;
   /* #330: @37 = (@37*@29) */
   w37 *= w29;
   /* #331: @14 = (@14*@19) */
@@ -1614,7 +1578,7 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   arg1[7]=0;
   res1[0]=(&w37);
   res1[1]=0;
-  if (casadi_f20(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f18(arg1, res1, iw, w, 0)) return 1;
   /* #343: @36 = (@36*@37) */
   w36 *= w37;
   /* #344: @38 = (@38*@10) */
@@ -1677,7 +1641,7 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   arg1[7]=0;
   res1[0]=(&w42);
   res1[1]=0;
-  if (casadi_f21(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f19(arg1, res1, iw, w, 0)) return 1;
   /* #367: @49 = (@49*@42) */
   w49 *= w42;
   /* #368: @7 = (@7*@17) */
@@ -1710,7 +1674,7 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   arg1[7]=0;
   res1[0]=(&w49);
   res1[1]=0;
-  if (casadi_f22(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f20(arg1, res1, iw, w, 0)) return 1;
   /* #380: @48 = (@48*@49) */
   w48 *= w49;
   /* #381: @50 = (@50*@3) */
@@ -1741,45 +1705,45 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem){
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem){
   return casadi_f0(arg, res, iw, w, mem);
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_alloc_mem(void) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_alloc_mem(void) {
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_init_mem(int mem) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_init_mem(int mem) {
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_free_mem(int mem) {
+CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_free_mem(int mem) {
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_checkout(void) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_checkout(void) {
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_release(int mem) {
+CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_release(int mem) {
 }
 
-CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_incref(void) {
+CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_incref(void) {
 }
 
-CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_decref(void) {
+CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_decref(void) {
 }
 
-CASADI_SYMBOL_EXPORT casadi_int f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_n_in(void) { return 4;}
+CASADI_SYMBOL_EXPORT casadi_int f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_n_in(void) { return 4;}
 
-CASADI_SYMBOL_EXPORT casadi_int f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_n_out(void) { return 5;}
+CASADI_SYMBOL_EXPORT casadi_int f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_n_out(void) { return 5;}
 
-CASADI_SYMBOL_EXPORT casadi_real f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_default_in(casadi_int i) {
+CASADI_SYMBOL_EXPORT casadi_real f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_default_in(casadi_int i) {
   switch (i) {
     default: return 0;
   }
 }
 
-CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_name_in(casadi_int i) {
+CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_name_in(casadi_int i) {
   switch (i) {
     case 0: return "i0";
     case 1: return "i1";
@@ -1789,7 +1753,7 @@ CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_fun_jac_hes
   }
 }
 
-CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_name_out(casadi_int i) {
+CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_name_out(casadi_int i) {
   switch (i) {
     case 0: return "o0";
     case 1: return "o1";
@@ -1800,7 +1764,7 @@ CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_fun_jac_hes
   }
 }
 
-CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_sparsity_in(casadi_int i) {
+CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_sparsity_in(casadi_int i) {
   switch (i) {
     case 0: return casadi_s13;
     case 1: return casadi_s14;
@@ -1810,7 +1774,7 @@ CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_fun_j
   }
 }
 
-CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_sparsity_out(casadi_int i) {
+CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_sparsity_out(casadi_int i) {
   switch (i) {
     case 0: return casadi_s16;
     case 1: return casadi_s17;
@@ -1821,7 +1785,7 @@ CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_fun_j
   }
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_work(casadi_int *sz_arg, casadi_int* sz_res, casadi_int *sz_iw, casadi_int *sz_w) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_work(casadi_int *sz_arg, casadi_int* sz_res, casadi_int *sz_iw, casadi_int *sz_w) {
   if (sz_arg) *sz_arg = 16;
   if (sz_res) *sz_res = 17;
   if (sz_iw) *sz_iw = 13;
@@ -1829,7 +1793,7 @@ CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_work(c
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_jac_hess_work_bytes(casadi_int *sz_arg, casadi_int* sz_res, casadi_int *sz_iw, casadi_int *sz_w) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_jac_hess_work_bytes(casadi_int *sz_arg, casadi_int* sz_res, casadi_int *sz_iw, casadi_int *sz_w) {
   if (sz_arg) *sz_arg = 16*sizeof(const casadi_real*);
   if (sz_res) *sz_res = 17*sizeof(casadi_real*);
   if (sz_iw) *sz_iw = 13*sizeof(casadi_int);

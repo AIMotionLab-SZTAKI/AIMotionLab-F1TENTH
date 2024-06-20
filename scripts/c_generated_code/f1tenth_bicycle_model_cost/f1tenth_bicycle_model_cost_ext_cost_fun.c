@@ -15,7 +15,7 @@ extern "C" {
   #define _CASADI_NAMESPACE_CONCAT(NS, ID) NS ## ID
   #define CASADI_PREFIX(ID) CASADI_NAMESPACE_CONCAT(CODEGEN_PREFIX, ID)
 #else
-  #define CASADI_PREFIX(ID) f1tenth_bicycle_model_cost_ext_cost_0_fun_ ## ID
+  #define CASADI_PREFIX(ID) f1tenth_bicycle_model_cost_ext_cost_fun_ ## ID
 #endif
 
 #include <math.h>
@@ -337,14 +337,14 @@ static int casadi_f6(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   return 0;
 }
 
-/* f1tenth_bicycle_model_cost_ext_cost_0_fun:(i0[9],i1[3],i2[],i3[])->(o0) */
+/* f1tenth_bicycle_model_cost_ext_cost_fun:(i0[9],i1[3],i2[],i3[])->(o0) */
 static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
   casadi_int i;
   casadi_real **res1=res+1, *rr;
   const casadi_real **arg1=arg+4, *cs;
   casadi_real w0, w1, w3, w4, *w5=w+16, *w6=w+18, *w7=w+20, w8;
-  /* #0: @0 = 60 */
-  w0 = 60.;
+  /* #0: @0 = 80 */
+  w0 = 80.;
   /* #1: @1 = input[0][6] */
   w1 = arg[0] ? arg[0][6] : 0;
   /* #2: @2 = 00 */
@@ -470,45 +470,45 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem){
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem){
   return casadi_f0(arg, res, iw, w, mem);
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_alloc_mem(void) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_alloc_mem(void) {
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_init_mem(int mem) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_init_mem(int mem) {
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_0_fun_free_mem(int mem) {
+CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_fun_free_mem(int mem) {
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_checkout(void) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_checkout(void) {
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_0_fun_release(int mem) {
+CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_fun_release(int mem) {
 }
 
-CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_0_fun_incref(void) {
+CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_fun_incref(void) {
 }
 
-CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_0_fun_decref(void) {
+CASADI_SYMBOL_EXPORT void f1tenth_bicycle_model_cost_ext_cost_fun_decref(void) {
 }
 
-CASADI_SYMBOL_EXPORT casadi_int f1tenth_bicycle_model_cost_ext_cost_0_fun_n_in(void) { return 4;}
+CASADI_SYMBOL_EXPORT casadi_int f1tenth_bicycle_model_cost_ext_cost_fun_n_in(void) { return 4;}
 
-CASADI_SYMBOL_EXPORT casadi_int f1tenth_bicycle_model_cost_ext_cost_0_fun_n_out(void) { return 1;}
+CASADI_SYMBOL_EXPORT casadi_int f1tenth_bicycle_model_cost_ext_cost_fun_n_out(void) { return 1;}
 
-CASADI_SYMBOL_EXPORT casadi_real f1tenth_bicycle_model_cost_ext_cost_0_fun_default_in(casadi_int i) {
+CASADI_SYMBOL_EXPORT casadi_real f1tenth_bicycle_model_cost_ext_cost_fun_default_in(casadi_int i) {
   switch (i) {
     default: return 0;
   }
 }
 
-CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_0_fun_name_in(casadi_int i) {
+CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_fun_name_in(casadi_int i) {
   switch (i) {
     case 0: return "i0";
     case 1: return "i1";
@@ -518,14 +518,14 @@ CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_0_fun_name_
   }
 }
 
-CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_0_fun_name_out(casadi_int i) {
+CASADI_SYMBOL_EXPORT const char* f1tenth_bicycle_model_cost_ext_cost_fun_name_out(casadi_int i) {
   switch (i) {
     case 0: return "o0";
     default: return 0;
   }
 }
 
-CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_0_fun_sparsity_in(casadi_int i) {
+CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_fun_sparsity_in(casadi_int i) {
   switch (i) {
     case 0: return casadi_s5;
     case 1: return casadi_s6;
@@ -535,14 +535,14 @@ CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_0_fun
   }
 }
 
-CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_0_fun_sparsity_out(casadi_int i) {
+CASADI_SYMBOL_EXPORT const casadi_int* f1tenth_bicycle_model_cost_ext_cost_fun_sparsity_out(casadi_int i) {
   switch (i) {
     case 0: return casadi_s8;
     default: return 0;
   }
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_work(casadi_int *sz_arg, casadi_int* sz_res, casadi_int *sz_iw, casadi_int *sz_w) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_work(casadi_int *sz_arg, casadi_int* sz_res, casadi_int *sz_iw, casadi_int *sz_w) {
   if (sz_arg) *sz_arg = 7;
   if (sz_res) *sz_res = 4;
   if (sz_iw) *sz_iw = 8;
@@ -550,7 +550,7 @@ CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_work(casadi_i
   return 0;
 }
 
-CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_0_fun_work_bytes(casadi_int *sz_arg, casadi_int* sz_res, casadi_int *sz_iw, casadi_int *sz_w) {
+CASADI_SYMBOL_EXPORT int f1tenth_bicycle_model_cost_ext_cost_fun_work_bytes(casadi_int *sz_arg, casadi_int* sz_res, casadi_int *sz_iw, casadi_int *sz_w) {
   if (sz_arg) *sz_arg = 7*sizeof(const casadi_real*);
   if (sz_res) *sz_res = 4*sizeof(casadi_real*);
   if (sz_iw) *sz_iw = 8*sizeof(casadi_int);

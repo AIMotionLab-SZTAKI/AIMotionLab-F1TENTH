@@ -385,7 +385,9 @@ class ControlManager(Node):
             self._stop()
             return
         try:
-            u, errors = self.active_controller.compute_control(self.current_state, setpoint)
+            u, errors, finished = self.active_controller.compute_control(self.current_state, setpoint)
+            if finished:
+                self._stop()
         except Exception as e:
             self._logger.fatal(e)
             self.MODE =CONTROLLER_MODE.IDLE

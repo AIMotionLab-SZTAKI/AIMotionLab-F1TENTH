@@ -229,7 +229,7 @@ class ModularGPLPVLQR(Controller):
         self.errors=np.array([z1, theta_e, s-s_ref, v_xi-v_ref, self.q])
         self.prev_state = state
 
-        return self.u, self.errors
+        return self.u, self.errors, False
 
     def _train_SGP_long(self, states, inputs, plot_training_data=False):
         """Train the sparse GP model for longitudinal control augmentation

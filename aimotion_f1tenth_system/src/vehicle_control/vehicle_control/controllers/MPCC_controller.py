@@ -94,9 +94,13 @@ class MPCC_Controller:
         :param x0 (1xNx array)
         :setpoint = None
         :return u_opt (optimal input vector)
-        :return errors (contouring longitudinal errors, phi, theta)
+        :return errors (contouring error, heading angle, longitudinal errors, theta, v_xi)
+        :return finished (trajectory execution finished)
         """
-        
+        if self.theta >= self.trajectory.L:
+            errors = np.array([0.0, float(x_opt[2,0]),0.0,float(self.theta), float(x_opt[3,0])])
+            u_opt = np.array([0,0])
+            return u_opt, errors, True
         if x0[3] <0.001:
             x0[3] = 0.001
 
@@ -144,7 +148,7 @@ class MPCC_Controller:
         errors = np.array([float(e_con), float(x_opt[2,0]),float(e_long),float(self.theta), float(x_opt[3,0])])
 
 
-        return u_opt, errors
+        return u_opt, errors, False
     
 
     def controller_init(self):

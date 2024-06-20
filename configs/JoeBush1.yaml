@@ -57,7 +57,7 @@ parameter_server:
       MPCC:
         #Input constraints
         delta_max: 0.5 # [rad]
-        d_max: 0.3
+        d_max: 0.2
         d_min: 0.05       
         opt_tol: 0.075
         #Incremental input constraints        
@@ -72,11 +72,11 @@ parameter_server:
         N: 10 #number of shooting nodes
         Tf: 0.7 #[s] time lenght of the opt. horizon
         #Cost weights:
-        q_con: 60.0 
+        q_con: 80.0 
         q_long: 30.0
-        q_theta: 2.0
+        q_theta: 2.5
         q_d: 0.005
-        q_delta: 0.005
+        q_delta: 0.0075
 
       GP_LPV_LQR:
         GP_TYPE: "RLS_SGP" # GRAD_SGP, RLS_SGP
@@ -126,7 +126,7 @@ parameter_server:
       FREQUENCY: 40.0
       MARKER_OFFSET: 0.0
     drive_bridge:
-      MOTOR_LIMIT: 0.25
+      MOTOR_LIMIT: 0.35
       STEERING_GAINS:
       - -0.90616 #-0.8  #-0.90616
       -  0.54172 #  0.5  #0.54172
