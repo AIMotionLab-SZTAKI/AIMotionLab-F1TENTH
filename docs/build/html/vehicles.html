@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
     <script src="_static/documentation_options.js?v=8d563738"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +34,26 @@
             
   <section id="working-with-the-vehicles">
 <h1>Working with the vehicles<a class="headerlink" href="#working-with-the-vehicles" title="Link to this heading">¶</a></h1>
-<p>This page details how to start up the vehicles and launch their onboard software stack.</p>
+<section id="adding-a-new-vehicle-to-the-framework">
+<h2>Adding a new vehicle to the framework<a class="headerlink" href="#adding-a-new-vehicle-to-the-framework" title="Link to this heading">¶</a></h2>
+<p>To add a new vehicle to the framework, first setup an F1TENTH platform as described in the <a class="reference internal" href="hardware_architecture.html"><span class="doc">Hardware documentation</span></a>.
+Then, retrieve the following properties of the vehicle:
+- IP address
+- Username
+- Password</p>
+<p>With the above information, create a login config file in the <cite>configs</cite> folder. The file should be named <cite>car_ID_login.yaml</cite>. The structure of the file should follow the provided template titled <cite>Template_login.yaml</cite>.
+After the login config, create a new parameter file in the <cite>configs</cite> folder. The file should be named <cite>car_ID_params.yaml</cite>. The structure of the file should follow the provided template titled <cite>Template_params.yaml</cite>.
+Note that these parameters will be used as default, when the vehicle is launched. The parameters can be changed during runtime using the Python API.</p>
+<p>If the configs are ready and the vehicle is connected to the network, the onboard stack can be installed with the following script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.install</span> <span class="kn">import</span> <span class="n">install_onboard_stack</span>
+
+<span class="n">install_onboard_stack</span><span class="p">(</span><span class="s1">&#39;car_ID&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the installation might take a couple of minutes.</p>
+</section>
+<section id="launching-the-vehicles">
+<h2>Launching the vehicles<a class="headerlink" href="#launching-the-vehicles" title="Link to this heading">¶</a></h2>
 <ol class="arabic">
 <li><p><strong>Connect the two plugs of the battery</strong>:</p>
 <img alt="plug1" src="_images/plug1.png" />
@@ -47,12 +66,135 @@
 </ol>
 <p>3. <strong>Connect to the vehicle via SSH and launch the onboard software stack</strong>:
 The username, IP address, and password information can be found in the <code class="docutils literal notranslate"><span class="pre">car_ID_login.yaml</span></code> file in the configs folder.
-The SSH connection can be established by the provided startup script:</p>
+After the SSH connection is established with the vehicle, run the following commands to launch the vehicle:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./lauch_vehicle.sh<span class="w"> </span>-u<span class="w"> </span>vehicle_username<span class="w"> </span>-i<span class="w"> </span>vehicle_ip_address<span class="w"> </span>-p<span class="w"> </span>vehicle_password
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>aimotion_f1tenth_system
+<span class="nb">source</span><span class="w"> </span>startup_framework.sh
 </pre></div>
 </div>
 </div></blockquote>
+</section>
+<section id="utilization-of-control-algorithms">
+<h2>Utilization of control algorithms<a class="headerlink" href="#utilization-of-control-algorithms" title="Link to this heading">¶</a></h2>
+<p>This package provides a comprehensive environment for researching and testing control algorithms. It includes a default GP-LPV-LQR controller algorithm as part of the vehicle’s framework.  #TODO(cite) The implementation of other external algorithms is also possible. In the following section this process will be presented.</p>
+<p>The controller must adhere to the following requirements:</p>
+<ul>
+<li><p>It must be placed within the aimotion_f1tenth_system/src/vehicle_control/vehicle_control directory (creating additional subpackages is highly recommended)</p></li>
+<li><dl>
+<dt>It must implement the Controller interface:</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Controller</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+   <span class="nd">@abstractmethod</span>
+   <span class="k">def</span> <span class="nf">compute_control</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">setpoint</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span><span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+       <span class="k">pass</span>
+
+   <span class="nd">@abstractmethod</span>
+   <span class="k">def</span> <span class="nf">set_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+       <span class="k">pass</span>
+
+   <span class="nd">@abstractmethod</span>
+   <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">pass</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The compute control method should return 3 parameters:</dt><dd><ul class="simple">
+<li><p>Optimal inputs (numpy.array([d, delta]))</p></li>
+<li><p>Errors (numpy.array([“lateral”, “heading”, “long”, “velocity”]))</p></li>
+<li><p>Finished flag (True/False)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>Adding a new controller to the manager</strong></p>
+<p>The ROS2 nodes running on the vehicle collect their parameters from a central parameter server called param_server. This node is responsible for providing all the pre-defined data for the vehicle.</p>
+<p>To add new parameters to the existing parameter list:</p>
+<ol class="arabic">
+<li><p>Open the config file of the vehicle (&lt;car_id.yaml&gt;)</p></li>
+<li><p>Create a new namespace within parameter_server.ros__parameters.controllers namespace</p></li>
+<li><p>Add the new parameters</p>
+<blockquote>
+<div><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">LPV_LQR</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">FREQUENCY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">   </span><span class="nt">LATERAL_CONTROL_GAINS</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">k1</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.00266</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-0.0168</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0368</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0357</span>
+<span class="w">      </span><span class="nt">k1_r</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-0.0008</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0442</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-1.2247</span>
+<span class="w">      </span><span class="nt">k2</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0424</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-0.268</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.588</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.57</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<p>Note that multiple namespaces can be nested within each other</p>
+<ol class="arabic" start="4">
+<li><p>Open the aimotion_f1tenth_system/src/vehicle_control/vehicle_control/control.py script</p></li>
+<li><p>Declare the newly added parameters in the ROS2 node</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">declare_parameters</span><span class="p">(</span>
+   <span class="n">namespace</span><span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+   <span class="n">parameters</span><span class="o">=</span><span class="p">[</span>
+       <span class="c1"># lpv lq</span>
+       <span class="p">(</span><span class="s2">&quot;controllers.LPV_LQR.FREQUENCY&quot;</span><span class="p">,</span> <span class="n">rclpy</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">),</span>
+       <span class="p">(</span><span class="s1">&#39;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k1&#39;</span><span class="p">,</span><span class="n">rclpy</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">DOUBLE_ARRAY</span><span class="p">),</span>
+       <span class="p">(</span><span class="s1">&#39;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k2&#39;</span><span class="p">,</span><span class="n">rclpy</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">DOUBLE_ARRAY</span><span class="p">),</span>
+       <span class="p">(</span><span class="s1">&#39;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k3&#39;</span><span class="p">,</span><span class="n">rclpy</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">DOUBLE_ARRAY</span><span class="p">),</span>
+       <span class="p">(</span><span class="s1">&#39;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k1_r&#39;</span><span class="p">,</span><span class="n">rclpy</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">DOUBLE_ARRAY</span><span class="p">),</span>
+       <span class="p">(</span><span class="s1">&#39;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k2_r&#39;</span><span class="p">,</span><span class="n">rclpy</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">DOUBLE_ARRAY</span><span class="p">),</span>
+       <span class="p">(</span><span class="s1">&#39;controllers.LPV_LQR.LONGITUDINAL_CONTROL_GAINS.k1&#39;</span> <span class="p">,</span><span class="n">rclpy</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">DOUBLE_ARRAY</span><span class="p">),</span>
+       <span class="p">(</span><span class="s1">&#39;controllers.LPV_LQR.LONGITUDINAL_CONTROL_GAINS.k2&#39;</span> <span class="p">,</span><span class="n">rclpy</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">DOUBLE_ARRAY</span><span class="p">)</span>
+   <span class="p">])</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Query the parameter into a python dictionary</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">LPV_LQR_params</span> <span class="o">=</span> <span class="p">{</span>
+   <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="s2">&quot;controllers.LPV_LQR.FREQUENCY&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+   <span class="s2">&quot;lat_gains&quot;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="s1">&#39;k1&#39;</span><span class="p">:</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="s2">&quot;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+      <span class="s1">&#39;k2&#39;</span><span class="p">:</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="s2">&quot;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+      <span class="s1">&#39;k3&#39;</span><span class="p">:</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="s2">&quot;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+      <span class="s1">&#39;k1_r&#39;</span><span class="p">:</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="s2">&quot;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k1_r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+      <span class="s1">&#39;k2_r&#39;</span><span class="p">:</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="s2">&quot;controllers.LPV_LQR.LATERAL_CONTROL_GAINS.k2_r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+      <span class="p">},</span>
+   <span class="s2">&quot;long_gains&quot;</span> <span class="p">:{</span>
+      <span class="s1">&#39;k1&#39;</span><span class="p">:</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="s2">&quot;controllers.LPV_LQR.LONGITUDINAL_CONTROL_GAINS.k1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+      <span class="s1">&#39;k2&#39;</span><span class="p">:</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="s2">&quot;controllers.LPV_LQR.LONGITUDINAL_CONTROL_GAINS.k2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+      <span class="p">}</span>
+   <span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Add controller to the available controllers</p>
+<p>An instance of the controller must be constructed and added to the list of the available controllers in the TCP manager.
+The script file of the TCP manager can be found in:
+<code class="docutils literal notranslate"><span class="pre">aimotion_f1tenth_system/src/vehicle_control/vehicle_control/manager.py</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># check kwargs and initialize controllers</span>
+<span class="k">if</span> <span class="s2">&quot;GP_LPV_LQR_params&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+   <span class="n">controller</span> <span class="o">=</span> <span class="n">init_GP_LPV_LQR</span><span class="p">(</span><span class="n">vehicle_params</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;vehicle_params&quot;</span><span class="p">],</span>
+                                <span class="n">GP_LPV_LQR_params</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;GP_LPV_LQR_params&quot;</span><span class="p">])</span>
+   <span class="bp">self</span><span class="o">.</span><span class="n">controllers</span><span class="p">[</span><span class="s2">&quot;GP_LPV_LQR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">controller</span>
+</pre></div>
+</div>
+</li>
+<li><p>After finishing these steps the controller can be activated via the <a class="reference internal" href="using_the_api.html"><span class="doc">Python API</span></a></p></li>
+</ol>
+</section>
 </section>
 
 
@@ -75,7 +217,12 @@ The SSH connection can be established by the provided startup script:</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="hardware_architecture.html">Lab architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_install.html">Software installation and setup instructions</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Working with the vehicles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Working with the vehicles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#adding-a-new-vehicle-to-the-framework">Adding a new vehicle to the framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#launching-the-vehicles">Launching the vehicles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#utilization-of-control-algorithms">Utilization of control algorithms</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="using_the_api.html">Control the vehicles by the Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/modules.html">aimotion_f1tenth_utils</a></li>
 </ul>
@@ -89,7 +236,7 @@ The SSH connection can be established by the provided startup script:</p>
   </ul></li>
 </ul>
 </div>
-<search id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -97,7 +244,7 @@ The SSH connection can be established by the provided startup script:</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</search>
+</div>
 <script>document.getElementById('searchbox').style.display = "block"</script>
 
 
@@ -115,7 +262,7 @@ The SSH connection can be established by the provided startup script:</p>
       &#169;2024, AiMotionLab SZTAKI.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.2.6</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |

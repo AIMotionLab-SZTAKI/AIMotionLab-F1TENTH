@@ -98,7 +98,7 @@ class MPCC_Controller:
         :return finished (trajectory execution finished)
         """
         if self.theta >= self.trajectory.L:
-            errors = np.array([0.0, float(x_opt[2,0]),0.0,float(self.theta), float(x_opt[3,0])])
+            errors = np.array([0.0, 0.0,0.0,float(self.theta), 0.0])
             u_opt = np.array([0,0])
             return u_opt, errors, True
         if x0[3] <0.001:

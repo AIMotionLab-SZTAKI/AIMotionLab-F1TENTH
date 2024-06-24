@@ -9,12 +9,12 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
     <script src="_static/documentation_options.js?v=8d563738"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Software installation and setup instructions" href="setup_install.html" />
-    <link rel="prev" title="Welcome to the documentation fo the F1TENTH project at AiMotionLab SZTAKI!" href="index.html" />
+    <link rel="prev" title="Welcome to the documentation of the F1TENTH project at AiMotionLab SZTAKI!" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -36,8 +36,7 @@
 <h1>Lab architecture<a class="headerlink" href="#lab-architecture" title="Link to this heading">¶</a></h1>
 <p>The AiMotionLab autonomous vehicle test area at HUN-REN SZTAKI has been developed to evaluate various motion planning and control algorithms in the field of autonomous mobile robotics. The ground vehicle test environment <a class="footnote-reference brackets" href="#f1tenth" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, <a class="footnote-reference brackets" href="#f1tenth-github" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> of the lab consists of three main components. First, F1TENTH vehicles are used as the autonomous vehicle platform in the experiments. For indoor localization, the lab utilizes a high-precision motion-capture (MoCap) system. Finally, a desktop “Command PC” is used as a communication interface for the cars and other lab components to send high-level commands, such as reference trajectories for the vehicle. The overall architecture of the lab is depicted in Figure 1.</p>
 <figure class="align-center" id="id13">
-<a class="reference internal image-reference" href="_images/aimotionlab_hw-3.pdf"><img alt="Architecture of the AiMotionLab vehicle test area." src="_images/aimotionlab_hw-3.pdf" style="width: 100%;" />
-</a>
+<a class="reference internal image-reference" href="_images/aimotionlab_hw-3.pdf"><img alt="Architecture of the AiMotionLab vehicle test area." src="_images/aimotionlab_hw-3.pdf" style="width: 100%;" /></a>
 <figcaption>
 <p><span class="caption-text">Architecture of the AiMotionLab vehicle test area.</span><a class="headerlink" href="#id13" title="Link to this image">¶</a></p>
 </figcaption>
@@ -47,8 +46,7 @@
 <p>The F1TENTH vehicle <a class="footnote-reference brackets" href="#okelly-f1tenth" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> is a 1/10 scale autonomous car-like mobile platform. It is developed and maintained by the F1TENTH community <a class="footnote-reference brackets" href="#f1tenth" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> . The hardware components of the vehicles are defined by a ruleset <a class="footnote-reference brackets" href="#f1tenth-ruleset" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>, to ensure that the platforms have similar specifications, which is important in the autonomous racing context. Furthermore, the community also provides an open-source development environment for the vehicles.</p>
 <p>The platform is built on top of a modified <em>Traxxas Slash 4x4 Ultimate</em> chassis <a class="footnote-reference brackets" href="#traxxas-slash" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> . A <em>SurpassHobby Rocket V3 21.5T Sensored Brushless</em> motor <a class="footnote-reference brackets" href="#rocket-motor" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> is used with the stock <em>Traxxas</em> torque servo for powering the vehicle. The motor and the servo are actuated by a <em>VESC 6MK VI</em> electronic speed controller <a class="footnote-reference brackets" href="#vesc-project" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>. The VESC is responsible for the low-level control of the motor and the servo, furthermore, it also contains a built-in IMU sensor, which can be used for the state estimation. The main computation unit of the vehicle is an <em>Nvidia Jetson Orin Nano Developer Kit</em> <a class="footnote-reference brackets" href="#jetson-orin" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> , which is connected to the VESC board via serial communication. Furthermore, a <em>Crazyradio PA</em> dongle <a class="footnote-reference brackets" href="#crazyradio" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> is connected to the board via USB to ensure low-latency communication between the vehicle and the OptiTrack server PC for time-critical information, such as the position estimates. For other data, where latency and determinism are not a prominent issue, WiFi communication is utilized. The vehicle and its main components are displayed in Figure 2.</p>
 <figure class="align-center" id="id14">
-<a class="reference internal image-reference" href="_images/f1tenth.png"><img alt="The F1TENTH autonomous ground vehicle platform." src="_images/f1tenth.png" style="width: 50%;" />
-</a>
+<a class="reference internal image-reference" href="_images/f1tenth.png"><img alt="The F1TENTH autonomous ground vehicle platform." src="_images/f1tenth.png" style="width: 50%;" /></a>
 <figcaption>
 <p><span class="caption-text">The F1TENTH autonomous ground vehicle platform.</span><a class="headerlink" href="#id14" title="Link to this image">¶</a></p>
 </figcaption>
@@ -56,8 +54,7 @@
 <p>The Jetson board runs the JetPack 6.0 SDK, which provides a Linux-based operating system for development. Similarly to the original onboard software stack provided by the F1TENTH community, our implementation is also based on the ROS2 ecosystem. However, to address the specific requirements and conditions of the AiMotionLab environment, the stock software components have been redesigned.</p>
 <p>The overall architecture of the onboard software stack is outlined in Figure 3. As the figure shows, the onboard software consists of three external interfaces. The <code class="docutils literal notranslate"><span class="pre">Crazyradio</span> <span class="pre">interface</span></code> manages the radio connection with the MoCap server and receives the high-precision position and orientation estimates. Using this pose data, the <code class="docutils literal notranslate"><span class="pre">State</span> <span class="pre">estimator</span></code> computes the states of the vehicle through numerical differentiation. The <code class="docutils literal notranslate"><span class="pre">TCP</span> <span class="pre">interface</span></code> is responsible for the high-level communication with the Command PC. When a reference trajectory is sent to the vehicle through this interface, the <code class="docutils literal notranslate"><span class="pre">Control</span> <span class="pre">module</span></code> activates the selected trajectory-tracking controller and begins execution. During execution, the controller uses state estimates from the <code class="docutils literal notranslate"><span class="pre">Estimator</span> <span class="pre">module</span></code> to calculate control inputs. These inputs are then sent to the <code class="docutils literal notranslate"><span class="pre">Drive</span> <span class="pre">bridge</span></code>, which converts them into a format compatible with the VESC. Finally, the <code class="docutils literal notranslate"><span class="pre">VESC</span></code> interface forwards the inputs to the actuators.</p>
 <figure class="align-center" id="id15">
-<a class="reference internal image-reference" href="_images/onboard_stack.pdf"><img alt="The onboard software stack of the vehicle." src="_images/onboard_stack.pdf" style="width: 80%;" />
-</a>
+<a class="reference internal image-reference" href="_images/onboard_stack.pdf"><img alt="The onboard software stack of the vehicle." src="_images/onboard_stack.pdf" style="width: 80%;" /></a>
 <figcaption>
 <p><span class="caption-text">The onboard software stack of the vehicle.</span><a class="headerlink" href="#id15" title="Link to this image">¶</a></p>
 </figcaption>
@@ -155,12 +152,12 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Welcome to the documentation fo the F1TENTH project at AiMotionLab SZTAKI!</a></li>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to the documentation of the F1TENTH project at AiMotionLab SZTAKI!</a></li>
       <li>Next: <a href="setup_install.html" title="next chapter">Software installation and setup instructions</a></li>
   </ul></li>
 </ul>
 </div>
-<search id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -168,7 +165,7 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</search>
+</div>
 <script>document.getElementById('searchbox').style.display = "block"</script>
 
 
@@ -186,7 +183,7 @@
       &#169;2024, AiMotionLab SZTAKI.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.2.6</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |

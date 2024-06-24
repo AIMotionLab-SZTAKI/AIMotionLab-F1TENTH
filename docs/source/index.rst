@@ -19,12 +19,3 @@ Contents
    vehicles
    using_the_api
    modules/modules
-
-
-TODO:
------
-- Document mocap PC crazymocap setup
-- add images
-- docuemnt python api and add Examples
-- clean up the repo
-

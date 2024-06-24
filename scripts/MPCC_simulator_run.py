@@ -68,7 +68,7 @@ errors = np.array(np.zeros((5,1)))
 freq = np.array([0])
 for i in range(100):
     controller.muted = True
-    u, error = controller.compute_control(x0=x0)
+    u, error, finished = controller.compute_control(x0=x0)
 
 controller.muted = False
 u_sim = np.zeros((2,1))
@@ -87,7 +87,7 @@ plotter.show()
 
 for i in range(iteration):
     t_s = time.time()
-    u, error = controller.compute_control(x0=x0)
+    u, error, finished = controller.compute_control(x0=x0)
     freq = np.append(freq, 1/(time.time()-t_s))
     x0,t= controller.simulate(x0, u, dt)
 
@@ -101,7 +101,7 @@ for i in range(iteration):
     errors = np.append(errors, np.reshape(error, (-1,1)), axis = 1)
     u_sim = np.append(u_sim, np.reshape(u,(-1,1)), axis = 1)
     theta_sim = np.append(theta_sim, controller.theta)
-    if(controller.theta >= controller.trajectory.L):
+    if finished:
         break
 
 
@@ -139,7 +139,7 @@ plt.title("Controller Frequency")
 
 plt.xlabel("theta[m]")
 plt.ylabel("Frequency [Hz]")
-plt.plot(theta_sim[1:],freq[1:])
+plt.plot(theta_sim[1:-1],freq[1:-1])
 
 
 plt.figure()

@@ -72,7 +72,7 @@
             0.0,
             0.0,
             0.1,
-            0.5,
+            0.6,
             0.0
         ],
         "lbx_e": [],
@@ -102,7 +102,7 @@
         ],
         "ubx": [
             22.17594050323228,
-            0.5,
+            0.6,
             0.5
         ],
         "ubx_0": [
@@ -113,7 +113,7 @@
             0.0,
             0.0,
             0.1,
-            0.5,
+            0.6,
             0.0
         ],
         "ubx_e": [],
@@ -231,8 +231,8 @@
         "cost_conl_custom_outer_hess": null,
         "cost_conl_custom_outer_hess_0": null,
         "cost_conl_custom_outer_hess_e": null,
-        "cost_expr_ext_cost": "@1=vertcat(x, y), (((((60*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.5*thetadot))+(0.005*sq(ddot)))+(0.0075*sq(deltadot)))",
-        "cost_expr_ext_cost_0": "@1=vertcat(x, y), (((((60*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.5*thetadot))+(0.005*sq(ddot)))+(0.0075*sq(deltadot)))",
+        "cost_expr_ext_cost": "@1=vertcat(x, y), (((((50*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.5*thetadot))+(0.005*sq(ddot)))+(0.0075*sq(deltadot)))",
+        "cost_expr_ext_cost_0": "@1=vertcat(x, y), (((((50*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(30*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.5*thetadot))+(0.005*sq(ddot)))+(0.0075*sq(deltadot)))",
         "cost_expr_ext_cost_custom_hess": null,
         "cost_expr_ext_cost_custom_hess_0": null,
         "cost_expr_ext_cost_custom_hess_e": null,
@@ -275,7 +275,7 @@
     "problem_class": "OCP",
     "shared_lib_ext": ".so",
     "solver_options": {
-        "Tsim": 0.06999999999999999,
+        "Tsim": 0.08,
         "alpha_min": 0.05,
         "alpha_reduction": 0.7,
         "as_rti_iter": 1,
@@ -328,16 +328,16 @@
         "rti_log_residuals": 0,
         "shooting_nodes": [
             0.0,
-            0.06999999999999999,
-            0.13999999999999999,
-            0.20999999999999996,
-            0.27999999999999997,
-            0.35,
-            0.42,
-            0.49,
-            0.5599999999999999,
-            0.6299999999999999,
-            0.6999999999999998
+            0.08,
+            0.16,
+            0.24,
+            0.32,
+            0.4,
+            0.48000000000000004,
+            0.56,
+            0.64,
+            0.72,
+            0.7999999999999999
         ],
         "sim_method_jac_reuse": [
             0,
@@ -377,18 +377,18 @@
             1,
             1
         ],
-        "tf": 0.7,
+        "tf": 0.8,
         "time_steps": [
-            0.06999999999999999,
-            0.06999999999999999,
-            0.06999999999999999,
-            0.06999999999999999,
-            0.06999999999999999,
-            0.06999999999999999,
-            0.06999999999999999,
-            0.06999999999999999,
-            0.06999999999999999,
-            0.06999999999999999
+            0.08,
+            0.08,
+            0.08,
+            0.08,
+            0.08,
+            0.08,
+            0.08,
+            0.08,
+            0.08,
+            0.08
         ],
         "with_solution_sens_wrt_params": false,
         "with_value_sens_wrt_params": false

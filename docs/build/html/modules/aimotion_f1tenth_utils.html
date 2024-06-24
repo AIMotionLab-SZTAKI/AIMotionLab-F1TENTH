@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -68,265 +68,8 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
-<section id="module-aimotion_f1tenth_utils.F1Client">
-<span id="aimotion-f1tenth-utils-f1client-module"></span><h2>aimotion_f1tenth_utils.F1Client module<a class="headerlink" href="#module-aimotion_f1tenth_utils.F1Client" title="Link to this heading">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aimotion_f1tenth_utils.F1Client.</span></span><span class="sig-name descname"><span class="pre">F1Client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.GP_reset">
-<span class="sig-name descname"><span class="pre">GP_reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.GP_reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.GP_reset" title="Link to this definition">¶</a></dt>
-<dd><p>Reset the GP components of the GP-LPV-LQR controller</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>Exception</strong> – If the reset failed</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.GP_to_online">
-<span class="sig-name descname"><span class="pre">GP_to_online</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.GP_to_online"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.GP_to_online" title="Link to this definition">¶</a></dt>
-<dd><p>Switch the GP-LPV-LQR controller to online mode</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>Exception</strong> – If the switch to online mode failed</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.GP_train">
-<span class="sig-name descname"><span class="pre">GP_train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_training_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.GP_train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.GP_train" title="Link to this definition">¶</a></dt>
-<dd><p>Train the GP components of the GP-LPV-LQR controller</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>states</strong> (<em>np.ndarray</em>) – The states of the vehicle to be used for training (default is None to use the onboard logs)</p></li>
-<li><p><strong>inputs</strong> (<em>np.ndarray</em>) – The inputs of the vehicle to be used for training (default is None to use the onboard logs)</p></li>
-<li><p><strong>c</strong> (<em>np.ndarray</em>) – The curvature of the vehicle to be used for training (default is None to use the onboard logs)</p></li>
-<li><p><strong>errors</strong> (<em>np.ndarray</em>) – The errors of the vehicle to be used for training (default is None to use the onboard logs)</p></li>
-<li><p><strong>random_seed</strong> (<em>int</em>) – The random seed for the training (default is None)</p></li>
-<li><p><strong>retrieve_training_data</strong> (<em>bool</em>) – If the training data should be returned (default is False)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.emergency_stop">
-<span class="sig-name descname"><span class="pre">emergency_stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.emergency_stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.emergency_stop" title="Link to this definition">¶</a></dt>
-<dd><p>Immediately stops the vehicle, by interrupting the trajectory execution and setting the control inputs to zero.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>Exception</strong> – If the vehicle could not be stopped</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.execute_trajectory">
-<span class="sig-name descname"><span class="pre">execute_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aimotion_f1tenth_utils.Trajectory.Trajectory" title="aimotion_f1tenth_utils.Trajectory.Trajectory"><span class="pre">Trajectory</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.execute_trajectory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.execute_trajectory" title="Link to this definition">¶</a></dt>
-<dd><p>Execute a trajectory on the vehicle</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>trajectory</strong> (<a class="reference internal" href="#aimotion_f1tenth_utils.Trajectory.Trajectory" title="aimotion_f1tenth_utils.Trajectory.Trajectory"><em>Trajectory</em></a>) – The trajectory to be executed</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>Exception</strong> – If the trajectory could not be executed</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.get_controllers">
-<span class="sig-name descname"><span class="pre">get_controllers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.get_controllers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.get_controllers" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieves the available controllers of the vehicle</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The available controllers</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[str]</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>Exception</strong> – If the controllers could not be retrieved</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.get_latest_inputs">
-<span class="sig-name descname"><span class="pre">get_latest_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.get_latest_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.get_latest_inputs" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve the latest inputs from the vehicle</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The latest inputs [d, delta]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.get_logs">
-<span class="sig-name descname"><span class="pre">get_logs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.get_logs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.get_logs" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve the logs from the vehicle</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The states, inputs, c (curvature) and errors</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.get_mode">
-<span class="sig-name descname"><span class="pre">get_mode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aimotion_f1tenth_utils.utils.CONTROLLER_MODE" title="aimotion_f1tenth_utils.utils.CONTROLLER_MODE"><span class="pre">CONTROLLER_MODE</span></a></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.get_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.get_mode" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieves the current mode of the vehicle</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The current mode of the vehicle</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aimotion_f1tenth_utils.utils.CONTROLLER_MODE" title="aimotion_f1tenth_utils.utils.CONTROLLER_MODE">CONTROLLER_MODE</a></p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>Exception</strong> – If the mode could not be retrieved</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.keyboard_control">
-<span class="sig-name descname"><span class="pre">keyboard_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.075</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.keyboard_control"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.keyboard_control" title="Link to this definition">¶</a></dt>
-<dd><p>Control the vehicle with the keyboard. This method is blocking as it opens a pygame window,
-where WASD keys can be used to control the vehicle. Press SHIFT to increase the throttle.
-The vehicle must be in MANUAL mode to accept manual control commands.
-The onboard drive bridge will clamp the commands is necessary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>d_max</strong> (<em>float</em>) – The maximum throttle command (default is 0.075)</p></li>
-<li><p><strong>delta_max</strong> (<em>float</em>) – The maximum steering command in radians (default is 0.5)</p></li>
-<li><p><strong>frequency</strong> (<em>float</em>) – The frequency of the control loop in Hz (default is 40)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.manual_control">
-<span class="sig-name descname"><span class="pre">manual_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.manual_control"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.manual_control" title="Link to this definition">¶</a></dt>
-<dd><p>Sends manual control commands to the vehicle.
-The vehicle must be in MANUAL mode to accept manual control commands.
-The onboard drive bridge will clamp the commands is necessary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>d</strong> (<em>float</em>) – The throttle command (-1: full reverse to 1:full forward, 0 is neutral)</p></li>
-<li><p><strong>delta</strong> (<em>float</em>) – The steering command in radians (-.5: full left to .5: full right, 0 is neutral)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.reinit_GP_LPV_LQR">
-<span class="sig-name descname"><span class="pre">reinit_GP_LPV_LQR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vehicle_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GP_LPV_LQR_params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.reinit_GP_LPV_LQR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.reinit_GP_LPV_LQR" title="Link to this definition">¶</a></dt>
-<dd><p>Reinitialize the GP-LPV-LQR controller with new parameters</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>vehicle_params</strong> (<em>dict</em>) – The vehicle parameters</p></li>
-<li><p><strong>GP_LPV_LQR_params</strong> (<em>dict</em>) – The GP-LPV-LQR parameters</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>Exception</strong> – If the reinitialization failed</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.reinit_LPV_LQR_from_yaml">
-<span class="sig-name descname"><span class="pre">reinit_LPV_LQR_from_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yaml_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.reinit_LPV_LQR_from_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.reinit_LPV_LQR_from_yaml" title="Link to this definition">¶</a></dt>
-<dd><p>Reinitialize the GP-LPV-LQR controller with parameters from a yaml file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>yaml_path</strong> (<em>str</em>) – The path to the yaml file</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>Exception</strong> – If the reinitialization failed</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.reset_controller">
-<span class="sig-name descname"><span class="pre">reset_controller</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.reset_controller"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.reset_controller" title="Link to this definition">¶</a></dt>
-<dd><p>Resets the internal state of the controller.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>Exception</strong> – If the controller could not be reset</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.reset_state_logger">
-<span class="sig-name descname"><span class="pre">reset_state_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.reset_state_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.reset_state_logger" title="Link to this definition">¶</a></dt>
-<dd><p>Resets the state logger on the vehicle</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>Exception</strong> – If the logger could not be reset</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.select_controller">
-<span class="sig-name descname"><span class="pre">select_controller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.select_controller"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.select_controller" title="Link to this definition">¶</a></dt>
-<dd><p>Secects the controller to be used</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>controller</strong> (<em>str</em>) – The name of the controller</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>Exception</strong> – If the controller could not be set</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.set_mode">
-<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aimotion_f1tenth_utils.utils.CONTROLLER_MODE" title="aimotion_f1tenth_utils.utils.CONTROLLER_MODE"><span class="pre">CONTROLLER_MODE</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.set_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.set_mode" title="Link to this definition">¶</a></dt>
-<dd><p>Set the mode of the vehicle defined by the CONTROLLER_MODE enum.
-The modes are:
-- RUNNING: the vehicle is executing a trajectory
-- IDLE: controllers are ready and configured, but no trajectory is being executed
-- STOP: interrupts all control and stops the car, then returns to idle mode
-- PROCESSING: onboard calculation in progress, no control possible
-- MANUAL: controllers are bypassed and the car can be controlled manually with manual_control() method</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mode</strong> (<a class="reference internal" href="#aimotion_f1tenth_utils.utils.CONTROLLER_MODE" title="aimotion_f1tenth_utils.utils.CONTROLLER_MODE"><em>CONTROLLER_MODE</em></a>) – The mode to be set</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>Exception</strong> – If the mode could not be set</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="aimotion_f1tenth_utils.F1Client.F1Client.wait_while_running">
-<span class="sig-name descname"><span class="pre">wait_while_running</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/F1Client.html#F1Client.wait_while_running"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.F1Client.F1Client.wait_while_running" title="Link to this definition">¶</a></dt>
-<dd><p>Blocks the script while the vehicle is in RUNNING mode</p>
-</dd></dl>
-
-</dd></dl>
-
+<section id="aimotion-f1tenth-utils-f1client-module">
+<h2>aimotion_f1tenth_utils.F1Client module<a class="headerlink" href="#aimotion-f1tenth-utils-f1client-module" title="Link to this heading">¶</a></h2>
 </section>
 <section id="module-aimotion_f1tenth_utils.Trajectory">
 <span id="aimotion-f1tenth-utils-trajectory-module"></span><h2>aimotion_f1tenth_utils.Trajectory module<a class="headerlink" href="#module-aimotion_f1tenth_utils.Trajectory" title="Link to this heading">¶</a></h2>
@@ -586,8 +329,9 @@ The env.sh is later used to source the environment on remote launches.</p>
 <span id="aimotion-f1tenth-utils-utils-module"></span><h2>aimotion_f1tenth_utils.utils module<a class="headerlink" href="#module-aimotion_f1tenth_utils.utils" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aimotion_f1tenth_utils.utils.CONTROLLER_MODE">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aimotion_f1tenth_utils.utils.</span></span><span class="sig-name descname"><span class="pre">CONTROLLER_MODE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/utils.html#CONTROLLER_MODE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.utils.CONTROLLER_MODE" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aimotion_f1tenth_utils.utils.</span></span><span class="sig-name descname"><span class="pre">CONTROLLER_MODE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aimotion_f1tenth_utils/utils.html#CONTROLLER_MODE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aimotion_f1tenth_utils.utils.CONTROLLER_MODE" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aimotion_f1tenth_utils.utils.CONTROLLER_MODE.IDLE">
 <span class="sig-name descname"><span class="pre">IDLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#aimotion_f1tenth_utils.utils.CONTROLLER_MODE.IDLE" title="Link to this definition">¶</a></dt>
@@ -681,7 +425,7 @@ The env.sh is later used to source the environment on remote launches.</p>
   </ul></li>
 </ul>
 </div>
-<search id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -689,7 +433,7 @@ The env.sh is later used to source the environment on remote launches.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</search>
+</div>
 <script>document.getElementById('searchbox').style.display = "block"</script>
 
 
@@ -707,7 +451,7 @@ The env.sh is later used to source the environment on remote launches.</p>
       &#169;2024, AiMotionLab SZTAKI.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.2.6</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |
