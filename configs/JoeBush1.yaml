@@ -58,7 +58,7 @@ parameter_server:
         #Input constraints
         delta_max: 0.5 # [rad]
         d_max: 0.2
-        d_min: 0.05       
+        d_min: 0.1       
         opt_tol: 0.075
         #Incremental input constraints        
 
@@ -74,7 +74,7 @@ parameter_server:
         #Cost weights:
         q_con: 50.0 
         q_long: 30.0
-        q_theta: 2.5
+        q_theta: 3.5
         q_d: 0.005
         q_delta: 0.0075
 

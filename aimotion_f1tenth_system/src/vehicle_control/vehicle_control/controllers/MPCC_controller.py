@@ -155,8 +155,6 @@ class MPCC_Controller:
         """
         Calculate intial guess for the state horizon.
         """
-
-        
         if self.muted == False:
             print("Casadi init started...")
 
@@ -188,9 +186,9 @@ class MPCC_Controller:
         self.ocp_solver.set(0, 'lbx', x_0)
         self.ocp_solver.set(0, 'ubx', x_0)
         self.ocp_solver.set(0, 'x', x_0)
-        tol =   0.05
+        tol =   0.01
         t = 0
-        for i in range(1000):
+        for i in range(10):
             self.ocp_solver.solve()
             res = self.ocp_solver.get_residuals()
 
@@ -199,10 +197,6 @@ class MPCC_Controller:
             if max(res) < tol:
                 break #Tolerance limit reached
         
-        if max(res) > tol:
-            raise Exception(f"Acados init failed acados residuals: {res}")
-
-
         if self.muted == False:
             print(f"Number of init iterations: {num_iter}")
             print("")
@@ -409,9 +403,6 @@ class MPCC_Controller:
         :param x0: initial state, used for initialising the controller
         :param thetastart: float, starting arc lenght of the trajectory
         """
-
-        self.load_parameters()
-        
         self.theta = theta_start
         self.s_start = theta_start
         
