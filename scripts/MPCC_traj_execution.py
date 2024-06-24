@@ -25,7 +25,7 @@ mpl.rcParams["text.usetex"] = False
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
 traj_name = "paperclip.traj"
-traj_file = os.path.join(parent_dir, "scripts", traj_name)
+traj_file = os.path.join(parent_dir, "trajectories", traj_name)
 traj = Trajectory("traj_1")
 
 traj.load(traj_file)
