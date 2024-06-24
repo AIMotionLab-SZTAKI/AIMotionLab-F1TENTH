@@ -48,7 +48,7 @@ def update_plot(new_x, new_y):
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
 traj_name = "paperclip.traj"
-traj_file = os.path.join(parent_dir, "scripts", traj_name)
+traj_file = os.path.join(parent_dir, "trajectories", traj_name)
 traj = Trajectory("traj_1")
 
 path, v = null_paperclip()
@@ -74,7 +74,7 @@ with open(file_name) as f:
 
     MPCC_params = full_params["parameter_server"]["ros__parameters"]["controllers"]["MPCC"]
 
-car_1 = F1Client("192.168.2.62", 8069)
+car_1 = F1Client("JoeBush1")
 print(f"Connected to {car_1.car_ID}")
 
 # select the controller

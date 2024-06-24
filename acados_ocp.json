@@ -1,7 +1,7 @@
 {
     "acados_include_path": "/home/bodlaire/acados/include",
     "acados_lib_path": "/home/bodlaire/acados/lib",
-    "code_export_directory": "/home/bodlaire/work/AIMotionLab-F1TENTH/c_generated_code",
+    "code_export_directory": "/home/bodlaire/stock_repo/AIMotionLab-F1TENTH/c_generated_code",
     "constraints": {
         "C": [],
         "C_e": [],
@@ -72,7 +72,7 @@
             0.0,
             0.0,
             0.1,
-            0.6,
+            0.2,
             0.0
         ],
         "lbx_e": [],
@@ -102,7 +102,7 @@
         ],
         "ubx": [
             22.17594050323228,
-            0.6,
+            0.2,
             0.5
         ],
         "ubx_0": [
@@ -113,7 +113,7 @@
             0.0,
             0.0,
             0.1,
-            0.6,
+            0.2,
             0.0
         ],
         "ubx_e": [],
@@ -171,7 +171,7 @@
         "zu_e": []
     },
     "cython_include_dirs": [
-        "/home/bodlaire/work/AIMotionLab-F1TENTH/venv/lib/python3.10/site-packages/numpy/core/include",
+        "/home/bodlaire/stock_repo/AIMotionLab-F1TENTH/venv/lib/python3.10/site-packages/numpy/core/include",
         "/usr/include/python3.10"
     ],
     "dims": {

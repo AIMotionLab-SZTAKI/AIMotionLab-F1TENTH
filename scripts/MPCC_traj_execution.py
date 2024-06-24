@@ -25,7 +25,7 @@ mpl.rcParams["text.usetex"] = False
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
 traj_name = "paperclip.traj"
-traj_file = os.path.join(parent_dir, "scripts", traj_name)
+traj_file = os.path.join(parent_dir, "trajectories", traj_name)
 traj = Trajectory("traj_1")
 
 traj.load(traj_file)
@@ -43,7 +43,7 @@ x_r, y_r, *_ = traj.get_trajectory()
 
 
 # connect to the vehicle
-car_1 = F1Client("192.168.2.62", 8069)
+car_1 = F1Client("JoeBush1")
 print(f"Connected to {car_1.car_ID}")
 
 

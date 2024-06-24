@@ -372,13 +372,12 @@ class ControlManager(Node):
         return self.MODE == CONTROLLER_MODE.RUNNING
 
     def _state_callback(self, data):
-        print("State callback happened")
-        try:
-            self.current_state = state2array(data)
+        
+        self.current_state = state2array(data)
 
-            if not self._is_running(): return
+        if not self._is_running(): return
 
-            t = self._get_time()
+        t = self._get_time()
 
         # get setpoint from the trajectory & evaluate the controller
         

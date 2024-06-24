@@ -9,7 +9,7 @@ setup(
     description='Communication and scripting layer for the F1TENTH fleet manager',
     packages=find_packages(),
     install_requires=[
-        'numpy',
+        'numpy==1.24.4',
         'scipy',
         'matplotlib',
         'pygame',
