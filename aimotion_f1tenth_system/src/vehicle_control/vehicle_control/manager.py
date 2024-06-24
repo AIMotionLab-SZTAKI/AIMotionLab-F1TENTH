@@ -58,8 +58,10 @@ class ControlManager(Node):
     def _TCP_callback(self, message: dict):
         """Callback function to handle incoming TCP messages
         
-        :param message: dict containing the message information
-        :return: dict containing the response
+        :param message: Dictionary containing the message information
+        :type message: dict
+        :return: Dictionary containing the response
+        :rtype: dict
         """
         # commands to handle
         # - select controller
@@ -67,6 +69,7 @@ class ControlManager(Node):
         # - stop controller
         # - reset controller
         # - GP related: collect_data, train, mode: (online, offline, reset)
+        
         cmd = message["command"]
 
         # identification
@@ -369,12 +372,13 @@ class ControlManager(Node):
         return self.MODE == CONTROLLER_MODE.RUNNING
 
     def _state_callback(self, data):
-        #try:
-        self.current_state = state2array(data)
+        print("State callback happened")
+        try:
+            self.current_state = state2array(data)
 
-        if not self._is_running(): return
+            if not self._is_running(): return
 
-        t = self._get_time()
+            t = self._get_time()
 
         # get setpoint from the trajectory & evaluate the controller
         

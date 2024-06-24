@@ -17,7 +17,7 @@ traj.load(os.path.dirname(__file__)+"/"+traj_ID+".traj")
 traj.plot_trajectory(block=True)
 
 # connect to the vehicle
-car_1 = F1Client("192.168.2.62", 8069)
+car_1 = F1Client("JoeBush1")
 
 # select the controller
 car_1.select_controller("GP_LPV_LQR")

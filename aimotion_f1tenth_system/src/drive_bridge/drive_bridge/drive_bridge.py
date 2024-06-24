@@ -3,6 +3,7 @@ from rclpy.node import Node
 from drive_bridge_msg.msg import InputValues
 from std_msgs.msg import Float64
 import traceback
+import signal
 
 class LoaderNode(Node):
     def __init__(self):
@@ -74,6 +75,12 @@ def main():
     rclpy.init()
     drive_bridge = DriveBridge()
     drive_bridge.get_logger().info('Drive bridge initialized!')
+
+
+    def signal_handler(sig, frame):
+        rclpy.shutdown()
+
+    signal.signal(signal.SIGINT, signal_handler)
 
     try:
         rclpy.spin(drive_bridge)

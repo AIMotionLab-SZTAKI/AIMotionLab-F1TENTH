@@ -1,6 +1,5 @@
 import numpy as np
 import pynumdiff
-import matplotlib.pyplot as plt
 import warnings
 
 from .utils import clamp, normalize, Controller
@@ -171,7 +170,7 @@ class ModularGPLPVLQR(Controller):
         # invert z1 for lateral dynamics:
         e =- z1
         self.q += e
-        self.q = clamp(self.q,.1)
+        self.q = clamp(self.q,2)
 
         
         beta=np.arctan2(v_eta,abs(v_xi)) # abs() needed for reversing 
@@ -243,7 +242,7 @@ class ModularGPLPVLQR(Controller):
         """
         train_x=np.vstack((states[:,3],states[:,4],states[:,5])) # v_xi, v_eta, omega
 
-        _, d_v_xi_measured=pynumdiff.finite_difference.first_order(states[:,3], self.dt, [50], options={'iterate': True})
+        _, d_v_xi_measured=pynumdiff.finite_difference.first_order(states[:,3], self.dt, [150], options={'iterate': True})
         #d_v_xi_measured = np.diff(states[:,3]) / self.dt
         d_v_xi_nominal= - self.model["C_m2"]*(1+np.cos(inputs[:,1]))/self.model["m"]*states[:,3] \
                         + self.model["C_m1"]*(1+np.cos(inputs[:,1]))/self.model["m"]*inputs[:,0] \
@@ -265,31 +264,11 @@ class ModularGPLPVLQR(Controller):
         #train_x=train_x[::step_size,:]
         #train_y=train_y[::step_size]#+0.01*np.random.randn(train_y[::step_size].shape[0])
 
+        mask = (train_y > np.mean(train_y)+1.5*np.std(train_y)) | (train_y < np.mean(train_y)-1.5*np.std(train_y)) 
+        train_x = train_x[~mask]
+        train_y = train_y[~mask]
 
-        if plot_training_data:
-            
-            fig, axs = plt.subplots(4, 1, figsize=(8, 10))  # 4 rows, 1 column
 
-            # Plot data on each subplot
-            axs[0].plot(states[:,3])
-            axs[0].set_title(r'$$v_\xi$$')
-
-            axs[1].plot(states[:,4])
-            axs[1].set_title(r'$$v_\eta$$')
-
-            axs[2].plot(states[:,5])
-            axs[2].set_title(r'$$\omega$$')
-
-            axs[3].plot(train_y)
-            axs[3].set_title(r'$$\mathrm{train}_y$$')
-
-            plt.suptitle("Longitudinal GP training data")
-
-            # Adjust layout
-            plt.tight_layout()
-
-            # Show plot
-            plt.show(block=True)
 
 
         #self.GP_long=SGPModel(train_x=train_x, train_y=train_y, num_of_inducing=None, training_iter=200)
@@ -352,31 +331,10 @@ class ModularGPLPVLQR(Controller):
         #train_y=train_y[::step_size]#+0.01*np.random.randn(train_y[::step_size].shape[0])
 
 
-        if plot_training_data:
-            
-            fig, axs = plt.subplots(4, 1, figsize=(8, 10))  # 4 rows, 1 column
+        mask = (train_y > np.mean(train_y)+1.5*np.std(train_y)) & (train_y < np.mean(train_y)-1.5*np.std(train_y)) 
 
-            # Plot data on each subplot
-            axs[0].plot(v_xi)
-            axs[0].set_title(r'$$v_\xi$$')
-
-            axs[1].plot(v_eta)
-            axs[1].set_title(r'$$v_\eta$$')
-
-            axs[2].plot(omega)
-            axs[2].set_title(r'$$\omega$$')
-
-            axs[3].plot(train_y)
-            axs[3].set_title(r'$$\mathrm{train}_y$$')
-
-            plt.suptitle("Lateral GP training data")
-
-            # Adjust layout
-            plt.tight_layout()
-
-            # Show plot
-            plt.show(block=True)
-
+        train_x = train_x[~mask]
+        train_y = train_y[~mask]
 
        #self.GP_lat=SGPModel(train_x=train_x, train_y=train_y, num_of_inducing=None, training_iter=200)
         if self.GP_type == "SGP":
@@ -460,9 +418,6 @@ class ModularGPLPVLQR(Controller):
             warnings.simplefilter("ignore") # ignore warning from linear operator
             data_lat = self._train_SGP_lat(states, inputs, c, plot_training_data=plot_training_data)
             data_long = self._train_SGP_long(states, inputs, plot_training_data=plot_training_data)
-
-        if plot_training_data:
-            plt.show(block=True)
 
         # the last state if saved as a previous state for online tuning
         self.prev_state = states[-1,:]

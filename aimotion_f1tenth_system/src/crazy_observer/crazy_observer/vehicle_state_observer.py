@@ -15,6 +15,7 @@ from vehicle_state_msgs.msg import VehicleStateStamped
 import math
 from .submodules.radio_receiver import RadioReciever
 import threading
+import signal
 import traceback
 
 class LoaderNode(Node):
@@ -306,6 +307,7 @@ class CrazyObserver(Node):
         self.setD(data)
         self.setERPM(data)
         
+
 def main():
     uri = uri_helper.uri_from_env(default='usb://0')
     logging.basicConfig(level=logging.ERROR)
@@ -314,6 +316,12 @@ def main():
     le = CrazyObserver(uri, filter_window = 3)
     le.get_logger().info("State observer node initialized!")
     t = threading.Thread(target=le.spin)
+
+    def signal_handler(sig, frame):
+        rclpy.shutdown()
+
+    signal.signal(signal.SIGINT, signal_handler)
+
     try:
         t.start()
     except Exception:
@@ -322,6 +330,8 @@ def main():
         t.join()
         le.radio_receiver.close()
         le.get_logger().info("Observer node shutting down!")
+        le.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':

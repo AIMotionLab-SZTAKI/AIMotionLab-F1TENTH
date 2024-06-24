@@ -138,6 +138,8 @@ class Trajectory:
     def export_to_time_dependent(self) -> tuple:
         """Exports the trajectory to a time dependent representation, i.e. x,y = Path(t)
 
+        Note: This representation is used for the Skybrush interface.
+
         :return: The time dependent representation of the trajectory
         :rtype: tuple
         """
@@ -149,6 +151,28 @@ class Trajectory:
         tck, t, *_ = splprep([x, y], k=5, s=0, u=t_eval)
 
         return tck
+    
+
+    def export_to_skybrush(self) -> tuple:
+        """Exports the trajectory to a time dependent representation, i.e. x,y = Path(t)
+
+        Note: This representation is used for the Skybrush interface.
+
+        :return: The time dependent representation of the trajectory
+        :rtype: tuple
+        """
+        t_eval=np.linspace(0, self.t_end, 100)
+        
+        s=splev(t_eval, self.evol_tck)
+        (x,y)=splev(s, self.pos_tck)
+
+        tck, t, *_ = splprep([x, y], k=5, s=0, u=t_eval)
+
+        z_coeffs = np.zeros_like(tck[1][0])
+        tck[1].append(z_coeffs)
+
+        return tck
+        
         
 
     def to_send(self) -> tuple:

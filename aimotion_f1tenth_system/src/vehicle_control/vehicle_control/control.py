@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from .manager import ControlManager
 import traceback
+import signal
 
 class LoaderNode(Node):
     def __init__(self):

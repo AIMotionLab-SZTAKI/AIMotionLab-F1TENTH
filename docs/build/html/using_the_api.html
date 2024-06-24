@@ -80,12 +80,99 @@ and provides a set of functions that can be used to control the vehicle. The aut
 The scripts can also be found in the <cite>examples</cite> directory of the package.</p>
 <section id="installing-the-onboard-stack-of-the-vehicles">
 <h3>Installing the onboard stack of the vehicles<a class="headerlink" href="#installing-the-onboard-stack-of-the-vehicles" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.install</span> <span class="kn">import</span> <span class="n">install_onboard_stack</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="c1"># define the ID of the car</span>
+<span class="linenos">4</span><span class="n">car_ID</span> <span class="o">=</span> <span class="s1">&#39;JoeBush1&#39;</span>
+<span class="linenos">5</span>
+<span class="linenos">6</span><span class="c1"># before running make sure that the vehicle</span>
+<span class="linenos">7</span><span class="c1"># is turned on and connected to the network</span>
+<span class="linenos">8</span><span class="n">install_onboard_stack</span><span class="p">(</span><span class="n">car_ID</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="manual-control-by-the-keyboard">
 <h3>Manual control by the keyboard<a class="headerlink" href="#manual-control-by-the-keyboard" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.F1Client</span> <span class="kn">import</span> <span class="n">F1Client</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.utils</span> <span class="kn">import</span> <span class="n">CONTROLLER_MODE</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="c1"># connect to the vehicle</span>
+<span class="linenos"> 6</span><span class="n">car_1</span> <span class="o">=</span> <span class="n">F1Client</span><span class="p">(</span><span class="n">car_ID</span><span class="o">=</span><span class="s2">&quot;JoeBush1&quot;</span><span class="p">)</span> <span class="c1"># (host=&quot;192.168.2.62&quot;, port=8069) is also possible</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1"># set the mode to manual</span>
+<span class="linenos"> 9</span><span class="n">car_1</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">mode</span> <span class="o">=</span> <span class="n">CONTROLLER_MODE</span><span class="o">.</span><span class="n">MANUAL</span><span class="p">)</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="c1"># control the vehicle using the keyboard</span>
+<span class="linenos">12</span><span class="n">car_1</span><span class="o">.</span><span class="n">keyboard_control</span><span class="p">(</span><span class="n">d_max</span><span class="o">=</span><span class="mf">.2</span><span class="p">,</span> <span class="n">delta_max</span><span class="o">=</span><span class="mf">.4</span><span class="p">)</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="c1"># reset mode</span>
+<span class="linenos">15</span><span class="n">car_1</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">mode</span> <span class="o">=</span> <span class="n">CONTROLLER_MODE</span><span class="o">.</span><span class="n">IDLE</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="execute-a-presaved-trajectory">
 <h3>Execute a presaved trajectory<a class="headerlink" href="#execute-a-presaved-trajectory" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="linenos"> 3</span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.F1Client</span> <span class="kn">import</span> <span class="n">F1Client</span>
+<span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.utils</span> <span class="kn">import</span> <span class="n">CONTROLLER_MODE</span>
+<span class="linenos"> 7</span><span class="kn">from</span> <span class="nn">aimotion_f1tenth_utils.Trajectory</span> <span class="kn">import</span> <span class="n">Trajectory</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1"># Design / load the trajectory</span>
+<span class="linenos">11</span><span class="n">traj_ID</span> <span class="o">=</span> <span class="s2">&quot;traj_1&quot;</span>
+<span class="linenos">12</span><span class="n">traj</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="n">trajectory_ID</span><span class="o">=</span><span class="n">traj_ID</span><span class="p">)</span> <span class="c1"># create the trajetory object</span>
+<span class="linenos">13</span><span class="n">traj</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="p">,</span> <span class="n">traj_ID</span><span class="o">+</span><span class="s2">&quot;.traj&quot;</span><span class="p">))</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="c1"># display the trajectory in a figure</span>
+<span class="linenos">16</span><span class="n">traj</span><span class="o">.</span><span class="n">plot_trajectory</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="c1"># connect to the vehicle</span>
+<span class="linenos">19</span><span class="n">car_1</span> <span class="o">=</span> <span class="n">F1Client</span><span class="p">(</span><span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;192.168.2.62&quot;</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="mi">8069</span><span class="p">)</span>
+<span class="linenos">20</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to </span><span class="si">{</span><span class="n">car_1</span><span class="o">.</span><span class="n">car_ID</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="c1"># select the controller</span>
+<span class="linenos">24</span><span class="n">car_1</span><span class="o">.</span><span class="n">select_controller</span><span class="p">(</span><span class="s2">&quot;GP_LPV_LQR&quot;</span><span class="p">)</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="c1"># reset the internal state of the controller</span>
+<span class="linenos">27</span><span class="n">car_1</span><span class="o">.</span><span class="n">reset_controller</span><span class="p">()</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span><span class="c1"># reset the state logger</span>
+<span class="linenos">30</span><span class="n">car_1</span><span class="o">.</span><span class="n">reset_state_logger</span><span class="p">()</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="c1"># execute_trajectory</span>
+<span class="linenos">33</span><span class="n">car_1</span><span class="o">.</span><span class="n">execute_trajectory</span><span class="p">(</span><span class="n">trajectory</span><span class="o">=</span><span class="n">traj</span><span class="p">)</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="c1"># block the script until the execution is finished</span>
+<span class="linenos">36</span><span class="n">car_1</span><span class="o">.</span><span class="n">wait_while_running</span><span class="p">()</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span><span class="c1"># retrieve logs</span>
+<span class="linenos">40</span><span class="n">states1</span><span class="p">,</span> <span class="n">inputs1</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">errors1</span> <span class="o">=</span> <span class="n">car_1</span><span class="o">.</span><span class="n">get_logs</span><span class="p">()</span>
+<span class="linenos">41</span>
+<span class="linenos">42</span><span class="c1"># plot the logs</span>
+<span class="linenos">43</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="linenos">44</span><span class="n">x_r</span><span class="p">,</span> <span class="n">y_r</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">traj</span><span class="o">.</span><span class="n">get_trajectory</span><span class="p">()</span>
+<span class="linenos">45</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_r</span><span class="p">,</span> <span class="n">y_r</span><span class="p">)</span>
+<span class="linenos">46</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">states1</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">states1</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+<span class="linenos">47</span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;Reference&quot;</span><span class="p">,</span> <span class="s2">&quot;Measurement1&quot;</span><span class="p">])</span>
+<span class="linenos">48</span>
+<span class="linenos">49</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="linenos">50</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">errors1</span><span class="p">)</span>
+<span class="linenos">51</span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;Lateral&quot;</span><span class="p">,</span> <span class="s2">&quot;Heading&quot;</span><span class="p">,</span> <span class="s2">&quot;Longitudinal&quot;</span><span class="p">,</span> <span class="s2">&quot;Velocity&quot;</span><span class="p">])</span>
+<span class="linenos">52</span>
+<span class="linenos">53</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="linenos">54</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">inputs1</span><span class="p">)</span>
+<span class="linenos">55</span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;detla&quot;</span><span class="p">])</span>
+<span class="linenos">56</span>
+<span class="linenos">57</span><span class="c1"># display</span>
+<span class="linenos">58</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>

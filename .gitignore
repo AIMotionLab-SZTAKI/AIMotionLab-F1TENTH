@@ -3,3 +3,6 @@ venv/
 *.egg-info
 /examples/logs
 .DS_Store
+logs/
+
+TRAILER_tutorial.md

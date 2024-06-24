@@ -1,2 +1,17 @@
-# aimotion_f1tenth_utils
-Utility functions for communication and scipting for the aimotion_f1tenth_manager framework.
+# AiMotionLab-F1TENTH
+The software framework of the F1TENTH vehicles of AiMotionLab.
+
+## Getting started
+Clone the repository, create virtual environment and install the package as follows:
+```
+https://github.com/AIMotionLab-SZTAKI/AIMotionLab-F1TENTH.git
+cd AIMotionLab-F1TENTH
+python -m venv venv
+source venv/bin/activate
+pip install -e .
+```
+
+To open the documentation run the `help` command:
+```
+help
+```

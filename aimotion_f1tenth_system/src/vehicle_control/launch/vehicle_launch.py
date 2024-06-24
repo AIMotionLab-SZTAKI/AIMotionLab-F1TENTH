@@ -41,5 +41,6 @@ def generate_launch_description():
             namespace='',
             executable='drive_bridge',
             parameters= [config]
-        )
+        ),
+        
     ])
