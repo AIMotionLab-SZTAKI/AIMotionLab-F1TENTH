@@ -58,8 +58,10 @@ class ControlManager(Node):
     def _TCP_callback(self, message: dict):
         """Callback function to handle incoming TCP messages
         
-        :param message: dict containing the message information
-        :return: dict containing the response
+        :param message: Dictionary containing the message information
+        :type message: dict
+        :return: Dictionary containing the response
+        :rtype: dict
         """
         # commands to handle
         # - select controller

@@ -10,6 +10,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'numpy==1.24.4',
+        'sphinx_markdown_builder',
         'scipy',
         'matplotlib',
         'pygame',
@@ -17,6 +18,9 @@ setup(
         'paramiko',
         'motioncapture==1.0a1; python_version<"3.10" and platform_system != "Darwin"',
         'motioncapture==1.0a2; python_version>"3.9" and platform_system != "Darwin"',
+    ],
+    exclude_patterns = [
+    'build/*'
     ],
     entry_points={
         'console_scripts': [
