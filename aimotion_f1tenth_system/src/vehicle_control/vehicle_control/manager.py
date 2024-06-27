@@ -91,11 +91,7 @@ class ControlManager(Node):
             controllers = list(self.controllers.keys())
             return {"status": True, "controllers": controllers}
 
-        # get available controllers
-        elif cmd == "get_controllers":
-            controllers = list(self.controllers.keys())
-            return {"status": True, "controllers": controllers}
-        
+    
         # get current solution through the horizon
         elif cmd == "MPCC_get_current_horizon":
             try:
@@ -125,13 +121,19 @@ class ControlManager(Node):
             
         # set MPCC parameters
         elif cmd == "MPCC_param_update":
-            try:
-                self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
-                self.controllers["MPCC"].load_parameters()
-                
-                return {"status": True, "params:": message["MPCC_params"]}
-            except Exception as e:
-                return {"status": False, "error": e}
+            if "MPCC" in self.controllers.keys(): #Check for the MPCC controller
+                try:
+                    old_params = self.controllers["MPCC"].MPCC_params 
+                    self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
+                    self.controllers["MPCC"].load_parameters()
+
+                    return {"status": True, "params:": message["MPCC_params"]}
+                except Exception as e:
+                    self.controllers["MPCC"].MPCC_params = old_params
+                    self.controllers["MPCC"].load_parameters()
+                    return {"status": False, "error": e}
+            else:
+                return {"status": False, "error": "MPCC controller not available"}
         
         # mode selection
         elif cmd == "set_mode":

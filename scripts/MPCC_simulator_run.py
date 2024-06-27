@@ -92,9 +92,9 @@ for i in range(iteration):
     x0,t= controller.simulate(x0, u, dt)
 
     #Simulating noise: 
-    #x0[3] = x0[3]*np.random.normal(1,0.05)
-    #x0[0] = x0[0]*np.random.normal(1,0.0005)
-    #x0[1] = x0[1]*np.random.normal(1,0.0005)
+    x0[3] = x0[3]*np.random.normal(1,0.05)
+    x0[0] = x0[0]+np.random.normal(0,1)*0.005
+    x0[1] = x0[1]+np.random.normal(0,1)*0.005
     
     x_sim = np.append(x_sim, np.reshape(x0, (-1,1)), axis= 1)
 

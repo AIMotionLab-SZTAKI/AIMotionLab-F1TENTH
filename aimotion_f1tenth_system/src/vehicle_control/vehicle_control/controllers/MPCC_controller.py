@@ -206,7 +206,8 @@ class MPCC_Controller:
         Class method for creating the AcadosModel. 
         Sets self.parameters used by the casadi solver.
         """
-        
+        self.load_parameters() #Make sure that the SimpleNameSpace variables are updated to the current MPCC parameters
+
         m= self.parameters.m
         l_f=self.parameters.l_f 
         l_r=self.parameters.l_r 

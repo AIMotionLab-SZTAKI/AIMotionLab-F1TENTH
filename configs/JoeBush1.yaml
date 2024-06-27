@@ -57,7 +57,7 @@ parameter_server:
       MPCC:
         #Input constraints
         delta_max: 0.5 # [rad]
-        d_max: 0.2
+        d_max: 0.25
         d_min: 0.1       
         opt_tol: 0.075
         #Incremental input constraints        
@@ -74,7 +74,7 @@ parameter_server:
         #Cost weights:
         q_con: 50.0 
         q_long: 30.0
-        q_theta: 3.5
+        q_theta: 2.5
         q_d: 0.005
         q_delta: 0.0075
 
@@ -126,7 +126,7 @@ parameter_server:
       FREQUENCY: 40.0
       MARKER_OFFSET: 0.0
     drive_bridge:
-      MOTOR_LIMIT: 0.35
+      MOTOR_LIMIT: 0.15
       STEERING_GAINS:
       - -0.90616 #-0.8  #-0.90616
       -  0.54172 #  0.5  #0.54172

@@ -11,6 +11,8 @@ setup(
     install_requires=[
         'numpy==1.24.4',
         'sphinx_markdown_builder',
+        'recommonmark',
+        'myst_parser',
         'scipy',
         'matplotlib',
         'pygame',
@@ -27,4 +29,5 @@ setup(
             'help=aimotion_f1tenth_utils.docs:open_docs'
         ]
     },
+    html_static_path = ['images'],
 )

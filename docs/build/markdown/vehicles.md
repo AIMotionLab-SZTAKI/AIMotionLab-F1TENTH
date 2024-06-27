@@ -64,7 +64,7 @@ The controller must adhere to the following requirements:
     ```
 - The compute control method should return 3 parameters:
   : - Optimal inputs (numpy.array([d, delta]))
-    - Errors (numpy.array([“lateral”, “heading”, “long”, “velocity”]))
+    - Errors (numpy.array([<lateral_error>, <heading_error>, <longitudinal_error>, <velocity>]))
     - Finished flag (True/False)
 
 **Adding a new controller to the manager**
@@ -144,4 +144,4 @@ Note that multiple namespaces can be nested within each other
                                    GP_LPV_LQR_params = kwargs["GP_LPV_LQR_params"])
       self.controllers["GP_LPV_LQR"] = controller
    ```
-5. After finishing these steps the controller can be activated via the [Python API](using_the_api.md)
+5. After completing these steps and installing the new onboard software onto the vehicle, the controller can be activated via the [Python API](using_the_api.md)

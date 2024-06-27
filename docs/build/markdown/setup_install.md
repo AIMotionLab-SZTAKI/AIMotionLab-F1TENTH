@@ -6,7 +6,7 @@ This page guides users through the full installation and setup procedure of the 
 
 As the Command PC runs a standalone Python package, the setup is straightforward via pip:
 
-1. **Download the f1tenth_r2 framework from GitHub**:
+1. **Download the AIMotionLab-F1TENTH framework from GitHub**:
    : ```bash
      https://github.com/AIMotionLab-SZTAKI/AIMotionLab-F1TENTH.git
      ```
@@ -25,7 +25,7 @@ As the Command PC runs a standalone Python package, the setup is straightforward
 
 1. **Motive setup**: In order to use the MoCap-based state estimator fot the vehicle the followign steps are necessary:
    - Define a RigidBody in Motive corresponding to the marker configuration on the vehicle
-   - Make sure that the ID of the RigidBody mathces the ID of the vehicle
+   - Make sure that the ID of the RigidBody matches the ID of the vehicle
    - Retrieve the IP address of the MoCap server machine
 2. **Crazymocap setup**:
    - Install the crazymocap Python package from GitHub:
