@@ -19,7 +19,9 @@ args = {}
 
 args["vehicle_params"] = params["parameter_server"]["ros__parameters"]["vehicle_params"]
 args["MPCC_params"] = params["parameter_server"]["ros__parameters"]["controllers"]["MPCC"]
+args["drive_bridge"] = params["parameter_server"]["ros__parameters"]["drive_bridge"]
 
+MOTOR_LIMIT = args["drive_bridge"]["MOTOR_LIMIT"]
 
 controller = MPCC_Controller(vehicle_params= args["vehicle_params"], mute = False, MPCC_params= args["MPCC_params"])
 
@@ -42,7 +44,7 @@ traj.build_from_waypoints(path, v, 0, 5)
 theta_start = 0.10
 (x,y) = (splev(theta_start-0.1, traj.pos_tck))
 phi = 0.84
-x0 = np.array([x-0.05,y-0.05,phi, 0.01, 0.0,0.0])
+x0 = np.array([x-0.05,y-0.05,phi, 0, 0.0,0.0])
 
 print(x0)
 
@@ -88,13 +90,18 @@ plotter.show()
 for i in range(iteration):
     t_s = time.time()
     u, error, finished = controller.compute_control(x0=x0)
+
+    if u[0] > MOTOR_LIMIT: #Limit the output to the drivebridge limit
+        u[0] = MOTOR_LIMIT  
+
+
     freq = np.append(freq, 1/(time.time()-t_s))
     x0,t= controller.simulate(x0, u, dt)
 
     #Simulating noise: 
-    x0[3] = x0[3]*np.random.normal(1,0.05)
-    x0[0] = x0[0]+np.random.normal(0,1)*0.005
-    x0[1] = x0[1]+np.random.normal(0,1)*0.005
+    #x0[3] = x0[3]*np.random.normal(1,0.05)
+    #x0[0] = x0[0]+np.random.normal(0,1)*0.005
+    #x0[1] = x0[1]+np.random.normal(0,1)*0.005
     
     x_sim = np.append(x_sim, np.reshape(x0, (-1,1)), axis= 1)
 

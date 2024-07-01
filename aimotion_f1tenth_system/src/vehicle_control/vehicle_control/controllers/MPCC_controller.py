@@ -101,8 +101,8 @@ class MPCC_Controller:
             errors = np.array([0.0, 0.0,0.0,float(self.theta), 0.0])
             u_opt = np.array([0,0])
             return u_opt, errors, True
-        if x0[3] <0.001:
-            x0[3] = 0.001
+        if x0[3] <0.01:
+            x0[3] = 0.01
 
         x0 = np.concatenate((x0, np.array([self.theta]), self.input))
 
@@ -125,13 +125,15 @@ class MPCC_Controller:
                     #print("Time limit reached")
                 #break
 
-
+        if max(res) > 1:
+            #raise Exception(f"Solver residuals error: {res}")
+            pass
         x_opt = np.reshape(self.ocp_solver.get(1, "x"),(-1,1)) #Full predictied optimal state vector (x,y,phi, vxi, veta, omega, thetahat, d, delta)
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
         u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0] 
         if self.muted == False:
-            print(f"\rCurrent frequency: {(1/(t)):4f}, solver time: {t:.5f}, number of QP iterations: {num_iter:3}, progress: {self.theta/self.trajectory.L*100:.2f}%                  \r", end = '', flush=True)
+            print(f"\rFrequency: {(1/(t)):4f}, solver time: {t:.5f}, QP iterations: {num_iter:2}, progress: {self.theta/self.trajectory.L*100:.2f}%, input: {u_opt}, residuals: {res}               \r", end = '', flush=True)
         
         for i in range(self.parameters.N-1):
             self.ocp_solver.set(i, "x", self.ocp_solver.get(i+1, "x"))
@@ -188,7 +190,7 @@ class MPCC_Controller:
         self.ocp_solver.set(0, 'x', x_0)
         tol =   0.01
         t = 0
-        for i in range(10):
+        for i in range(1000):
             self.ocp_solver.solve()
             res = self.ocp_solver.get_residuals()
 
@@ -196,7 +198,8 @@ class MPCC_Controller:
             num_iter = i+1
             if max(res) < tol:
                 break #Tolerance limit reached
-        
+            if i % 50 ==0:
+                print(f"{i}. init itaration, residuals: {res}")
         if self.muted == False:
             print(f"Number of init iterations: {num_iter}")
             print("")
@@ -409,7 +412,9 @@ class MPCC_Controller:
         
         self.x0 = x0 #The current position must be the initial condition
 
-        self.x0[3] = 0.001 #Give a small forward speed to make the problem feasable
+        self.x0[3] = 0.1 #Give a small forward speed to make the problem feasable
+        self.x0[5] = 0
+        self.x0[4] = 0
 
         self.input = np.array([self.MPCC_params["d_max"],0])
 
