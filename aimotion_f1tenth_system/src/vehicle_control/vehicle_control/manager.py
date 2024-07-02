@@ -69,7 +69,6 @@ class ControlManager(Node):
         # - stop controller
         # - reset controller
         # - GP related: collect_data, train, mode: (online, offline, reset)
-        
         cmd = message["command"]
 
         # identification
@@ -92,11 +91,7 @@ class ControlManager(Node):
             controllers = list(self.controllers.keys())
             return {"status": True, "controllers": controllers}
 
-        # get available controllers
-        elif cmd == "get_controllers":
-            controllers = list(self.controllers.keys())
-            return {"status": True, "controllers": controllers}
-        
+    
         # get current solution through the horizon
         elif cmd == "MPCC_get_current_horizon":
             try:
@@ -126,13 +121,19 @@ class ControlManager(Node):
             
         # set MPCC parameters
         elif cmd == "MPCC_param_update":
-            try:
-                self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
-                self.controllers["MPCC"].load_parameters()
-                
-                return {"status": True, "params:": message["MPCC_params"]}
-            except Exception as e:
-                return {"status": False, "error": e}
+            if "MPCC" in self.controllers.keys(): #Check for the MPCC controller
+                try:
+                    old_params = self.controllers["MPCC"].MPCC_params 
+                    self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
+                    self.controllers["MPCC"].load_parameters()
+
+                    return {"status": True, "params:": message["MPCC_params"]}
+                except Exception as e:
+                    self.controllers["MPCC"].MPCC_params = old_params
+                    self.controllers["MPCC"].load_parameters()
+                    return {"status": False, "error": e}
+            else:
+                return {"status": False, "error": "MPCC controller not available"}
         
         # mode selection
         elif cmd == "set_mode":
@@ -372,13 +373,12 @@ class ControlManager(Node):
         return self.MODE == CONTROLLER_MODE.RUNNING
 
     def _state_callback(self, data):
-        print("State callback happened")
-        try:
-            self.current_state = state2array(data)
+        #try:
+        self.current_state = state2array(data)
 
-            if not self._is_running(): return
+        if not self._is_running(): return
 
-            t = self._get_time()
+        t = self._get_time()
 
         # get setpoint from the trajectory & evaluate the controller
         
@@ -392,19 +392,19 @@ class ControlManager(Node):
             u, errors, finished = self.active_controller.compute_control(self.current_state, setpoint)
             if finished:
                 self._stop()
-        except Exception as e:
-            self._logger.fatal(e)
-            self.MODE =CONTROLLER_MODE.IDLE
-            self.pub.publish(InputValues(d = 0.0, delta = 0.0))
-
-
-        self.state_logger.log_state(t,self.current_state, setpoint, errors, u)
-        if self._is_running():
+            self.state_logger.log_state(t,self.current_state, setpoint, errors, u)
+            if self._is_running():
             # publish the control input
-            self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
+                self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
         
-        print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
+            print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
     
+        except Exception as e:
+            self._logger.warning(str(e))
+            self._stop()
+
+
+        
     def _get_time(self):
         """Get the current time in seconds that is elapsed since t0"""
         t_tuple = self.get_clock().now().seconds_nanoseconds()

@@ -15,3 +15,6 @@ To open the documentation run the `help` command:
 ```
 help
 ```
+
+Markdown documentation is available here:
+https://github.com/AIMotionLab-SZTAKI/AIMotionLab-F1TENTH/blob/main/docs/build/markdown/index.md

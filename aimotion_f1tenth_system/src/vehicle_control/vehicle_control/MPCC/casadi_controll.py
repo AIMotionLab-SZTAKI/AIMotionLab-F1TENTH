@@ -41,9 +41,8 @@ class Casadi_MPCC:
         self.X_init[1, :] = np.reshape(self.trajectory.spl_sy(np.linspace(theta_0, theta_0 + self.N * self.dt * 2, self.N)), (-1))
         
         #Virtual input initital guess
-
+        
         temp = np.reshape(input_0,(-1,1))
-
         self.v_U_init = np.repeat(temp, N-1, axis= 1)
 
         temp = np.zeros((2,1))
@@ -64,6 +63,7 @@ class Casadi_MPCC:
 
         self.v_t_init = np.zeros(N-1) #Store the initial guess for v_theta
 
+        
         self.lam_g_init = 0 #What does this do?
 
         # Time measurement variables
@@ -206,14 +206,14 @@ class Casadi_MPCC:
 
         # Virtual Input constraints: d and delta
         #self.opti.subject_to((0.0 < cs.vec(self.v_U[0, 1:]), cs.vec(self.v_U[0, 1:]) <= 1))  # motor reference constraints
-        self.opti.subject_to((0.0 < cs.vec(self.v_U[0, 1:]), cs.vec(self.v_U[0, 1:]) <= self.model.parameters["d_max"]))  # motor reference constraints
+        self.opti.subject_to((self.model.parameters["d_min"] <= cs.vec(self.v_U[0, 1:]), cs.vec(self.v_U[0, 1:]) <= self.model.parameters["d_max"]))  # motor reference constraints
 
-        self.opti.subject_to((-np.pi/4 <= cs.vec(self.v_U[1, 1:]), cs.vec(self.v_U[1, 1:]) <= np.pi/4 ))  # steering angle constraints
+        self.opti.subject_to((-self.model.parameters["delta_max"] <= cs.vec(self.v_U[1, 1:]), cs.vec(self.v_U[1, 1:]) <= self.model.parameters["delta_max"] ))  # steering angle constraints
 
          
         # Input constraints: derivate of d and delta
-        self.opti.subject_to((-10 <= cs.vec(self.U[0, :]), cs.vec(self.U[0, :]) <= 10))  # motor reference constraints
-        self.opti.subject_to((-1000 <= cs.vec(self.U[1, :]), cs.vec(self.U[1, :]) <= 1000))  # steering angle constraints
+        self.opti.subject_to((-self.model.parameters["ddot_max"] <= cs.vec(self.U[0, :]), cs.vec(self.U[0, :]) <= self.model.parameters["ddot_max"]))  # motor reference constraints
+        self.opti.subject_to((-self.model.parameters["deltadot_max"] <= cs.vec(self.U[1, :]), cs.vec(self.U[1, :]) <= self.model.parameters["deltadot_max"]))  # steering angle constraints
         
         """
         self.opti.subject_to((self.model.parameters["d_min"] < cs.vec(self.v_U[0, 1:]), cs.vec(self.v_U[0, 1:]) <= self.model.parameters["d_max"]))  # motor reference constraints
@@ -225,32 +225,15 @@ class Casadi_MPCC:
         self.opti.subject_to((-self.model.parameters["deltadot_max"]<= cs.vec(self.U[1, :]), cs.vec(self.U[1, :]) <= self.model.parameters["deltadot_max"]))  # steering angle constraints
         """
 
-        #Error constraints:
-
-        #e_l = self.e_l(cs.vcat((self.X[0, :], self.X[1, :])), self.theta)
-        #e_c = self.e_c(cs.vcat((self.X[0, :], self.X[1, :])), self.theta)
-        #e_smooth = self.e_smooth()
-
-        #self.opti.subject_to(cs.mmax(e_c) < 0.05)
-        
-        #self.opti.subject_to(cs.mmax(e_l) < 0.05)
-        #self.opti.subject_to(e_c < 50)
-
-
-        #self.opti.subject_to(e_c.T @ e_c < 0.1)
-        #self.opti.subject_to([e_smooth[0] < 5]) #d smoothness
-        #self.opti.subject_to(e_smooth[1] < 500) #delta smoothness
-        
-
         # Path speed constraints
-        self.opti.subject_to((0.0 < cs.vec(self.v_t[1:]), cs.vec(self.v_t[:]) <= 3))
+        self.opti.subject_to((self.model.parameters["thetahatdot_min"] <= cs.vec(self.v_t[1:]), cs.vec(self.v_t[:]) <= self.model.parameters["thetahatdot_max"]))
 
         # Set objective function
         self.opti.minimize(self.cost())
 
         # Solver setup
         p_opt = {'expand': False}
-        s_opts = {'max_iter': 2400, 'print_level': 0}
+        s_opts = {'max_iter': 2000, 'print_level': 0}
         self.opti.solver('ipopt', p_opt, s_opts)
    
 

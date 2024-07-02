@@ -43,28 +43,51 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PYGAME_HIDE_SUPPORT_PROMPT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;hide&quot;</span>  <span class="c1"># Disable annoying welcome message :@</span>
 
+
+
 <div class="viewcode-block" id="F1Client">
 <a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.F1Client.F1Client">[docs]</a>
 <span class="k">class</span> <span class="nc">F1Client</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">car_ID</span><span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">host</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="mi">8069</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;TCP-based client for commuication with an F1TENTH vehicle</span>
 <span class="sd">        </span>
+<span class="sd">        :param car_ID: The ID of the vehicle</span>
 <span class="sd">        :param host: IP address of the car</span>
 <span class="sd">        :type host: str</span>
 <span class="sd">        :param port: Port of the car</span>
 <span class="sd">        :type port: int</span>
 
 <span class="sd">        :raises Exception: If the connection to the car could not be established</span>
+<span class="sd">        :raises Exception: If neither the ID nor the host and port are provided</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="k">if</span> <span class="n">car_ID</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">host</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">port</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Either the car_ID or the host and port must be provided!&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">car_ID</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">host</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># the car_ID is provided, read the host from the config file</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">car_ID</span> <span class="o">=</span> <span class="n">car_ID</span>
+            <span class="n">config_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;configs&quot;</span><span class="p">)</span>
+            <span class="n">login_config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">car_ID</span><span class="si">}</span><span class="s2">_login.yaml&quot;</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">login_config_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">config_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;IP&quot;</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">car_ID</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># the host is provided, read the car_ID from the config file</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Either the car_ID or the host and port must be provided!&quot;</span><span class="p">)</span>
+        
+        
         <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">TCPClient</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not connect to </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not connect to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">car_ID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ID</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">car_ID</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">car_ID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ID</span><span class="p">()</span> <span class="c1"># TODO: chak if the IDs match</span>
        
         
     <span class="k">def</span> <span class="nf">_get_ID</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -98,6 +121,43 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not set controller: </span><span class="si">{</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> </div>
 
         
+<div class="viewcode-block" id="F1Client.get_MPCC_horizon">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.F1Client.F1Client.get_MPCC_horizon">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_MPCC_horizon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get current solution through the optimization horizon</span>
+<span class="sd">        :return: states&quot;&quot;&quot;</span>
+        
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">({</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;MPCC_get_current_horizon&quot;</span><span class="p">})</span>
+
+        
+        <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get current solution horizon </span><span class="si">{</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;states&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="F1Client.get_MPCC_params">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.F1Client.F1Client.get_MPCC_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_MPCC_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current parameter list of the acados optimiser.</span>
+<span class="sd">        :type: dict</span>
+<span class="sd">        :return: Current parameter dict&quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">({</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;MPCC_param_get&quot;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get the current parameters: </span><span class="si">{</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;MPCC_params&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="F1Client.set_MPCC_params">
+<a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.F1Client.F1Client.set_MPCC_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_MPCC_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the parameters for the acados and casadi solvers.</span>
+<span class="sd">        :param params: A dictionary of the parameters&quot;&quot;&quot;</span>
+        
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">({</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;MPCC_param_update&quot;</span><span class="p">,</span> <span class="s2">&quot;MPCC_params&quot;</span><span class="p">:</span> <span class="n">params</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not set parameters: </span><span class="si">{</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="F1Client.get_controllers">
 <a class="viewcode-back" href="../../modules/aimotion_f1tenth_utils.html#aimotion_f1tenth_utils.F1Client.F1Client.get_controllers">[docs]</a>
