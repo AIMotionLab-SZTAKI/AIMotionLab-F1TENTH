@@ -63,6 +63,7 @@ class Casadi_MPCC:
 
         self.v_t_init = np.zeros(N-1) #Store the initial guess for v_theta
 
+        
         self.lam_g_init = 0 #What does this do?
 
         # Time measurement variables
@@ -232,7 +233,7 @@ class Casadi_MPCC:
 
         # Solver setup
         p_opt = {'expand': False}
-        s_opts = {'max_iter': 2400, 'print_level': 0}
+        s_opts = {'max_iter': 2000, 'print_level': 0}
         self.opti.solver('ipopt', p_opt, s_opts)
    
 

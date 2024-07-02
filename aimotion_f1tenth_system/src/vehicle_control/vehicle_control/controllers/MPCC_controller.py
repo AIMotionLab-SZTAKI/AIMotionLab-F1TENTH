@@ -8,6 +8,7 @@ from scipy.integrate import ode
 import os
 from ..MPCC.casadi_controll import Casadi_MPCC
 import time
+import matplotlib.pyplot as plt
 class MPCC_Controller:
     def __init__(self, vehicle_params: dict, MPCC_params: dict, mute = False):
         """
@@ -101,8 +102,8 @@ class MPCC_Controller:
             errors = np.array([0.0, 0.0,0.0,float(self.theta), 0.0])
             u_opt = np.array([0,0])
             return u_opt, errors, True
-        if x0[3] <0.01:
-            x0[3] = 0.01
+        if x0[3] <0.001:
+            x0[3] = 0.001
 
         x0 = np.concatenate((x0, np.array([self.theta]), self.input))
 
@@ -125,13 +126,15 @@ class MPCC_Controller:
                     #print("Time limit reached")
                 #break
 
-        if max(res) > 1:
+        if max(res) > 5:
             #raise Exception(f"Solver residuals error: {res}")
             pass
         x_opt = np.reshape(self.ocp_solver.get(1, "x"),(-1,1)) #Full predictied optimal state vector (x,y,phi, vxi, veta, omega, thetahat, d, delta)
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
-        u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0] 
+        u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0]
+        if 1/t < 20:
+            raise Exception("Slow computing, emergency shut down")
         if self.muted == False:
             print(f"\rFrequency: {(1/(t)):4f}, solver time: {t:.5f}, QP iterations: {num_iter:2}, progress: {self.theta/self.trajectory.L*100:.2f}%, input: {u_opt}, residuals: {res}               \r", end = '', flush=True)
         
@@ -171,16 +174,27 @@ class MPCC_Controller:
         if self.muted == False:
             print(f"x0: {x_0}")
             print(f"u0: {u_0}")
-        
+
+        states = np.array(np.reshape(x_0, (-1,1)))
+
+        if self.muted == False: 
+            print(f"___________{0}._________")
+            print(u_0)
+            print(x_0)
+
         for i in range(self.parameters.N-1):
             x = np.concatenate((X[:,i+1],np.array([theta[i+1]]), v_U[:,i+1]))
             #x = np.reshape(x, (-1,1))
+            states = np.append(states, np.reshape(x,(-1,1)), axis = -1)
             self.ocp_solver.set(i+1, "x", x)
-
+            if dtheta[i] <self.MPCC_params["thetahatdot_min"]:
+                dtheta[i] = self.MPCC_params["thetahatdot_min"]
             u = np.concatenate((np.array([dtheta[i]]),U[:,i]))
             self.ocp_solver.set(i, "u", u)
-
-
+            if self.muted == False:
+                print(f"___________{i+1}._________")
+                print(u)
+                print(x)
         #Acados controller init: 
         if self.muted == False:
             print("Acados init started...")
@@ -198,8 +212,9 @@ class MPCC_Controller:
             num_iter = i+1
             if max(res) < tol:
                 break #Tolerance limit reached
-            if i % 50 ==0:
+            if i %50 ==0:
                 print(f"{i}. init itaration, residuals: {res}")
+
         if self.muted == False:
             print(f"Number of init iterations: {num_iter}")
             print("")
@@ -412,7 +427,7 @@ class MPCC_Controller:
         
         self.x0 = x0 #The current position must be the initial condition
 
-        self.x0[3] = 0.1 #Give a small forward speed to make the problem feasable
+        self.x0[3] = 0.01 #Give a small forward speed to make the problem feasable
         self.x0[5] = 0
         self.x0[4] = 0
 

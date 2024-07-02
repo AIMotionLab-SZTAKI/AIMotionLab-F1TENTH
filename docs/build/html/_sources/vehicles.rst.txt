@@ -53,12 +53,12 @@ After the SSH connection is established with the vehicle, run the following comm
 Utilization of control algorithms
 ---------------------------------
 
-This package provides a comprehensive environment for researching and testing control algorithms. It includes a default GP-LPV-LQR controller algorithm as part of the vehicle's framework.  #TODO(cite) The implementation of other external algorithms is also possible. In the following section this process will be presented. 
-
+This section outlines the implementation process of an existing trajectory tracking control algorithm. 
 The controller must adhere to the following requirements: 
 
-- It must be placed within the aimotion_f1tenth_system/src/vehicle_control/vehicle_control directory (creating additional subpackages is highly recommended)
+- It must be placed within the ``aimotion_f1tenth_system/src/vehicle_control/vehicle_control`` directory (creating additional subpackages is highly recommended)
 - It must implement the Controller interface:
+
    .. code-block:: python
 
       class Controller(ABC):
@@ -73,16 +73,17 @@ The controller must adhere to the following requirements:
          @abstractmethod
          def reset(self):
              pass
+
 - The compute control method should return 3 parameters:
-   - Optimal inputs (numpy.array([d, delta]))
+   - Inputs (numpy.array([d, delta]))
    - Errors (numpy.array([<lateral_error>, <heading_error>, <longitudinal_error>, <velocity>]))
    - Finished flag (True/False)
 
 **Adding a new controller to the manager**
 
-The ROS2 nodes running on the vehicle collect their parameters from a central parameter server called param_server. This node is responsible for providing all the pre-defined data for the vehicle.
+The ROS2 nodes running on the vehicle collect their initial parameters from a central parameter server called param_server. This node is responsible for providing all the pre-defined data for the vehicle.
 
-To add new parameters to the existing parameter list:
+Defining the parameter for the controller can be done as follows:
 
 1) Open the config file of the vehicle (<car_id.yaml>)
 
@@ -112,7 +113,7 @@ To add new parameters to the existing parameter list:
 
 Note that multiple namespaces can be nested within each other
 
-4) Open the aimotion_f1tenth_system/src/vehicle_control/vehicle_control/control.py script
+4) Open the ``aimotion_f1tenth_system/src/vehicle_control/vehicle_control/control.py`` script
 
 5) Declare the newly added parameters in the ROS2 node
 
@@ -150,19 +151,41 @@ Note that multiple namespaces can be nested within each other
                'k2': loader.get_parameter("controllers.LPV_LQR.LONGITUDINAL_CONTROL_GAINS.k2").value
                }
             }
+7) Add the created parameter dictionary to the manager.     
 
-7) Add controller to the available controllers
+   - Open the ``aimotion_f1tenth_system/src/vehicle_control/vehicle_control/control.py`` script.
+   - Pass the created dictionary to the constructer of the manager as a keyword argument
 
-   An instance of the controller must be constructed and added to the list of the available controllers in the TCP manager.
-   The script file of the TCP manager can be found in:
-   ``aimotion_f1tenth_system/src/vehicle_control/vehicle_control/manager.py``
+   .. code-block:: python
+
+      manager=ControlManager(car_ID = car_ID,
+                           TCP_params = TCP_params,
+                           vehicle_params = vehicle_params,
+                           LPV_LQR_params=LPV_LQR_params,
+                           GP_LPV_LQR_params=GP_LPV_LQR_params,
+                           <new_controller_params> = <new_controller_params_dict>)
+
+
+8) Add controller to the available controllers
+
+   A function needs to be defined to construct an instance of the controller, which will be added to the list of the available controllers in the control manager.
+   The script file of the manager can be found in: ``aimotion_f1tenth_system/src/vehicle_control/vehicle_control/manager.py``
 
    .. code-block:: python
 
       # check kwargs and initialize controllers
-      if "GP_LPV_LQR_params" in kwargs:
-         controller = init_GP_LPV_LQR(vehicle_params = kwargs["vehicle_params"],
-                                      GP_LPV_LQR_params = kwargs["GP_LPV_LQR_params"])
+      if "<new_controller_params>" in kwargs:
+         controller = init_controller(vehicle_params = kwargs["vehicle_params"],
+                                      controller_params = kwargs["<new_controller_params>"])
          self.controllers["GP_LPV_LQR"] = controller
 
-8) After completing these steps and installing the new onboard software onto the vehicle, the controller can be activated via the :doc:`Python API <using_the_api>`
+9) After these steps the controller can be found in the list of the available controllers. This list can be queried using the API:
+
+   .. code-block::python
+
+      from aimotion_f1tenth_utils.F1Client import F1Client
+
+      car_1 = F1Client(vehicle_name) #the vehicle name variable contains the name of the selected vehicle
+      car_1.get_controllers() #returns the list of available controllers
+
+10) After completing these steps and installing the new onboard software onto the vehicle, the controller can be activated via the :doc:`Python API <using_the_api>`

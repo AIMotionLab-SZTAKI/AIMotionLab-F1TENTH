@@ -7,11 +7,22 @@ import time
 import numpy as np
 import yaml
 import os
+import argparse
 
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+parser = argparse.ArgumentParser(description='--horizon: set to 1 if plot is needed')
+parser.add_argument("--horizon", type=int, default=0)
+
+args = parser.parse_args()
+
+if args.horizon == 1:
+    horizon_show = True
+else:
+    horizon_show = False
 
 # Create a figure and axis
 fig, ax = plt.subplots()
@@ -93,7 +104,9 @@ input("Press enter to start trajectory execution")
 car_1.execute_trajectory(trajectory=traj)
 
 plt.ion()
-plt.show()
+if horizon_show == True:
+    plt.show()
+
 while True:
     if car_1.get_mode() == CONTROLLER_MODE.RUNNING:
         try:

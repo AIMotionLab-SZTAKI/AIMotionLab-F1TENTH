@@ -393,9 +393,8 @@ class ControlManager(Node):
             if finished:
                 self._stop()
         except Exception as e:
-            self._logger.fatal(e)
-            self.MODE =CONTROLLER_MODE.IDLE
-            self.pub.publish(InputValues(d = 0.0, delta = 0.0))
+            self._logger.error(e)
+            self._stop()
 
 
         self.state_logger.log_state(t,self.current_state, setpoint, errors, u)
