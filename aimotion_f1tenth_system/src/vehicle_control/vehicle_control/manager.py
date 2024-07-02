@@ -392,18 +392,19 @@ class ControlManager(Node):
             u, errors, finished = self.active_controller.compute_control(self.current_state, setpoint)
             if finished:
                 self._stop()
+            self.state_logger.log_state(t,self.current_state, setpoint, errors, u)
+            if self._is_running():
+            # publish the control input
+                self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
+        
+            print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
+    
         except Exception as e:
-            self._logger.error(e)
+            self._logger.warning(str(e))
             self._stop()
 
 
-        self.state_logger.log_state(t,self.current_state, setpoint, errors, u)
-        if self._is_running():
-            # publish the control input
-            self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
         
-        print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
-    
     def _get_time(self):
         """Get the current time in seconds that is elapsed since t0"""
         t_tuple = self.get_clock().now().seconds_nanoseconds()

@@ -5,11 +5,12 @@ class MPCC_plotter:
     def __init__(self):
 
         self.fig, self.ax = plt.subplots()
-        self.ax.set_xlim(-5, 5)
-        self.ax.set_ylim(-5, 5)
+        self.ax.set_xlim(-3, 3)
+        self.ax.set_ylim(-3, 3)
 
         # Initialize a line object, that will be updated
         self.line, = self.ax.plot([], [], 'ro')  # 'ro' means red color, circle markers
+        self.new_point_line = self.ax.plot([],[],'ko')
         self.ref_line, = self.ax.plot([],[], 'b')
 
 
@@ -18,7 +19,7 @@ class MPCC_plotter:
 
     def set_ref(self, x,y):
         self.ref_line.set_data(x, y)
-
+    
     def update_plot(self, new_x, new_y):
         """Update the plot with new point, removing the previous one."""
         # Clear previous points

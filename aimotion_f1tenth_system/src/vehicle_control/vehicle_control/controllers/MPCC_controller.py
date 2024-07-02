@@ -133,7 +133,7 @@ class MPCC_Controller:
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
         u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0]
-        if 1/t < 20:
+        if 1/t < 10:
             raise Exception("Slow computing, emergency shut down")
         if self.muted == False:
             print(f"\rFrequency: {(1/(t)):4f}, solver time: {t:.5f}, QP iterations: {num_iter:2}, progress: {self.theta/self.trajectory.L*100:.2f}%, input: {u_opt}, residuals: {res}               \r", end = '', flush=True)
