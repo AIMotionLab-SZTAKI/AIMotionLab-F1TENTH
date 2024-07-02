@@ -8,11 +8,26 @@ import numpy as np
 import yaml
 import os
 import argparse
-
+from threading import Thread
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+is_running = True
+
+def horizon_call_spin(car: F1Client):
+    
+    while True:
+        if car.get_mode() == CONTROLLER_MODE.RUNNING:
+           try:
+               x = np.array(car.get_MPCC_horizon())
+               update_plot(x[0,:], x[1, :])
+           except Exception as e:
+               print(e)
+           time.sleep(1/10)
+        
+        if is_running == False:
+           break
 
 parser = argparse.ArgumentParser(description='--horizon: set to 1 if plot is needed')
 parser.add_argument("--horizon", type=int, default=0)
@@ -107,11 +122,15 @@ plt.ion()
 if horizon_show == True:
     plt.show()
 
-while True:
-    if car_1.get_mode() == CONTROLLER_MODE.RUNNING:
-        try:
-            x = np.array(car_1.get_MPCC_horizon())
-            update_plot(x[0,:], x[1, :])
-        except Exception as e:
-            print(e)
-        time.sleep(1/10)
+
+
+t1 = Thread(target=horizon_call_spin, args=(car_1,))
+t1.start()
+
+input("Press enter to start the execution")
+
+car_1.emergency_stop()
+
+is_running = False
+
+plt.close()

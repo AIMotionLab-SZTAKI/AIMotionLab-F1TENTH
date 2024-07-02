@@ -126,14 +126,11 @@ class MPCC_Controller:
                     #print("Time limit reached")
                 #break
 
-        if max(res) > 5:
-            #raise Exception(f"Solver residuals error: {res}")
-            pass
         x_opt = np.reshape(self.ocp_solver.get(1, "x"),(-1,1)) #Full predictied optimal state vector (x,y,phi, vxi, veta, omega, thetahat, d, delta)
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
         u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0]
-        if 1/t < 10:
+        if (1/t < self.MPCC_params["freq_limit"]) or (max(res) > self.MPCC_params["res_limit"]):
             raise Exception("Slow computing, emergency shut down")
         if self.muted == False:
             print(f"\rFrequency: {(1/(t)):4f}, solver time: {t:.5f}, QP iterations: {num_iter:2}, progress: {self.theta/self.trajectory.L*100:.2f}%, input: {u_opt}, residuals: {res}               \r", end = '', flush=True)
@@ -214,7 +211,6 @@ class MPCC_Controller:
                 break #Tolerance limit reached
             if i %50 ==0:
                 print(f"{i}. init itaration, residuals: {res}")
-
         if self.muted == False:
             print(f"Number of init iterations: {num_iter}")
             print("")
@@ -422,6 +418,9 @@ class MPCC_Controller:
         :param x0: initial state, used for initialising the controller
         :param thetastart: float, starting arc lenght of the trajectory
         """
+
+        self.load_parameters()
+
         self.theta = theta_start
         self.s_start = theta_start
         
