@@ -73,12 +73,10 @@ The controller must adhere to the following requirements:
                rtype: np.ndarray
                """
             pass
-
          @abstractmethod
          def set_trajectory(self, *args, **kwargs):
             """Method for setting the reference trajectory of the control algorithm"""
             pass
-
          @abstractmethod
          def reset(self):
             """Method for reseting the class variables of the controller"""
@@ -91,13 +89,13 @@ The controller must adhere to the following requirements:
 
 **Adding a new controller to the manager**
 
-The ROS2 nodes running on the vehicle collect their initial parameters from a central parameter server called param_server. This node is responsible for providing all the pre-defined data for the vehicle.
+The ROS2 nodes running on the vehicle collect their initial parameters from a central parameter server called ``param_server``. This node is responsible for providing all the pre-defined data for the vehicle.
 
 Defining the parameter for the controller can be done as follows:
 
-1) Open the config file of the vehicle (<car_id.yaml>)
+1) Open the config file of the vehicle (``car_id.yaml```)
 
-2) Create a new namespace within parameter_server.ros__parameters.controllers namespace
+2) Create a new namespace within ``parameter_server.ros__parameters.controllers`` namespace
 
 3) Add the new parameters
 
@@ -187,7 +185,7 @@ Note that multiple namespaces can be nested within each other
       if "<new_controller_params>" in kwargs:
          controller = init_controller(vehicle_params = kwargs["vehicle_params"],
                                       controller_params = kwargs["<new_controller_params>"])
-         self.controllers["GP_LPV_LQR"] = controller
+         self.controllers["new_controller"] = controller
 
 9) If you added your controller successfully, it can be found in the list of available controllers. This can be checked using the API:
 
@@ -195,7 +193,7 @@ Note that multiple namespaces can be nested within each other
 
       from aimotion_f1tenth_utils.F1Client import F1Client
 
-      car_1 = F1Client(vehicle_name) #the vehicle name variable contains the name of the selected vehicle
+      car_1 = F1Client(<vehicle_name>) #<vehicle_name>: the name of the selected vehicle
       car_1.get_controllers() #returns the list of available controllers
 
 10) After completing these steps and installing the new onboard software onto the vehicle, the controller can be activated via the :doc:`Python API <using_the_api>`
