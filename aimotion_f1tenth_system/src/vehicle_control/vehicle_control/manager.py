@@ -7,7 +7,6 @@ import threading
 from .utils import Controller, init_GP_LPV_LQR, CONTROLLER_MODE, Trajectory, state2array, StateLogger
 from .controllers.utils import normalize, Controller
 from .TCPServer import TCPServer
-from .controllers.MPCC_controller import MPCC_Controller
 
 class ControlManager(Node):
     def __init__(self, car_ID: str, TCP_params: dict, **kwargs):
@@ -36,11 +35,6 @@ class ControlManager(Node):
 
         # TODO: implement other comtroller initializations in utils and call it here
 
-        if "MPCC_params" in kwargs:
-            controller = MPCC_Controller(vehicle_params= kwargs["vehicle_params"],
-                                         MPCC_params= kwargs["MPCC_params"])
-            self.controllers["MPCC"] = controller
-            
         # declare controllers
         self.active_controller: Controller = None
         self.current_trajectory = Trajectory()
@@ -92,48 +86,6 @@ class ControlManager(Node):
             return {"status": True, "controllers": controllers}
 
     
-        # get current solution through the horizon
-        elif cmd == "MPCC_get_current_horizon":
-            try:
-                if self.active_controller != self.controllers["MPCC"]: #MPCC isn't the current active controller
-                    raise Exception(f"MPCC controller inactive!") 
-                
-                if self.controllers["MPCC"].ocp_solver == None: #No solver found-> trajectory hasn't been set
-                    raise Exception("Trajectory execution hasn't been started!")
-                
-
-                
-                states = np.reshape(self.controllers["MPCC"].ocp_solver.get(0, 'x'), (-1,1))
-                for i in range(self.controllers["MPCC"].MPCC_params["N"]-1):
-                    x = self.controllers["MPCC"].ocp_solver.get(i+1, 'x')
-                    x = np.reshape(x, (-1,1))
-                    states = np.append(states, x, axis=1)
-                return {"status": True, "states": states.tolist()} #If no error occured send back the state vectors converted to a list
-            except Exception as e:
-                return {"status": False, "error": e}
- 
-        # set MPCC parameters
-        elif cmd == "MPCC_param_get":
-            try:
-                return {"status": True, "MPCC_params": self.controllers["MPCC"].MPCC_params}
-            except Exception as e:
-                return {"status": False, "error": e}
-            
-        # set MPCC parameters
-        elif cmd == "MPCC_param_update":
-            if "MPCC" in self.controllers.keys(): #Check for the MPCC controller
-                try:
-                    old_params = self.controllers["MPCC"].MPCC_params 
-                    self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
-                    self.controllers["MPCC"].load_parameters()
-
-                    return {"status": True, "params:": message["MPCC_params"]}
-                except Exception as e:
-                    self.controllers["MPCC"].MPCC_params = old_params
-                    self.controllers["MPCC"].load_parameters()
-                    return {"status": False, "error": e}
-            else:
-                return {"status": False, "error": "MPCC controller not available"}
         
         # mode selection
         elif cmd == "set_mode":
@@ -316,19 +268,6 @@ class ControlManager(Node):
                                                trajectory["evol_tck"],
                                                trajectory["reversed"])
 
-
-        if self.active_controller == self.controllers["MPCC"]:
-            x0 = self.current_state
-            x0[3] = 0.01 #To calculate the initial guess the car has to be moving
-            x0[5] = 0.0
-            x0[4] = 0.0 
- 
-            self.active_controller.set_trajectory(pos_tck = trajectory["pos_tck"],
-                                                    evol_tck = trajectory["evol_tck"],
-                                                    x0 = x0,
-                                                    theta_start = 0.05) #The class will convert the tck into its own trajectory format
-
-
         # check if the trajectory is valid
         setpoint = self.current_trajectory.evaluate(self.current_state, 0)
         s0 = setpoint["s0"]
@@ -397,7 +336,7 @@ class ControlManager(Node):
             # publish the control input
                 self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
         
-            print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
+            print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") 
     
         except Exception as e:
             self._logger.warning(str(e))
