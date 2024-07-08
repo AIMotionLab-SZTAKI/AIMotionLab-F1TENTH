@@ -55,30 +55,32 @@ parameter_server:
           - 0.0298
           - 0.0095
       MPCC:
-        res_limit: 10.0
-        freq_limit: 0.0
+        mu_xi: 1000
+        mu_eta: 20
+        res_limit: 500.0
+        freq_limit: 1
         #Input constraints
         delta_max: 0.5 # [rad]
-        d_max: 0.35
+        d_max: 0.25
         d_min: 0.05       
-        opt_tol: 0.03
+        opt_tol: 0.01
         #Incremental input constraints        
 
-        ddot_max: 1000.0
-        deltadot_max: 1000.0
+        ddot_max: 10000.0
+        deltadot_max: 10000.0
         thetahatdot_min: 0.001
-        thetahatdot_max: 5.0
+        thetahatdot_max: 5
 
         #Optimisation parameters:
-        max_QP_iter: 30
+        max_QP_iter: 8
         N: 8 #number of shooting nodes
-        Tf: 0.7 #[s] time lenght of the opt. horizon
+        Tf: 0.5 #[s] time lenght of the opt. horizon
         #Cost weights:
-        q_con: 50.0 
+        q_con: 90.0 
         q_long: 30.0
-        q_theta: 3.5
-        q_d: 0.05
-        q_delta: 0.5
+        q_theta: 0.5
+        q_d: 2
+        q_delta: 0.05
 
       GP_LPV_LQR:
         GP_TYPE: "RLS_SGP" # GRAD_SGP, RLS_SGP
@@ -128,7 +130,7 @@ parameter_server:
       FREQUENCY: 30.0
       MARKER_OFFSET: 0.0
     drive_bridge:
-      MOTOR_LIMIT: 0.18
+      MOTOR_LIMIT: 0.15
       STEERING_GAINS:
       - -0.90616 #-0.8  #-0.90616
       -  0.54172 #  0.5  #0.54172

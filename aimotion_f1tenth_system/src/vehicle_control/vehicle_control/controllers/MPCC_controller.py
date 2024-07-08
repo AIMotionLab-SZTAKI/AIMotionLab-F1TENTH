@@ -31,6 +31,8 @@ class MPCC_Controller:
 
         self.casadi_solver = None #casadi_solver for initial guess
 
+        self.errors = {"lateral" : 0, "heading" : 0, "velocity" : 0, "longitudinal": float(0)}
+        self.finished = False
         self.load_parameters()
 
     def load_parameters(self):
@@ -51,7 +53,6 @@ class MPCC_Controller:
         C_f = float(self.vehicle_params["C_f"])
         C_r = float(self.vehicle_params["C_r"])
 
-        
 
         self.parameters.m = m
         self.parameters.l_f = l_f
@@ -62,7 +63,6 @@ class MPCC_Controller:
         self.parameters.C_m3 = C_m3
         self.parameters.C_f = C_f
         self.parameters.C_r = C_r
-
         #incremental input constraints:
 
         self.parameters.ddot_max= float(self.MPCC_params["ddot_max"])
@@ -89,7 +89,7 @@ class MPCC_Controller:
         self.parameters.q_d = float(self.MPCC_params["q_d"])
         self.parameters.q_delta = float(self.MPCC_params["q_delta"])
 
-    def compute_control(self, x0, setpoint = None):
+    def compute_control(self, x0, setpoint =None):
         """
         Calculating the optimal inputs
         :param x0 (1xNx array)
@@ -98,9 +98,15 @@ class MPCC_Controller:
         :return errors (contouring error, heading angle, longitudinal errors, theta, v_xi)
         :return finished (trajectory execution finished)
         """
+
+
         if self.theta >= self.trajectory.L:
             errors = np.array([0.0, 0.0,0.0,float(self.theta), 0.0])
             u_opt = np.array([0,0])
+            self.input = np.array([0,0])
+            self.errors = {"lateral" : 0, "heading" : self.theta, "velocity" : 0, "longitudinal": float(0)}
+
+            self.finished = True
             return u_opt, errors, True
         if x0[3] <0.001:
             x0[3] = 0.001
@@ -131,7 +137,7 @@ class MPCC_Controller:
         self.input = x_opt[7:, 0]
         u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0]
         if (1/t < self.MPCC_params["freq_limit"]) or (max(res) > self.MPCC_params["res_limit"]):
-            raise Exception("Slow computing, emergency shut down")
+            raise Exception(f"Slow computing, emergency shut down, current freq: {1/t}, residuals: {res}")
         if self.muted == False:
             print(f"\rFrequency: {(1/(t)):4f}, solver time: {t:.5f}, QP iterations: {num_iter:2}, progress: {self.theta/self.trajectory.L*100:.2f}%, input: {u_opt}, residuals: {res}               \r", end = '', flush=True)
         
@@ -150,9 +156,28 @@ class MPCC_Controller:
         errors = np.array([float(e_con), float(x_opt[2,0]),float(e_long),float(self.theta), float(x_opt[3,0])])
 
 
-        return u_opt, errors, False
-    
+        self.errors = {"lateral" : float(e_con), "heading" : float(self.theta), "velocity" : float(x_opt[3,0]), "longitudinal": float(e_long)}
+        
+        return u_opt, errors, False 
 
+        
+    def get_errors(self) -> dict:
+        """Returns the current error values
+
+        Returns:
+            dict: Dict containing the current error values
+        """
+        return self.errors
+    
+    def get_inputs(self) -> dict:
+        """Returns the current input values
+
+        Returns:
+            dict: Dict containing the current input values
+        """
+
+        return {"d": self.input[0], "delta": self.input[1]}
+    
     def controller_init(self):
         """
         Calculate intial guess for the state horizon.
@@ -277,6 +302,10 @@ class MPCC_Controller:
         """Input vector: [ddot, deltadot, thetahatdot]' """
         model.u = cs.vertcat(thetahatdot, ddot, deltadot)
 
+        #Tire-force ellipse:
+        F_tire = Fxi**2/self.MPCC_params["mu_xi"]+Freta**2/self.MPCC_params["mu_eta"]
+
+        model.con_h_expr = cs.vertcat(F_tire)
 
         """Explicit expression:"""
 
@@ -363,7 +392,7 @@ class MPCC_Controller:
         ocp.solver_options.qp_solver = 'PARTIAL_CONDENSING_HPIPM'#'PARTIAL_CONDENSING_HPIPM' # FULL_CONDENSING_QPOASES
         ocp.solver_options.integrator_type = 'ERK'
         ocp.solver_options.nlp_solver_type = "SQP_RTI"  # SQP_RTI
-        ocp.solver_options.nlp_solver_max_iter = 1000
+        ocp.solver_options.nlp_solver_max_iter = 3000
         ocp.solver_options.nlp_solver_tol_stat = 1e-3
         ocp.solver_options.levenberg_marquardt = 10.0
         ocp.solver_options.print_level = 0
@@ -391,6 +420,19 @@ class MPCC_Controller:
         ocp.constraints.lbu = lbu
         ocp.constraints.idxbu = np.arange(3)
         phi0 = float(self.trajectory.get_path_parameters_ang(self.s_start)[2])
+
+        ocp.constraints.lh = np.array([-1])
+        ocp.constraints.uh = np.array([1])
+
+        ocp.cost.zl = np.array([0.1])  # lower slack penalty
+        ocp.cost.zu = np.array([0.1])  # upper slack penalty
+        ocp.cost.Zl = np.array([0.5])  # lower slack weight
+        ocp.cost.Zu = np.array([0.5])  # upper slack weight
+
+        ## Initialize slack variables for lower and upper bounds
+        ocp.constraints.lsh = np.zeros(1)
+        ocp.constraints.ush = np.zeros(1)
+        ocp.constraints.idxsh = np.arange(1)
 
         #x0 = np.array((float(self.trajectory.spl_sx(self.s_start)), #x
         #            float(self.trajectory.spl_sy(self.s_start)), #y
@@ -436,7 +478,7 @@ class MPCC_Controller:
         t_end = evol_tck[0][-1]
 
         
-        t_eval=np.linspace(0, t_end, 1000)
+        t_eval=np.linspace(0, t_end, 10000)
 
         s=splev(t_eval, evol_tck)
 
@@ -540,7 +582,6 @@ class MPCC_Controller:
             states_next = states + dt*self.nonlin_dynamics(t, states, inputs)
             t_next = t + dt
         return states_next, t_next
-
     def simulate(self, states, inputs, dt, t=0):
         """
         Class method for simulating the f1tenth vehicle

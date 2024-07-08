@@ -39,6 +39,7 @@
 
 // example specific
 #include "f1tenth_bicycle_model_model/f1tenth_bicycle_model_model.h"
+#include "f1tenth_bicycle_model_constraints/f1tenth_bicycle_model_constraints.h"
 #include "f1tenth_bicycle_model_cost/f1tenth_bicycle_model_cost.h"
 
 
@@ -323,6 +324,22 @@ void f1tenth_bicycle_model_acados_create_3_create_and_set_functions(f1tenth_bicy
         capsule->__CAPSULE_FNC__.casadi_work = & __MODEL_BASE_FNC__ ## _work; \
         external_function_param_casadi_create(&capsule->__CAPSULE_FNC__ , 0); \
     } while(false)
+    // constraints.constr_type == "BGH" and dims.nh > 0
+    capsule->nl_constr_h_fun_jac = (external_function_param_casadi *) malloc(sizeof(external_function_param_casadi)*(N-1));
+    for (int i = 0; i < N-1; i++) {
+        MAP_CASADI_FNC(nl_constr_h_fun_jac[i], f1tenth_bicycle_model_constr_h_fun_jac_uxt_zt);
+    }
+    capsule->nl_constr_h_fun = (external_function_param_casadi *) malloc(sizeof(external_function_param_casadi)*(N-1));
+    for (int i = 0; i < N-1; i++) {
+        MAP_CASADI_FNC(nl_constr_h_fun[i], f1tenth_bicycle_model_constr_h_fun);
+    }
+    
+    capsule->nl_constr_h_fun_jac_hess = (external_function_param_casadi *) malloc(sizeof(external_function_param_casadi)*(N-1));
+    for (int i = 0; i < N-1; i++) {
+        MAP_CASADI_FNC(nl_constr_h_fun_jac_hess[i], f1tenth_bicycle_model_constr_h_fun_jac_uxt_zt_hess);
+    }
+    
+
 
 
     // explicit ode
@@ -409,7 +426,7 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
         f1tenth_bicycle_model_acados_update_time_steps(capsule, N, new_time_steps);
     }
     else
-    {double time_step = 0.1;
+    {double time_step = 0.06666666666666667;
         for (int i = 0; i < N; i++)
         {
             ocp_nlp_in_set(nlp_config, nlp_dims, nlp_in, i, "Ts", &time_step);
@@ -442,6 +459,26 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
 
 
 
+    // slacks
+    double* zlumem = calloc(4*NS, sizeof(double));
+    double* Zl = zlumem+NS*0;
+    double* Zu = zlumem+NS*1;
+    double* zl = zlumem+NS*2;
+    double* zu = zlumem+NS*3;
+    // change only the non-zero elements:
+    Zl[0] = 1;
+    Zu[0] = 1;
+    zl[0] = 1;
+    zu[0] = 1;
+
+    for (int i = 1; i < N; i++)
+    {
+        ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, i, "Zl", Zl);
+        ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, i, "Zu", Zu);
+        ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, i, "zl", zl);
+        ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, i, "zu", zu);
+    }
+    free(zlumem);
 
 
 
@@ -464,10 +501,10 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
     double* lbx0 = lubx0;
     double* ubx0 = lubx0 + NBX0;
     // change only the non-zero elements:
-    lbx0[0] = -0.04999999999999998;
-    ubx0[0] = -0.04999999999999998;
-    lbx0[1] = 0.04999999999999997;
-    ubx0[1] = 0.04999999999999997;
+    lbx0[0] = -0.05;
+    ubx0[0] = -0.05;
+    lbx0[1] = 0.049999999999999975;
+    ubx0[1] = 0.049999999999999975;
     lbx0[2] = 0.84;
     ubx0[2] = 0.84;
     lbx0[3] = 0.01;
@@ -517,10 +554,10 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
     
     lbu[0] = 0.001;
     ubu[0] = 5;
-    lbu[1] = -1000;
-    ubu[1] = 1000;
-    lbu[2] = -1000;
-    ubu[2] = 1000;
+    lbu[1] = -10000;
+    ubu[1] = 10000;
+    lbu[2] = -10000;
+    ubu[2] = 10000;
 
     for (int i = 0; i < N; i++)
     {
@@ -534,6 +571,23 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
 
 
 
+    // set up soft bounds for nonlinear constraints
+    int* idxsh = malloc(NSH * sizeof(int));
+    
+    idxsh[0] = 0;
+    double* lush = calloc(2*NSH, sizeof(double));
+    double* lsh = lush;
+    double* ush = lush + NSH;
+    
+
+    for (int i = 1; i < N; i++)
+    {
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "idxsh", idxsh);
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "lsh", lsh);
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "ush", ush);
+    }
+    free(idxsh);
+    free(lush);
 
 
 
@@ -548,7 +602,7 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
     double* lbx = lubx;
     double* ubx = lubx + NBX;
     
-    ubx[0] = 22.17594050323228;
+    ubx[0] = 30.073091438737023;
     lbx[1] = 0.05;
     ubx[1] = 0.35;
     lbx[2] = -0.5;
@@ -566,6 +620,31 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
 
 
 
+    // set up nonlinear constraints for stage 1 to N-1
+    double* luh = calloc(2*NH, sizeof(double));
+    double* lh = luh;
+    double* uh = luh + NH;
+
+    
+    lh[0] = -1;
+
+    
+    uh[0] = 1;
+
+    for (int i = 1; i < N; i++)
+    {
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "nl_constr_h_fun_jac",
+                                      &capsule->nl_constr_h_fun_jac[i-1]);
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "nl_constr_h_fun",
+                                      &capsule->nl_constr_h_fun[i-1]);
+        
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i,
+                                      "nl_constr_h_fun_jac_hess", &capsule->nl_constr_h_fun_jac_hess[i-1]);
+        
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "lh", lh);
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "uh", uh);
+    }
+    free(luh);
 
 
 
@@ -712,8 +791,8 @@ void f1tenth_bicycle_model_acados_create_7_set_nlp_out(f1tenth_bicycle_model_sol
 
     // initialize with x0
     
-    x0[0] = -0.04999999999999998;
-    x0[1] = 0.04999999999999997;
+    x0[0] = -0.05;
+    x0[1] = 0.049999999999999975;
     x0[2] = 0.84;
     x0[3] = 0.01;
     x0[6] = 0.1;
@@ -900,6 +979,9 @@ int f1tenth_bicycle_model_acados_update_params(f1tenth_bicycle_model_solver_caps
         }
         else
         {
+            capsule->nl_constr_h_fun_jac[stage-1].set_param(capsule->nl_constr_h_fun_jac+stage-1, p);
+            capsule->nl_constr_h_fun[stage-1].set_param(capsule->nl_constr_h_fun+stage-1, p);
+            capsule->nl_constr_h_fun_jac_hess[stage-1].set_param(capsule->nl_constr_h_fun_jac_hess+stage-1, p);
         }
 
         // cost
@@ -1009,6 +1091,15 @@ int f1tenth_bicycle_model_acados_free(f1tenth_bicycle_model_solver_capsule* caps
     free(capsule->ext_cost_fun_jac_hess);
 
     // constraints
+    for (int i = 0; i < N-1; i++)
+    {
+        external_function_param_casadi_free(&capsule->nl_constr_h_fun_jac[i]);
+        external_function_param_casadi_free(&capsule->nl_constr_h_fun[i]);
+        external_function_param_casadi_free(&capsule->nl_constr_h_fun_jac_hess[i]);
+    }
+    free(capsule->nl_constr_h_fun_jac);
+    free(capsule->nl_constr_h_fun);
+    free(capsule->nl_constr_h_fun_jac_hess);
 
     return 0;
 }
@@ -1022,7 +1113,7 @@ void f1tenth_bicycle_model_acados_print_stats(f1tenth_bicycle_model_solver_capsu
     ocp_nlp_get(capsule->nlp_config, capsule->nlp_solver, "stat_m", &stat_m);
 
     
-    double stat[12000];
+    double stat[36000];
     ocp_nlp_get(capsule->nlp_config, capsule->nlp_solver, "statistics", stat);
 
     int nrow = sqp_iter+1 < stat_m ? sqp_iter+1 : stat_m;

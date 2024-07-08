@@ -11,7 +11,7 @@ from trajectory_generators import null_infty, eight, null_paperclip, train8
 from MPCC_plotter import MPCC_plotter
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
-file_name = os.path.join(parent_dir, "configs/JoeBush1.yaml")
+file_name = os.path.join(parent_dir, "configs/Simulator_config.yaml")
 with open(file_name) as file:
     params = yaml.full_load(file)
 
@@ -27,6 +27,22 @@ controller = MPCC_Controller(vehicle_params= args["vehicle_params"], mute = Fals
 
 
 
+#Silverstone trajectory
+
+traj = Trajectory("Silverstone")
+traj.load("trajectories/Silverstone.traj")
+
+# Spielberg trajectory
+
+traj = Trajectory("Spielberg")
+traj.load("trajectories/Spielberg.traj")
+
+#traj.plot_trajectory()
+theta_start = 0.10
+
+
+# Normal trajectory
+
 traj_name = "paperclip.traj"
 traj_file = os.path.join(parent_dir, "trajectories", traj_name)
 traj = Trajectory("traj_1")
@@ -35,18 +51,18 @@ traj.load(traj_file)
 points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
 #traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
 
-path, v = null_paperclip()
+path, v = null_infty()
 traj.build_from_waypoints(path, v, 0, 5)
 
-
-#traj.plot_trajectory()
-
-theta_start = 0.10
 (x,y) = (splev(theta_start-0.1, traj.pos_tck))
-phi = 0.84
+
+phi = 0.84 #normal
+
+#phi = -2.87969 #Spielberg
+
+#phi =1.19 #Silverstone
 x0 = np.array([x-0.05,y+0.05,phi, 0, 0.0,0.0])
 
-print(x0)
 
 controller.set_trajectory(pos_tck = traj.pos_tck,
                         evol_tck = traj.evol_tck,
@@ -54,6 +70,8 @@ controller.set_trajectory(pos_tck = traj.pos_tck,
                         theta_start = theta_start) #The class will convert the tck into its own trajectory format
 
 
+#print(controller.trajectory.get_path_parameters_ang(theta_start))
+#input("Press enter to start sim")
 
 iteration = 1400
 Tf = args["MPCC_params"]["Tf"]
@@ -76,7 +94,7 @@ theta_sim = np.array([0])
 
 plotter = MPCC_plotter()
 
-s = np.linspace(0, controller.trajectory.L)
+s = np.linspace(0, controller.trajectory.L,10000)
 
 plotter.set_ref(np.array(controller.trajectory.spl_sx(s)), np.array(controller.trajectory.spl_sy(s)))
 
@@ -120,7 +138,7 @@ for i in range(iteration):
     time.sleep(dt)
     plotter.ax.set_title(f"Current speed: {x_sim[3,-1]:.3f}m/s")
 
-s = np.linspace(0, controller.trajectory.L)
+s = np.linspace(0, controller.trajectory.L,1000)
 
 
 plt.figure()

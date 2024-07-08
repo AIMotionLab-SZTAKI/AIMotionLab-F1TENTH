@@ -5,8 +5,8 @@ class MPCC_plotter:
     def __init__(self):
 
         self.fig, self.ax = plt.subplots()
-        self.ax.set_xlim(-3, 3)
-        self.ax.set_ylim(-3, 3)
+        self.ax.set_xlim(-5, 5)
+        self.ax.set_ylim(-5, 5)
 
         # Initialize a line object, that will be updated
         self.line, = self.ax.plot([], [], 'ro')  # 'ro' means red color, circle markers

@@ -45,7 +45,7 @@
 #define F1TENTH_BICYCLE_MODEL_NBU    3
 #define F1TENTH_BICYCLE_MODEL_NSBX   0
 #define F1TENTH_BICYCLE_MODEL_NSBU   0
-#define F1TENTH_BICYCLE_MODEL_NSH    0
+#define F1TENTH_BICYCLE_MODEL_NSH    1
 #define F1TENTH_BICYCLE_MODEL_NSH0   0
 #define F1TENTH_BICYCLE_MODEL_NSG    0
 #define F1TENTH_BICYCLE_MODEL_NSPHI  0
@@ -54,7 +54,7 @@
 #define F1TENTH_BICYCLE_MODEL_NSPHIN 0
 #define F1TENTH_BICYCLE_MODEL_NSPHI0 0
 #define F1TENTH_BICYCLE_MODEL_NSBXN  0
-#define F1TENTH_BICYCLE_MODEL_NS     0
+#define F1TENTH_BICYCLE_MODEL_NS     1
 #define F1TENTH_BICYCLE_MODEL_NS0    0
 #define F1TENTH_BICYCLE_MODEL_NSN    0
 #define F1TENTH_BICYCLE_MODEL_NG     0
@@ -63,8 +63,8 @@
 #define F1TENTH_BICYCLE_MODEL_NY0    0
 #define F1TENTH_BICYCLE_MODEL_NY     0
 #define F1TENTH_BICYCLE_MODEL_NYN    0
-#define F1TENTH_BICYCLE_MODEL_N      8
-#define F1TENTH_BICYCLE_MODEL_NH     0
+#define F1TENTH_BICYCLE_MODEL_N      12
+#define F1TENTH_BICYCLE_MODEL_NH     1
 #define F1TENTH_BICYCLE_MODEL_NHN    0
 #define F1TENTH_BICYCLE_MODEL_NH0    0
 #define F1TENTH_BICYCLE_MODEL_NPHI0  0
@@ -122,6 +122,9 @@ typedef struct f1tenth_bicycle_model_solver_capsule
 
 
     // constraints
+    external_function_param_casadi *nl_constr_h_fun_jac;
+    external_function_param_casadi *nl_constr_h_fun;
+    external_function_param_casadi *nl_constr_h_fun_jac_hess;
 
 
 

@@ -61,6 +61,8 @@ class LoaderNode(Node):
                 ('controllers.MPCC.max_QP_iter', rclpy.Parameter.Type.INTEGER),
                 ('controllers.MPCC.freq_limit', rclpy.Parameter.Type.DOUBLE),
                 ('controllers.MPCC.res_limit', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.mu_xi', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC.mu_eta', rclpy.Parameter.Type.DOUBLE),
 
 
 
@@ -137,8 +139,10 @@ def main():
         "thetahatdot_max": loader.get_parameter("controllers.MPCC.thetahatdot_max").value,
         "opt_tol": loader.get_parameter("controllers.MPCC.opt_tol").value,
         "max_QP_iter": loader.get_parameter("controllers.MPCC.max_QP_iter").value,
-        "freq": loader.get_parameter("controllers.MPCC.freq_limit").value,
-        "freq": loader.get_parameter("controllers.MPCC.res_limit").value,
+        "freq_limit": loader.get_parameter("controllers.MPCC.freq_limit").value,
+        "res_limit": loader.get_parameter("controllers.MPCC.res_limit").value,
+        "mu_xi": loader.get_parameter("controllers.MPCC.mu_xi").value,
+        "mu_eta": loader.get_parameter("controllers.MPCC.mu_eta").value,
 
     }
     # TODO: collect params into dict and pass to tha manager as kwargs
