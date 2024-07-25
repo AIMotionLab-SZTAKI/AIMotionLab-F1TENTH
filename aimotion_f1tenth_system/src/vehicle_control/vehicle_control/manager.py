@@ -86,6 +86,13 @@ class ControlManager(Node):
             else:
                 return {"status": False, "error": "Controller not found!"}
         
+        #get current state
+        elif cmd == "get_state":
+            try:
+                return {"status": True, "state": self.current_state}
+            except Exception as e:
+                return {"status": False, "error": "No state data"}
+        
         # get available controllers
         elif cmd == "get_controllers":
             controllers = list(self.controllers.keys())

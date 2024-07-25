@@ -11,7 +11,7 @@ from trajectory_generators import null_infty, eight, null_paperclip, train8
 from MPCC_plotter import MPCC_plotter
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
-file_name = os.path.join(parent_dir, "configs/Simulator_config.yaml")
+file_name = os.path.join(parent_dir, "configs/JoeBush1.yaml")
 with open(file_name) as file:
     params = yaml.full_load(file)
 
@@ -38,7 +38,7 @@ traj = Trajectory("Spielberg")
 traj.load("trajectories/Spielberg.traj")
 
 #traj.plot_trajectory()
-theta_start = 0.10
+theta_start = 0.1
 
 
 # Normal trajectory
@@ -51,10 +51,12 @@ traj.load(traj_file)
 points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
 #traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
 
-path, v = null_infty()
+path, v = null_paperclip()
 traj.build_from_waypoints(path, v, 0, 5)
 
-(x,y) = (splev(theta_start-0.1, traj.pos_tck))
+
+
+(x,y) = (splev(theta_start, traj.pos_tck))
 
 phi = 0.84 #normal
 
@@ -116,7 +118,8 @@ for i in range(iteration):
     x0,t= controller.simulate(x0, u, dt)
 
     #Simulating noise: 
-    x0[3] = x0[3]*np.random.normal(1,0.02)
+    x0[3] = x0[3]*np.random.normal(1,0.05)
+    x0[2] = x0[2]*np.random.normal(1,0.001)
     x0[0] = x0[0]+np.random.normal(0,1)*0.005
     x0[1] = x0[1]+np.random.normal(0,1)*0.005
     

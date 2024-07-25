@@ -84,6 +84,18 @@ class F1Client:
         if res["status"] == False:
             raise Exception(f"Could not set controller: {res['error']}") 
         
+
+    def get_state(self):
+        """Get current state of the vehicle
+        :return: state: np.array"""
+
+        res = self.client.send({"command": "get_state"})
+
+        if res["status"] == False:
+            raise Exception(f"Could not get current state {res['error']}")
+        return res["state"]
+
+
     def get_MPCC_horizon(self):
         """Get current solution through the optimization horizon
         :return: states"""

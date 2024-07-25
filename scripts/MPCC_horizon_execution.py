@@ -121,16 +121,9 @@ car_1.execute_trajectory(trajectory=traj)
 plt.ion()
 if horizon_show == True:
     plt.show()
+    horizon_call_spin(car=car_1)
 
 
 
-t1 = Thread(target=horizon_call_spin, args=(car_1,))
-t1.start()
-
-input("Press enter to start the execution")
-
-car_1.emergency_stop()
-
-is_running = False
 
 plt.close()

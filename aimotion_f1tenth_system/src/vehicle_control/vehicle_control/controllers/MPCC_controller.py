@@ -113,6 +113,14 @@ class MPCC_Controller:
 
         x0 = np.concatenate((x0, np.array([self.theta]), self.input))
 
+        #Update: unwrap phi-> no freq drop 
+        while x0[2]-self.prev_phi > np.pi:
+            x0[2] = x0[2]-2*np.pi
+        while x0[2]-self.prev_phi < -np.pi:
+            x0[2] = x0[2]+2*np.pi
+
+        self.prev_phi = x0[2]
+
         self.ocp_solver.set(0, 'lbx', x0)
         self.ocp_solver.set(0, 'ubx', x0)
         self.ocp_solver.set(0, 'x', x0)
@@ -239,6 +247,7 @@ class MPCC_Controller:
         if self.muted == False:
             print(f"Number of init iterations: {num_iter}")
             print("")
+        
 
     def _generate_model(self):
         """
@@ -276,8 +285,8 @@ class MPCC_Controller:
         model.x = cs.vertcat(x,y,phi,vxi, veta, omega,thetahat, d, delta)
 
         #Defining the slip angles
-        alpha_r = cs.arctan2((-veta+l_r*omega),(vxi+0.0001)) #In the documentation arctan2 is used but vxi can't be < 0
-        alpha_f = delta- cs.arctan2((veta+l_f*omega),(vxi+0.0001))
+        alpha_r = cs.arctan2((-veta+l_r*omega),(vxi+0.001)) #In the documentation arctan2 is used but vxi can't be < 0
+        alpha_f = delta- cs.arctan2((veta+l_f*omega),(vxi+0.001))
 
         #Wheel forces
 
@@ -302,10 +311,12 @@ class MPCC_Controller:
         """Input vector: [ddot, deltadot, thetahatdot]' """
         model.u = cs.vertcat(thetahatdot, ddot, deltadot)
 
-        #Tire-force ellipse:
-        F_tire = Fxi**2/self.MPCC_params["mu_xi"]+Freta**2/self.MPCC_params["mu_eta"]
+        #Tire-friction ellipse:
+        F_rear = Fxi**2/self.MPCC_params["mu_xi"]**2+Freta**2/self.MPCC_params["mu_eta"]**2
+        F_front = Fxi**2/self.MPCC_params["mu_xi"]**2+Ffeta**2/self.MPCC_params["mu_eta"]**2
 
-        model.con_h_expr = cs.vertcat(F_tire)
+        model.con_h_expr = cs.vertcat(F_front, F_rear)
+        #model.con_h_expr = cs.vertcat(F_rear)
 
         """Explicit expression:"""
 
@@ -421,18 +432,33 @@ class MPCC_Controller:
         ocp.constraints.idxbu = np.arange(3)
         phi0 = float(self.trajectory.get_path_parameters_ang(self.s_start)[2])
 
-        ocp.constraints.lh = np.array([-1])
-        ocp.constraints.uh = np.array([1])
+        #"""using non-linear constraints: rear wheel only:"""
+        #ocp.constraints.lh = np.array([-1])
+        #ocp.constraints.uh = np.array([1])
+#
+        #ocp.cost.zl = np.array([0.1])  # lower slack penalty
+        #ocp.cost.zu = np.array([0.1])  # upper slack penalty
+        #ocp.cost.Zl = np.array([1])  # lower slack weight
+        #ocp.cost.Zu = np.array([1])  # upper slack weight
+#
+        ### Initialize slack variables for lower and upper bounds
+        #ocp.constraints.lsh = np.zeros(1)
+        #ocp.constraints.ush = np.zeros(1)
+        #ocp.constraints.idxsh = np.arange(1)
 
-        ocp.cost.zl = np.array([0.1])  # lower slack penalty
-        ocp.cost.zu = np.array([0.1])  # upper slack penalty
-        ocp.cost.Zl = np.array([0.5])  # lower slack weight
-        ocp.cost.Zu = np.array([0.5])  # upper slack weight
 
+        """using non-linear constraints: both wheels:"""
+        ocp.constraints.lh = np.array([-1,-1])
+        ocp.constraints.uh = np.array([1,1]) 
+        ocp.cost.zl = np.array([5.5,5.5])  # lower slack penalty
+        ocp.cost.zu = np.array([5.5,5.5])  # upper slack penalty
+        ocp.cost.Zl = np.array([1,1])  # lower slack weight
+        ocp.cost.Zu = np.array([1,1])  # upper slack weight  
         ## Initialize slack variables for lower and upper bounds
-        ocp.constraints.lsh = np.zeros(1)
-        ocp.constraints.ush = np.zeros(1)
-        ocp.constraints.idxsh = np.arange(1)
+        ocp.constraints.lsh = np.zeros(2)
+        ocp.constraints.ush = np.zeros(2)
+        ocp.constraints.idxsh = np.arange(2)
+
 
         #x0 = np.array((float(self.trajectory.spl_sx(self.s_start)), #x
         #            float(self.trajectory.spl_sy(self.s_start)), #y
@@ -448,7 +474,7 @@ class MPCC_Controller:
 
         ocp.constraints.x0 = x0 #Set in the set_trajectory function
 
-        ocp_solver = AcadosOcpSolver(ocp, json_file = 'acados_ocp.json')
+        ocp_solver = AcadosOcpSolver(ocp, json_file = 'acados_ocp.json', build= True, generate= True)
         return ocp_solver
     
 
@@ -474,7 +500,9 @@ class MPCC_Controller:
 
         self.input = np.array([self.MPCC_params["d_max"],0])
 
+        self.prev_phi = x0[2]
 
+        
         t_end = evol_tck[0][-1]
 
         

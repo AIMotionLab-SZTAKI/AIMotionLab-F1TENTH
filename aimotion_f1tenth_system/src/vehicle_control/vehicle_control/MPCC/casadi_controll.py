@@ -21,6 +21,9 @@ class Casadi_MPCC:
             N (int): Control horizon
             dt (float): Sampling time
         """
+        
+        self.MPCC_params = MPCC_params
+
         self.model = Model(vehicle_params=vehicle_param, MPPC_params=MPCC_params)
         self.nx = self.model.nx # = 6
         self.nu = self.model.nu # = 2
@@ -172,6 +175,10 @@ class Casadi_MPCC:
         self.opti.subject_to(self.v_U[:,0] == self.v_U_0+ self.dt*self.U_0) #init virtual input (d & delta)
 
 
+        F_front, F_rear = self.get_tireforce(states=self.X[:,:-1], inputs = self.v_U)
+
+        self.opti.subject_to((F_front<= 1, F_front >= -1))
+        self.opti.subject_to((F_rear<= 1, F_rear >= -1))
         
 
         # Dynamic constraint #
@@ -236,7 +243,40 @@ class Casadi_MPCC:
         s_opts = {'max_iter': 2000, 'print_level': 0}
         self.opti.solver('ipopt', p_opt, s_opts)
    
+    def get_tireforce(self, states, inputs):
+        if type(states) == cs.MX:
+            x = states[0, :]
+            y = states[1, :]
+            phi = states[2, :]
+            v_xi = states[3, :]
+            v_eta = states[4, :]
+            omega = states[5, :]
+            d = inputs[0, :]
+            delta = inputs[1, :]
+        else:
+            x = states[0]
+            y = states[1]
+            phi = states[2]
+            v_xi = states[3]
+            v_eta = states[4]
+            omega = states[5]
+            d = inputs[0]
+            delta = inputs[1]
 
+        # slip angles
+        alpha_r = cs.arctan((-v_eta + self.model.l_r*omega)/(v_xi+0.001))
+        alpha_f = delta - cs.arctan((v_eta + self.model.l_f * omega)/(v_xi+0.001))
+
+        # tire forces
+        F_xi = self.model.C_m1*d - self.model.C_m2*v_xi - self.model.C_m3*cs.sign(v_xi)
+        F_reta = self.model.C_r*alpha_r
+        F_feta = self.model.C_f*alpha_f
+
+        F_front = F_xi**2/self.MPCC_params["mu_xi"]**2+F_feta**2/self.MPCC_params["mu_eta"]**2
+        F_rear = F_xi**2/self.MPCC_params["mu_xi"]**2+F_reta**2/self.MPCC_params["mu_eta"]**2
+
+
+        return F_front, F_rear
 
     def cost(self):
         """
