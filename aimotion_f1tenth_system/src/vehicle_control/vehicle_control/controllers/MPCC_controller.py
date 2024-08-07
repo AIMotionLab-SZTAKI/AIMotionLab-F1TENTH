@@ -9,6 +9,8 @@ import os
 from ..MPCC.casadi_controll import Casadi_MPCC
 import time
 import matplotlib.pyplot as plt
+from ..MPCC.theta_projector import Theta_opt #Find current path parameter
+
 class MPCC_Controller:
     def __init__(self, vehicle_params: dict, MPCC_params: dict, mute = False):
         """
@@ -100,7 +102,7 @@ class MPCC_Controller:
         """
 
 
-        if self.theta >= self.trajectory.L:
+        if self.theta >= self.trajectory.L*0.999:
             errors = np.array([0.0, 0.0,0.0,float(self.theta), 0.0])
             u_opt = np.array([0,0])
             self.input = np.array([0,0])
@@ -121,8 +123,14 @@ class MPCC_Controller:
 
         self.prev_phi = x0[2]
 
-        self.ocp_solver.set(0, 'lbx', x0)
-        self.ocp_solver.set(0, 'ubx', x0)
+
+        x_max = x0
+        x_max[6] = self.theta+0.1
+        x_min = x0
+        x_min[6] = self.theta-0.1
+
+        self.ocp_solver.set(0, 'lbx', x_min)
+        self.ocp_solver.set(0, 'ubx', x_max)
         self.ocp_solver.set(0, 'x', x0)
         tol = self.parameters.opt_tol
         t = 0
@@ -143,7 +151,7 @@ class MPCC_Controller:
         x_opt = np.reshape(self.ocp_solver.get(1, "x"),(-1,1)) #Full predictied optimal state vector (x,y,phi, vxi, veta, omega, thetahat, d, delta)
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
-        u_opt = np.reshape(self.ocp_solver.get(0, "x"),(-1,1))[7:,0]
+        u_opt = x_opt[7:,0]
         if (1/t < self.MPCC_params["freq_limit"]) or (max(res) > self.MPCC_params["res_limit"]):
             raise Exception(f"Slow computing, emergency shut down, current freq: {1/t}, residuals: {res}")
         if self.muted == False:
@@ -229,9 +237,18 @@ class MPCC_Controller:
         if self.muted == False:
             print("Acados init started...")
 
-        self.ocp_solver.set(0, 'lbx', x_0)
-        self.ocp_solver.set(0, 'ubx', x_0)
+
+        x_max = x_0
+        x_max[6] = self.theta+0.2
+        x_min = x_0
+        x_min[6] = self.theta-0.2
+
+
+        self.ocp_solver.set(0, 'lbx', x_min)
+        self.ocp_solver.set(0, 'ubx', x_max)
         self.ocp_solver.set(0, 'x', x_0)
+
+
         tol =   0.01
         t = 0
         for i in range(1000):
@@ -248,6 +265,7 @@ class MPCC_Controller:
             print(f"Number of init iterations: {num_iter}")
             print("")
         
+        #self.theta = self.ocp_solver.get(0, "x")[6]
 
     def _generate_model(self):
         """
@@ -446,14 +464,16 @@ class MPCC_Controller:
         #ocp.constraints.ush = np.zeros(1)
         #ocp.constraints.idxsh = np.arange(1)
 
-
-        """using non-linear constraints: both wheels:"""
+        
+        """using non-linear constraints:"""
         ocp.constraints.lh = np.array([-1,-1])
-        ocp.constraints.uh = np.array([1,1]) 
-        ocp.cost.zl = np.array([5.5,5.5])  # lower slack penalty
-        ocp.cost.zu = np.array([5.5,5.5])  # upper slack penalty
-        ocp.cost.Zl = np.array([1,1])  # lower slack weight
-        ocp.cost.Zu = np.array([1,1])  # upper slack weight  
+        ocp.constraints.uh = np.array([1,1])
+
+        ocp.cost.zl = np.array([50000,50000])  # lower slack penalty
+        ocp.cost.zu = np.array([50000,50000])  # upper slack penalty
+        ocp.cost.Zl = np.array([100000,100000])  # lower slack weight
+        ocp.cost.Zu = np.array([100000,100000])  # upper slack weight
+
         ## Initialize slack variables for lower and upper bounds
         ocp.constraints.lsh = np.zeros(2)
         ocp.constraints.ush = np.zeros(2)
@@ -524,6 +544,14 @@ class MPCC_Controller:
         self.trajectory.spl_sx = cs.interpolant("traj", "bspline", [s], x)
         self.trajectory.spl_sy = cs.interpolant("traj", "bspline", [s], y)
         self.trajectory.L = s[-1]
+
+
+        theta_opt = Theta_opt(self.x0[:2], np.array([0, 0.5]), self.trajectory) #the window shouldn't be hard coded
+
+        self.theta = theta_opt.solve()
+        self.s_start = self.theta
+
+
         print(f"initial state: {self.x0}")
 
         print(f"starting point: {self.trajectory.get_path_parameters_ang(self.theta)}")

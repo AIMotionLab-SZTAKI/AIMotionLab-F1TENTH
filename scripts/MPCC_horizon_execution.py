@@ -9,65 +9,11 @@ import yaml
 import os
 import argparse
 from threading import Thread
-
+from MPCC_plotter import MPCC_plotter
 import matplotlib.pyplot as plt
 import numpy as np
 
-is_running = True
 
-def horizon_call_spin(car: F1Client):
-    
-    while True:
-        if car.get_mode() == CONTROLLER_MODE.RUNNING:
-           try:
-               x = np.array(car.get_MPCC_horizon())
-               update_plot(x[0,:], x[1, :])
-           except Exception as e:
-               print(e)
-           time.sleep(1/10)
-        
-        if is_running == False:
-           break
-
-parser = argparse.ArgumentParser(description='--horizon: set to 1 if plot is needed')
-parser.add_argument("--horizon", type=int, default=0)
-
-args = parser.parse_args()
-
-if args.horizon == 1:
-    horizon_show = True
-else:
-    horizon_show = False
-
-# Create a figure and axis
-fig, ax = plt.subplots()
-ax.set_xlim(-5, 5)
-ax.set_ylim(-5, 5)
-
-# Initialize a line object, that will be updated
-line, = ax.plot([], [], 'ro')  # 'ro' means red color, circle markers
-ref_line, = ax.plot([],[], 'b')
-
-
-# Data container
-data = {'x': [], 'y': []}
-def update_plot(new_x, new_y):
-    """Update the plot with new point, removing the previous one."""
-    # Clear previous points
-    data['x'].clear()
-    data['y'].clear()
-    
-    # Add new point
-    data['x'].append(new_x)
-    data['y'].append(new_y)
-    
-    # Update line data
-    line.set_data(data['x'], data['y'])
-    
-    # Redraw the figure
-    fig.canvas.draw_idle()
-    fig.canvas.flush_events()
-    # Show the plot in interactive mode
 
 
 
@@ -79,7 +25,35 @@ traj = Trajectory("traj_1")
 
 path, v = null_paperclip()
 traj.build_from_waypoints(path, v, 0, 5)
-#traj.plot_trajectory()
+
+
+
+parser = argparse.ArgumentParser(description='--horizon: set to 1 if plot is needed')
+parser.add_argument("--horizon", type=int, default=0)
+
+args = parser.parse_args()
+plotter = MPCC_plotter()
+
+
+
+
+def horizon_call_spin(car: F1Client):
+    
+    while True:
+        if car.get_mode() == CONTROLLER_MODE.RUNNING:
+           try:
+               x = np.array(car.get_MPCC_horizon())
+
+
+               (x_ref,y_ref) = splev(x[6,:], traj.pos_tck)
+               plotter.set_ref_point(x_ref,y_ref)
+               plotter.update_plot(x[0,:], x[1, :])
+           except Exception as e:
+               print(e)
+           time.sleep(1/60)
+
+
+
 
 t_eval=np.linspace(0, traj.t_end, 100)
         
@@ -87,7 +61,7 @@ s=splev(t_eval, traj.evol_tck)
 v=splev(t_eval, traj.evol_tck, der=1)
 (x,y)=splev(s, traj.pos_tck)
 
-ref_line.set_data(x, y)
+plotter.set_ref_traj(x,y)
 
 
 
@@ -118,10 +92,15 @@ print(car_1.get_MPCC_params())
 input("Press enter to start trajectory execution")
 car_1.execute_trajectory(trajectory=traj)
 
-plt.ion()
-if horizon_show == True:
-    plt.show()
-    horizon_call_spin(car=car_1)
+
+
+if args.horizon == 1:
+
+    plotter.show()
+else:
+    exit()
+
+horizon_call_spin(car=car_1)
 
 
 

@@ -98,7 +98,7 @@ plotter = MPCC_plotter()
 
 s = np.linspace(0, controller.trajectory.L,10000)
 
-plotter.set_ref(np.array(controller.trajectory.spl_sx(s)), np.array(controller.trajectory.spl_sy(s)))
+plotter.set_ref_traj(np.array(controller.trajectory.spl_sx(s)), np.array(controller.trajectory.spl_sy(s)))
 
 plotter.show()
 
@@ -118,10 +118,10 @@ for i in range(iteration):
     x0,t= controller.simulate(x0, u, dt)
 
     #Simulating noise: 
-    x0[3] = x0[3]*np.random.normal(1,0.05)
-    x0[2] = x0[2]*np.random.normal(1,0.001)
-    x0[0] = x0[0]+np.random.normal(0,1)*0.005
-    x0[1] = x0[1]+np.random.normal(0,1)*0.005
+    #x0[3] = x0[3]*np.random.normal(1,0.05)
+    #x0[2] = x0[2]*np.random.normal(1,0.001)
+    #x0[0] = x0[0]+np.random.normal(0,1)*0.005
+    #x0[1] = x0[1]+np.random.normal(0,1)*0.005
     
     x_sim = np.append(x_sim, np.reshape(x0, (-1,1)), axis= 1)
 
@@ -131,6 +131,9 @@ for i in range(iteration):
     if finished:
         break
 
+
+    x_ref, y_ref = (controller.trajectory.spl_sx(controller.theta),controller.trajectory.spl_sy(controller.theta))
+    plotter.set_ref_point(np.array(float(x_ref)), np.array(float(y_ref)))
 
     horizon = np.array(np.reshape(controller.ocp_solver.get(0, 'x'),(-1,1)))
     for i in range(controller.parameters.N-1):
@@ -157,7 +160,14 @@ plt.ylabel("y[m]")
 
 plt.figure()
 plt.title("Contouring error")
-plt.plot(theta_sim,errors[0,:])
+plt.plot(theta_sim[:-1],errors[0,1:])
+plt.xlabel("theta[m]")
+plt.ylabel("Error[m]")
+
+
+plt.figure()
+plt.title("Lateral error")
+plt.plot(theta_sim[:-1],errors[2,1:])
 plt.xlabel("theta[m]")
 plt.ylabel("Error[m]")
 

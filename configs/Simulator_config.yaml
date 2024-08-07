@@ -72,9 +72,9 @@ parameter_server:
         thetahatdot_max: 5
 
         #Optimisation parameters:
-        max_QP_iter: 5
-        N: 16 #number of shooting nodes
-        Tf: 0.8 #[s] time lenght of the opt. horizon
+        max_QP_iter: 1
+        N: 60 #number of shooting nodes
+        Tf: 0.5 #[s] time lenght of the opt. horizon
         #Cost weights:
         q_con: 60.0 
         q_long: 30.0
@@ -127,7 +127,7 @@ parameter_server:
 
     crazy_observer:
       CUTOFF: 2.0
-      FREQUENCY: 20.0
+      FREQUENCY: 120
       MARKER_OFFSET: 0.0
     drive_bridge:
       MOTOR_LIMIT: 0.2

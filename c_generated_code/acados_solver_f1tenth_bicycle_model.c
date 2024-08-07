@@ -466,14 +466,14 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
     double* zl = zlumem+NS*2;
     double* zu = zlumem+NS*3;
     // change only the non-zero elements:
-    Zl[0] = 1;
-    Zl[1] = 1;
-    Zu[0] = 1;
-    Zu[1] = 1;
-    zl[0] = 5.5;
-    zl[1] = 5.5;
-    zu[0] = 5.5;
-    zu[1] = 5.5;
+    Zl[0] = 100000;
+    Zl[1] = 100000;
+    Zu[0] = 100000;
+    Zu[1] = 100000;
+    zl[0] = 50000;
+    zl[1] = 50000;
+    zu[0] = 50000;
+    zu[1] = 50000;
 
     for (int i = 1; i < N; i++)
     {
@@ -513,8 +513,8 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
     ubx0[2] = 0.84;
     lbx0[3] = 0.01;
     ubx0[3] = 0.01;
-    lbx0[6] = 0.1;
-    ubx0[6] = 0.1;
+    lbx0[6] = 0.1028492964338155;
+    ubx0[6] = 0.1028492964338155;
     lbx0[7] = 0.2;
     ubx0[7] = 0.2;
 
@@ -802,7 +802,7 @@ void f1tenth_bicycle_model_acados_create_7_set_nlp_out(f1tenth_bicycle_model_sol
     x0[1] = 0.33772401275281727;
     x0[2] = 0.84;
     x0[3] = 0.01;
-    x0[6] = 0.1;
+    x0[6] = 0.1028492964338155;
     x0[7] = 0.2;
 
 

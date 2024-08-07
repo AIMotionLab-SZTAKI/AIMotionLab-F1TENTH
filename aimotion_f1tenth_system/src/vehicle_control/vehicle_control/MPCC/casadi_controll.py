@@ -64,8 +64,8 @@ class Casadi_MPCC:
         self.theta_init[0] = theta_0
         self.start_theta = theta_0
 
-        self.v_t_init = np.zeros(N-1) #Store the initial guess for v_theta
-
+        self.v_t_init = np.ones(N-1)*self.MPCC_params["thetahatdot_min"] #Store the initial guess for v_theta
+        
         
         self.lam_g_init = 0 #What does this do?
 
@@ -168,11 +168,11 @@ class Casadi_MPCC:
 
         self.opti.subject_to(self.v_t[0] == self.v_t_0)  # initial path speed
 
-        self.opti.subject_to(self.theta[0] == self.theta_0 + self.dt * self.v_t_0)  # init path parameter
+        self.opti.subject_to(self.theta[0] == self.theta_0)  # init path parameter
 
         #self.opti.subject_to(self.U[:,0] == self.U_0) ##Initial input constraint: dd and ddelta
 
-        self.opti.subject_to(self.v_U[:,0] == self.v_U_0+ self.dt*self.U_0) #init virtual input (d & delta)
+        self.opti.subject_to(self.v_U[:,0] == self.v_U_0) #init virtual input (d & delta)
 
 
         F_front, F_rear = self.get_tireforce(states=self.X[:,:-1], inputs = self.v_U)
