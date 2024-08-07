@@ -23,7 +23,7 @@ traj_name = "paperclip.traj"
 traj_file = os.path.join(parent_dir, "trajectories", traj_name)
 traj = Trajectory("traj_1")
 
-path, v = null_paperclip()
+path, v = null_infty()
 traj.build_from_waypoints(path, v, 0, 5)
 
 

@@ -51,7 +51,7 @@ traj.load(traj_file)
 points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
 #traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
 
-path, v = null_paperclip()
+path, v = null_infty()
 traj.build_from_waypoints(path, v, 0, 5)
 
 
