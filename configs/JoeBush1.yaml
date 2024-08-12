@@ -56,7 +56,7 @@ parameter_server:
           - 0.0095
       MPCC:
         mu_xi: 100
-        mu_eta: 10
+        mu_eta: 50
         res_limit: 100.0
         freq_limit: 20
         #Input constraints
@@ -77,7 +77,7 @@ parameter_server:
         Tf: 0.6 #[s] time lenght of the opt. horizon
         #Cost weights:
         q_con: 40.0
-        q_long: 100.0
+        q_long: 200.0
         q_theta: 2
         q_d: 0.005
         q_delta: 0.005

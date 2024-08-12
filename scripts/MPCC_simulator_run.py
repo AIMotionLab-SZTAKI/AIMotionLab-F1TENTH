@@ -38,7 +38,7 @@ traj = Trajectory("Spielberg")
 traj.load("trajectories/Spielberg.traj")
 
 #traj.plot_trajectory()
-theta_start = 0.1
+theta_start = 0.05
 
 
 # Normal trajectory

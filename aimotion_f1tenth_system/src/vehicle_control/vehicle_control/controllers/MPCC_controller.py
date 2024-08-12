@@ -102,14 +102,7 @@ class MPCC_Controller:
         """
 
 
-        if self.theta >= self.trajectory.L*0.999:
-            errors = np.array([0.0, 0.0,0.0,float(self.theta), 0.0])
-            u_opt = np.array([0,0])
-            self.input = np.array([0,0])
-            self.errors = {"lateral" : 0, "heading" : self.theta, "velocity" : 0, "longitudinal": float(0)}
-
-            self.finished = True
-            return u_opt, errors, True
+        
         if x0[3] <0.001:
             x0[3] = 0.001
 
@@ -173,6 +166,17 @@ class MPCC_Controller:
 
 
         self.errors = {"lateral" : float(e_con), "heading" : float(self.theta), "velocity" : float(x_opt[3,0]), "longitudinal": float(e_long)}
+        
+
+        if self.theta >= self.trajectory.L*0.999:
+            errors = np.array([0.0, 0.0,0.0,float(self.theta), 0.0])
+            u_opt = np.array([0,0])
+            self.input = np.array([0,0])
+            self.errors = {"lateral" : 0, "heading" : self.theta, "velocity" : 0, "longitudinal": float(0)}
+
+            self.finished = True
+            return u_opt, errors, True
+        
         
         return u_opt, errors, False 
 
@@ -308,7 +312,7 @@ class MPCC_Controller:
 
         #Wheel forces
 
-        Fxi = C_m1*d-C_m2*vxi-vxi*C_m3
+        Fxi = C_m1*d-C_m2*vxi-cs.sign(vxi)*C_m3
 
         Freta = C_r * alpha_r
         Ffeta = C_f*alpha_f
@@ -506,7 +510,7 @@ class MPCC_Controller:
         :param x0: initial state, used for initialising the controller
         :param thetastart: float, starting arc lenght of the trajectory
         """
-
+        self.finished = False #Reset goal reached flag
         self.load_parameters()
 
         self.theta = theta_start
