@@ -142,20 +142,20 @@ def install_onboard_stack(car_ID) -> None:
     
     print("Deleting existing workspace...")
 
-    _stdin, stdout, stderr = SSH_client.exec_command("rm -rf aimotion-f1tenth-system") #removing previous package
+    _stdin, stdout, stderr = SSH_client.exec_command("rm -rf aimotion-f1tenth-system_MPCC") #removing previous package
        
     time.sleep(5)
-    SFTP_client.mkdir("aimotion-f1tenth-system", ignore_existing=False)
+    SFTP_client.mkdir("aimotion-f1tenth-system_MPCC", ignore_existing=False)
 
     print("Transfering files onto the vehicle...")
     #_stdin, stdout, stderr = SSH_client.exec_command("cd aimotion-f1tenth-system; python3 -m venv venv; source venv/bin/activate; pip install numpy scipy pyyaml torch gpytorch pynumdiff") #removing previous package
         
     sys_dir = os.path.join(Path(os.path.dirname(os.path.dirname(__file__))),"aimotion_f1tenth_system")
-    SFTP_client.put_dir(sys_dir, "aimotion-f1tenth-system")
+    SFTP_client.put_dir(sys_dir, "aimotion-f1tenth-system_MPCC")
 
     print("Building ROS2 workspace...")       
 
-    _stdin, stdout, stderr = SSH_client.exec_command('bash --login -c "source /opt/ros/foxy/local_setup.bash ;cd aimotion-f1tenth-system/; colcon build"')
+    _stdin, stdout, stderr = SSH_client.exec_command('bash --login -c "source /opt/ros/foxy/local_setup.bash ;cd aimotion-f1tenth-system_MPCC/; colcon build"')
     try:
         for line in iter(stdout.readline, ""):
                 print(line)

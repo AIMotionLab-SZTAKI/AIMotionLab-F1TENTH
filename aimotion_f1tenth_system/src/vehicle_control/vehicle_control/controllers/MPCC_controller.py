@@ -22,7 +22,7 @@ class MPCC_Controller:
         self.vehicle_params = vehicle_params
         self.MPCC_params = MPCC_params
         self.trajectory = None
-
+        self.c_t = -1
         self.theta = 0.0
         self.s_start = 0.0
         self.x0 = np.zeros((1,6))
@@ -36,6 +36,32 @@ class MPCC_Controller:
         self.errors = {"lateral" : 0, "heading" : 0, "velocity" : 0, "longitudinal": float(0)}
         self.finished = False
         self.load_parameters()
+
+    def warm_start(self):
+        """New function under development to warm-start the acados SQP_RTI solver"""
+
+        self.input = np.array([self.MPCC_params["d_max"],0]) #Go in a straight line with full throthle 
+
+        dt = self.MPCC_params["Tf"]/self.MPCC_params["N"] #time intervals for the prediction calls
+
+        
+        x_0 = np.concatenate((self.x0, np.array([self.theta]), self.input))
+        x_guess = np.array(np.reshape(x_0, (-1,1))) #passed to acados as initial guess
+        #u_guess will be np.zeros(2)*N
+
+
+        x = np.array(np.reshape(self.x0, (-1,1)))
+        theta_t = self.theta
+
+        for i in range(self.MPCC_params["N"]):
+            x_new, t_next = self.predict(x[:,-1],self.input, dt)
+            x_new = np.array(x_new)
+            x = np.append(x, np.reshape(x_new,(-1,1)), axis = 1)
+            theta_t = theta_t+x_new[3]*dt
+            x_g_new = np.concatenate((x_new[:,-1], theta_t, self.input))
+            x_guess = np.append(x_guess, np.reshape(x_g_new, (-1,1)), axis=1)
+        
+        return x_guess
 
     def load_parameters(self):
         """
@@ -103,8 +129,8 @@ class MPCC_Controller:
 
 
         
-        if x0[3] <0.001:
-            x0[3] = 0.001
+        if x0[3] <0.1:
+            x0[3] = 0.1
 
         x0 = np.concatenate((x0, np.array([self.theta]), self.input))
 
@@ -117,25 +143,21 @@ class MPCC_Controller:
         self.prev_phi = x0[2]
 
 
-        x_max = x0
-        x_max[6] = self.theta+0.1
-        x_min = x0
-        x_min[6] = self.theta-0.1
 
-        self.ocp_solver.set(0, 'lbx', x_min)
-        self.ocp_solver.set(0, 'ubx', x_max)
+        self.ocp_solver.set(0, 'lbx', x0)
+        self.ocp_solver.set(0, 'ubx', x0)
         self.ocp_solver.set(0, 'x', x0)
         tol = self.parameters.opt_tol
-        t = 0
+        c_t = 0
         for i in range(self.parameters.max_QP_iter):
             self.ocp_solver.solve()
             res = self.ocp_solver.get_residuals()
 
-            t += self.ocp_solver.get_stats("time_tot")
+            c_t += self.ocp_solver.get_stats("time_tot")
             num_iter = i+1
             if max(res) < tol:
                 break #Tolerance limit reached
-            if t > self.MPCC_params["N"]/self.MPCC_params["Tf"]: #If the controller frequency is below 60 Hz break
+            if c_t > self.MPCC_params["N"]/self.MPCC_params["Tf"]: #If the controller frequency is below 60 Hz break
                 if self.muted == False:
                     pass
                     #print("Time limit reached")
@@ -145,10 +167,10 @@ class MPCC_Controller:
         self.theta = x_opt[6,0]
         self.input = x_opt[7:, 0]
         u_opt = x_opt[7:,0]
-        if (1/t < self.MPCC_params["freq_limit"]) or (max(res) > self.MPCC_params["res_limit"]):
-            raise Exception(f"Slow computing, emergency shut down, current freq: {1/t}, residuals: {res}")
+        if (1/c_t < self.MPCC_params["freq_limit"]) or (max(res) > self.MPCC_params["res_limit"]):
+            raise Exception(f"Slow computing, emergency shut down, current freq: {1/c_t}, residuals: {res}")
         if self.muted == False:
-            print(f"\rFrequency: {(1/(t)):4f}, solver time: {t:.5f}, QP iterations: {num_iter:2}, progress: {self.theta/self.trajectory.L*100:.2f}%, input: {u_opt}, residuals: {res}               \r", end = '', flush=True)
+            print(f"\rFrequency: {(1/(c_t)):4f}, solver time: {c_t:.5f}, QP iterations: {num_iter:2}, progress: {self.theta/self.trajectory.L*100:.2f}%, input: {u_opt}, residuals: {res}               \r", end = '', flush=True)
         
         for i in range(self.parameters.N-1):
             self.ocp_solver.set(i, "x", self.ocp_solver.get(i+1, "x"))
@@ -162,14 +184,13 @@ class MPCC_Controller:
         e_long = self.trajectory.e_l(x_opt[:2,0],self.theta)[0][0]
 
         
-        errors = np.array([float(e_con), float(x_opt[2,0]),float(e_long),float(self.theta), float(x_opt[3,0])])
+        errors = np.array([float(e_con),float(e_long),float(self.theta), float(c_t)])
 
+        self.errors = {"lateral" : float(e_con), "heading" : float(self.theta), "velocity" : float(self.c_t), "longitudinal": float(e_long)}
+        self.c_t = c_t
 
-        self.errors = {"lateral" : float(e_con), "heading" : float(self.theta), "velocity" : float(x_opt[3,0]), "longitudinal": float(e_long)}
-        
-
-        if self.theta >= self.trajectory.L*0.999:
-            errors = np.array([0.0, 0.0,0.0,float(self.theta), 0.0])
+        if self.theta >= self.trajectory.L:
+            errors = np.array([0.0, self.theta,0.0, 0.0])
             u_opt = np.array([0,0])
             self.input = np.array([0,0])
             self.errors = {"lateral" : 0, "heading" : self.theta, "velocity" : 0, "longitudinal": float(0)}
@@ -205,11 +226,14 @@ class MPCC_Controller:
         if self.muted == False:
             print("Casadi init started...")
 
+        
         X, v_U,U, theta, dtheta = self.casadi_solver.opti_step(self.x0) #Call casadi solver for optimal initial guess
-
+        
         x_0 = np.concatenate((self.x0, np.array([self.theta]), v_U[:,0]))
         self.ocp_solver.set(0, "x", x_0)
-        u_0 = np.concatenate((U[:,0], np.array([dtheta[0]])))
+
+
+        u_0 = np.concatenate((np.array([dtheta[0]]),U[:,0]))
         self.ocp_solver.set(0, "u", u_0)
 
     
@@ -237,15 +261,18 @@ class MPCC_Controller:
                 print(f"___________{i+1}._________")
                 print(u)
                 print(x)
+
+
+
         #Acados controller init: 
         if self.muted == False:
             print("Acados init started...")
 
-
+        #x_0 = x_guess[:,0]
         x_max = x_0
-        x_max[6] = self.theta+0.2
+        x_max[6] = self.theta+0.1
         x_min = x_0
-        x_min[6] = self.theta-0.2
+        x_min[6] = self.theta-0.1
 
 
         self.ocp_solver.set(0, 'lbx', x_min)
@@ -255,12 +282,12 @@ class MPCC_Controller:
 
         tol =   0.01
         t = 0
-        for i in range(1000):
+        for i in range(300):
             self.ocp_solver.solve()
             res = self.ocp_solver.get_residuals()
 
             t += self.ocp_solver.get_stats("time_tot")
-            num_iter = i+1
+            num_iter = i+10
             if max(res) < tol:
                 break #Tolerance limit reached
             if i %50 ==0:
@@ -269,7 +296,7 @@ class MPCC_Controller:
             print(f"Number of init iterations: {num_iter}")
             print("")
         
-        #self.theta = self.ocp_solver.get(0, "x")[6]
+        self.theta = self.ocp_solver.get(0, "x")[6]
 
     def _generate_model(self):
         """
@@ -502,7 +529,7 @@ class MPCC_Controller:
         return ocp_solver
     
 
-    def set_trajectory(self, pos_tck, evol_tck, x0, theta_start):
+    def set_trajectory(self, pos_tck, evol_tck, x0, theta_start = 0.05):
         """
         Evaluetes the reference spline from the given spline tck, and converts it into a Spline2D instance
         :param pos_tck: array
@@ -513,12 +540,11 @@ class MPCC_Controller:
         self.finished = False #Reset goal reached flag
         self.load_parameters()
 
-        self.theta = theta_start
-        self.s_start = theta_start
+        
         
         self.x0 = x0 #The current position must be the initial condition
 
-        self.x0[3] = 0.01 #Give a small forward speed to make the problem feasable
+        self.x0[3] = 0.1 #Give a small forward speed to make the problem feasable
         self.x0[5] = 0
         self.x0[4] = 0
 
@@ -550,9 +576,13 @@ class MPCC_Controller:
         self.trajectory.L = s[-1]
 
 
-        theta_opt = Theta_opt(self.x0[:2], np.array([0, 0.5]), self.trajectory) #the window shouldn't be hard coded
+        theta_opt = Theta_opt(self.x0[:2], np.array([0, 0.1]), self.trajectory) #the window shouldn't be hard coded
 
         self.theta = theta_opt.solve()
+        if self.theta <0.05:
+            self.theta = 0.05
+
+
         self.s_start = self.theta
 
 

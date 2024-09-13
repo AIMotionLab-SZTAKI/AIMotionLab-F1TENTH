@@ -404,7 +404,7 @@ class ControlManager(Node):
             # publish the control input
                 self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
         
-            print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
+            #print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
     
         except Exception as e:
             self._logger.warning(str(e))
