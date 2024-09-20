@@ -78,12 +78,12 @@ car_1.execute_trajectory(trajectory=traj)
 # block the script until the execution is finished
 car_1.wait_while_running()
 
-states1, inputs1, c1, errors1 = car_1.get_logs() #errors1: {"lateral": lat_error, "heading": theta, "long": long_error, "velocity": computing_time}
+states1, inputs1, c1, errors1 = car_1.get_logs() #errors1: {"contouring": lat_error, "heading": theta, "long": long_error, "velocity": computing_time}
 
 
 #Path following figure:
 plt.figure()
-plt.title("Real life results")
+
 plt.plot(x_r, y_r, label = "reference trajectory")
 
 #Create continious colorbarmapping
@@ -91,7 +91,7 @@ plt.plot(x_r, y_r, label = "reference trajectory")
 points = np.array([states1[:,0], states1[:,1]]).T.reshape(-1,1,2)
 segments = np.concatenate([points[:-1], points[1:]], axis = 1)
 
-norm = plt.Normalize(vmin =0, vmax=5)
+norm = plt.Normalize(vmin =0, vmax=3.5)
 lc = LineCollection(segments=segments, cmap = "turbo", norm=norm)
 lc.set_array(states1[:,3])
 lc.set_linewidth(2)
@@ -99,10 +99,10 @@ lc.set_linewidth(2)
 plt.gca().add_collection(lc)
 plt.xlabel("x[m]")
 plt.ylabel("y[m]")
-cbar = plt.colorbar(lc, label = 'v_xi')
+cbar = plt.colorbar(lc, label = '$v_{\\xi}$')
 plt.axis('equal')
 
-
+plt.grid(True)
 
 
 #Computing time figure
@@ -112,34 +112,51 @@ axs[0].title.set_text("Computing time histogram")
 try:
     axs[0].hist(errors1[:,3]*1000)
     axs[0].axvline(x = MPCC_params["Tf"]/MPCC_params["N"]*1000, color = 'r', label = 'sampling time [ms]')
+    axs[0].set_ylabel("Iteration [-]")
+    axs[0].set_xlabel("Computing time [ms]")
+    axs[0].legend()
+
     axs[1].plot(np.arange(np.shape(errors1[:,3])[0]), errors1[:,3]*1000)
     axs[1].axhline(y = MPCC_params["Tf"]/MPCC_params["N"]*1000, color = 'r', label = 'sampling time [ms]')
+    axs[1].set_ylabel("Computing time [ms]")
+    axs[1].set_xlabel("Iteration [-]")
+    axs[1].legend()
     print(errors1[:,3])
     print(np.shape(errors1))
 except Exception as e:
     print(e)
 
-    
+print(inputs1)
+for ax in axs:
+    ax.grid(True)
+
+fig, axs = plt.subplots(3,1, figsize = (10,6))
+
+axs[0].set_title("Motor reference")
+axs[0].plot(np.arange(np.shape(inputs1[:,0])[0]),inputs1[:,0])
+axs[0].set_xlabel("Iteration [-]")
+axs[0].set_ylabel("d [-]")
+
+
+
+axs[1].set_title("Steering servo reference")
+axs[1].plot(np.arange(np.shape(inputs1[:,1])[0]),inputs1[:,1])
+axs[1].set_xlabel("Iteration [-]")
+axs[1].set_ylabel("$\\delta$ [-]")
+
+
+
+axs[2].set_title("Errors")
+axs[2].plot(np.arange(np.shape(errors1[:,0])[0]),errors1[:,0], label = "$e_\\mathrm{f}$ [m]")
+axs[2].plot(np.arange(np.shape(errors1[:,0])[0]),errors1[:,3], label = "$e_\\mathrm{l}$ [m]")
+axs[2].set_xlabel("Iteration [-]")
+axs[2].set_ylabel("errors [m]")
+axs[2].legend()
+
+plt.tight_layout()
+for ax in axs:
+    ax.grid(True)
+plt.ion()
 plt.show()
 
-
-"""
-plt.plot(errors1)
-plt.legend(["lateral", "heading", "long", "velocity"])
-
-plt.figure()
-plt.plot(inputs1)
-
-plt.show()
-
-res = {
-    "states": states1,
-    "inputs": inputs1,
-    "errors": errors1, 
-    "ref": [x_r, y_r]
-}
-
-with open("result_good.pickle", "wb") as f:
-    pickle.dump(res, f)
-    
-    """
+input("Press enter to close...")

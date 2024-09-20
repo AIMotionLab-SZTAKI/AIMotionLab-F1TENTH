@@ -579,8 +579,7 @@ class MPCC_Controller:
         theta_opt = Theta_opt(self.x0[:2], np.array([0, 0.1]), self.trajectory) #the window shouldn't be hard coded
 
         self.theta = theta_opt.solve()
-        if self.theta <0.05:
-            self.theta = 0.05
+        
 
 
         self.s_start = self.theta

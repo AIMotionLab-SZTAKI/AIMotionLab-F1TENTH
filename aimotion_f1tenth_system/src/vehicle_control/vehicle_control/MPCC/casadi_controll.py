@@ -287,8 +287,8 @@ class Casadi_MPCC:
         e_c = self.e_c(cs.vcat((self.X[0, :], self.X[1, :])), self.theta)
         
         e_smooth = self.e_smooth()[0]*self.q_d + self.e_smooth()[1]*self.q_delta
-        
-        cost = self.q_l * e_l.T @ e_l + self.q_c * e_c.T @ e_c- self.q_t * (self.v_t.T @ self.v_t) + e_smooth 
+        progress = cs.sum1(cs.fabs(self.v_t))
+        cost = self.q_l * e_l.T @ e_l + self.q_c * e_c.T @ e_c- self.q_t * progress + e_smooth 
         #cost = self.q_l * e_l + self.q_c * e_c- self.q_t * (self.trajectory.L-self.theta[-1]) + self.q_smooth  * e_smooth
 
         return cost
