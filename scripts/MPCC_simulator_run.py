@@ -67,7 +67,7 @@ phi = 0.84 #normal
 #phi = -2.87969 #Spielberg
 
 #phi =1.19 #Silverstone
-x0 = np.array([x+0.2,y-0.1,phi*1.1, 0, 0.0,0.0])
+x0 = np.array([x,y-0.1,phi*1.1, 0, 0.0,0.0])
 
 
 controller.set_trajectory(pos_tck = traj.pos_tck,

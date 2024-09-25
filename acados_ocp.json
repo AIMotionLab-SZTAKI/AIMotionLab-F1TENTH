@@ -68,14 +68,14 @@
             -0.6
         ],
         "lbx_0": [
-            0.3284983736189656,
+            0.1284983736189656,
             0.0521679569012628,
             0.924,
             0.1,
             0.0,
             0.0,
-            0.07626363280628805,
-            0.25,
+            0.03076956665889957,
+            0.3,
             0.0
         ],
         "lbx_e": [],
@@ -111,18 +111,18 @@
         ],
         "ubx": [
             30.073091438737023,
-            0.25,
+            0.3,
             0.6
         ],
         "ubx_0": [
-            0.3284983736189656,
+            0.1284983736189656,
             0.0521679569012628,
             0.924,
             0.1,
             0.0,
             0.0,
-            0.07626363280628805,
-            0.25,
+            0.03076956665889957,
+            0.3,
             0.0
         ],
         "ubx_e": [],
@@ -202,7 +202,7 @@
         "/usr/include/python3.10"
     ],
     "dims": {
-        "N": 13,
+        "N": 15,
         "nbu": 3,
         "nbx": 3,
         "nbx_0": 9,
@@ -243,7 +243,7 @@
     },
     "json_file": "acados_ocp.json",
     "model": {
-        "con_h_expr": "@1=(((52.4282*d)-(3*vxi))-(0.8*sign(vxi))), vertcat(((sq(@1)/1000000)+(sq((41.7372*(delta-atan2((veta+(0.163*omega)),(0.001+vxi)))))/360000)), ((sq(@1)/1000000)+(sq((29.4662*atan2(((0.168*omega)-veta),(0.001+vxi))))/360000)))",
+        "con_h_expr": "@1=(((52.4282*d)-(3*vxi))-(0.8*sign(vxi))), vertcat(((sq(@1)/1000000)+(sq((41.7372*(delta-atan2((veta+(0.163*omega)),(0.001+vxi)))))/1000000)), ((sq(@1)/1000000)+(sq((29.4662*atan2(((0.168*omega)-veta),(0.001+vxi))))/1000000)))",
         "con_h_expr_0": null,
         "con_h_expr_e": null,
         "con_phi_expr": null,
@@ -258,8 +258,8 @@
         "cost_conl_custom_outer_hess": null,
         "cost_conl_custom_outer_hess_0": null,
         "cost_conl_custom_outer_hess_e": null,
-        "cost_expr_ext_cost": "@1=vertcat(x, y), (((((60*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(200*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.6*thetadot))+(0.005*sq(ddot)))+(0.015*sq(deltadot)))",
-        "cost_expr_ext_cost_0": "@1=vertcat(x, y), (((((60*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(200*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.6*thetadot))+(0.005*sq(ddot)))+(0.015*sq(deltadot)))",
+        "cost_expr_ext_cost": "@1=vertcat(x, y), (((((80*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(200*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.3*thetadot))+(0.005*sq(ddot)))+(0.6*sq(deltadot)))",
+        "cost_expr_ext_cost_0": "@1=vertcat(x, y), (((((80*sq(dot(horzcat(jac_traj(thetahat, 00){0}, (-jac_traj(thetahat, 00){0}))', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1))))+(200*sq(dot(horzcat(jac_traj(thetahat, 00){0}, jac_traj(thetahat, 00){0})', (horzcat(traj(thetahat){0}, traj(thetahat){0})'-@1)))))-(2.3*thetadot))+(0.005*sq(ddot)))+(0.6*sq(deltadot)))",
         "cost_expr_ext_cost_custom_hess": null,
         "cost_expr_ext_cost_custom_hess_0": null,
         "cost_expr_ext_cost_custom_hess_e": null,
@@ -367,9 +367,13 @@
             0.49999999999999994,
             0.5499999999999999,
             0.6,
-            0.65
+            0.65,
+            0.7000000000000001,
+            0.7500000000000001
         ],
         "sim_method_jac_reuse": [
+            0,
+            0,
             0,
             0,
             0,
@@ -399,6 +403,8 @@
             4,
             4,
             4,
+            4,
+            4,
             4
         ],
         "sim_method_num_steps": [
@@ -414,10 +420,14 @@
             1,
             1,
             1,
+            1,
+            1,
             1
         ],
-        "tf": 0.65,
+        "tf": 0.75,
         "time_steps": [
+            0.05,
+            0.05,
             0.05,
             0.05,
             0.05,

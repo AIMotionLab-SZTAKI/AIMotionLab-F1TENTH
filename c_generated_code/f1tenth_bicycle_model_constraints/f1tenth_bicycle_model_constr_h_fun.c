@@ -118,8 +118,8 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   w3 *= w4;
   /* #26: @3 = sq(@3) */
   w3 = casadi_sq( w3 );
-  /* #27: @4 = 360000 */
-  w4 = 360000.;
+  /* #27: @4 = 1000000 */
+  w4 = 1000000.;
   /* #28: @3 = (@3/@4) */
   w3 /= w4;
   /* #29: @1 = (@1+@3) */
@@ -150,8 +150,8 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   w1 *= w3;
   /* #42: @1 = sq(@1) */
   w1 = casadi_sq( w1 );
-  /* #43: @3 = 360000 */
-  w3 = 360000.;
+  /* #43: @3 = 1000000 */
+  w3 = 1000000.;
   /* #44: @1 = (@1/@3) */
   w1 /= w3;
   /* #45: @0 = (@0+@1) */
