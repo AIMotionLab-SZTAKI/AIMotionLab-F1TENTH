@@ -34,7 +34,7 @@ class MPCC_reverse_controller(Controller):
 
         self.c_t = 0
 
-        self.input = np.array([-self.MPCC_params["d_max_r"],0])
+        self.input = np.array([-self.MPCC_params["d_min"],0])
        
         self.ocp_solver = None #acados solver to compute control
 
@@ -47,9 +47,9 @@ class MPCC_reverse_controller(Controller):
 
         self.prev_state = np.array([])
         self.mute = mute
-        self._load_parameters()
+        self.load_parameters()
 
-    def _load_parameters(self):
+    def load_parameters(self):
         """
         Function for loading the solver parameters from the class dictionary (MPCC_params(dict),vehicle_params(dict))
         """
@@ -87,11 +87,11 @@ class MPCC_reverse_controller(Controller):
 
 
         d_max = -float(self.MPCC_params["d_min"])
-        d_min = -float(self.MPCC_params["d_max_r"])
+        d_min = -float(self.MPCC_params["d_max"])
 
         self.casadi_MPCC_params["d_max"] = -float(self.MPCC_params["d_min"])
 
-        self.casadi_MPCC_params["d_min"] = -float(self.MPCC_params["d_max_r"])
+        self.casadi_MPCC_params["d_min"] = -float(self.MPCC_params["d_max"])
 
         
         
@@ -268,7 +268,7 @@ class MPCC_reverse_controller(Controller):
 
         return ocp_solver
 
-    def set_trajectory(self, pos_tck, evol_tck, x0, call_init = True):
+    def set_trajectory(self, pos_tck, evol_tck, x0, call_init = True, theta_start = None):
         """
         Project vehicle onto new trajectory, and find optimal value of theta.  Evaluete the reference spline from the given spline tck, and convert it into a Spline2D instance.
         **Initialize controller** with the intial state.
@@ -311,7 +311,7 @@ class MPCC_reverse_controller(Controller):
         self.trajectory.L = s[-1]
 
 
-        self._load_parameters()
+        self.load_parameters()
 
         self.x0 = np.array([shifted_CoM[0], shifted_CoM[1], x0[2], x0[3]])
         self.prev_phi = self.x0[2]

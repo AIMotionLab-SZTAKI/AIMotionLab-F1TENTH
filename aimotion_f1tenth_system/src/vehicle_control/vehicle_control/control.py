@@ -52,7 +52,6 @@ class LoaderNode(Node):
                 ('controllers.MPCC.q_delta', rclpy.Parameter.Type.DOUBLE),
                 ('controllers.MPCC.delta_max', rclpy.Parameter.Type.DOUBLE),
                 ('controllers.MPCC.d_max', rclpy.Parameter.Type.DOUBLE),
-                ('controllers.MPCC.d_max_r', rclpy.Parameter.Type.DOUBLE),
                 ('controllers.MPCC.d_min', rclpy.Parameter.Type.DOUBLE),
                 ('controllers.MPCC.ddot_max', rclpy.Parameter.Type.DOUBLE),
                 ('controllers.MPCC.deltadot_max', rclpy.Parameter.Type.DOUBLE),
@@ -65,7 +64,25 @@ class LoaderNode(Node):
                 ('controllers.MPCC.mu_xi', rclpy.Parameter.Type.DOUBLE),
                 ('controllers.MPCC.mu_eta', rclpy.Parameter.Type.DOUBLE),
 
-
+                #reverse MPCC params:
+                ('controllers.MPCC_reverse.N', rclpy.Parameter.Type.INTEGER),
+                ('controllers.MPCC_reverse.Tf', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.q_con', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.q_long', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.q_theta', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.q_d', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.q_delta', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.delta_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.d_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.d_min', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.ddot_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.deltadot_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.thetahatdot_min', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.thetahatdot_max', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.opt_tol', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.max_QP_iter', rclpy.Parameter.Type.INTEGER),
+                ('controllers.MPCC_reverse.freq_limit', rclpy.Parameter.Type.DOUBLE),
+                ('controllers.MPCC_reverse.res_limit', rclpy.Parameter.Type.DOUBLE),
 
                 
                 # vehicle params
@@ -133,7 +150,6 @@ def main():
         "q_delta": loader.get_parameter("controllers.MPCC.q_delta").value,
         "delta_max": loader.get_parameter("controllers.MPCC.delta_max").value,
         "d_max": loader.get_parameter("controllers.MPCC.d_max").value,
-        "d_max_r": loader.get_parameter("controllers.MPCC.d_max_r").value,
         "d_min": loader.get_parameter("controllers.MPCC.d_min").value,
         "ddot_max": loader.get_parameter("controllers.MPCC.ddot_max").value,
         "deltadot_max": loader.get_parameter("controllers.MPCC.deltadot_max").value,
@@ -149,6 +165,26 @@ def main():
     }
     # TODO: collect params into dict and pass to tha manager as kwargs
 
+    MPCC_reverse_params= {
+        "N": loader.get_parameter("controllers.MPCC_reverse.N").value,
+        "Tf": loader.get_parameter("controllers.MPCC_reverse.Tf").value,
+        "q_con": loader.get_parameter("controllers.MPCC_reverse.q_con").value,
+        "q_long": loader.get_parameter("controllers.MPCC_reverse.q_long").value,
+        "q_theta": loader.get_parameter("controllers.MPCC_reverse.q_theta").value,
+        "q_d": loader.get_parameter("controllers.MPCC_reverse.q_d").value,
+        "q_delta": loader.get_parameter("controllers.MPCC_reverse.q_delta").value,
+        "delta_max": loader.get_parameter("controllers.MPCC_reverse.delta_max").value,
+        "d_max": loader.get_parameter("controllers.MPCC_reverse.d_max").value,
+        "d_min": loader.get_parameter("controllers.MPCC_reverse.d_min").value,
+        "ddot_max": loader.get_parameter("controllers.MPCC_reverse.ddot_max").value,
+        "deltadot_max": loader.get_parameter("controllers.MPCC_reverse.deltadot_max").value,
+        "thetahatdot_min": loader.get_parameter("controllers.MPCC_reverse.thetahatdot_min").value,
+        "thetahatdot_max": loader.get_parameter("controllers.MPCC_reverse.thetahatdot_max").value,
+        "opt_tol": loader.get_parameter("controllers.MPCC_reverse.opt_tol").value,
+        "max_QP_iter": loader.get_parameter("controllers.MPCC_reverse.max_QP_iter").value,
+        "freq_limit": loader.get_parameter("controllers.MPCC_reverse.freq_limit").value,
+        "res_limit": loader.get_parameter("controllers.MPCC_reverse.res_limit").value
+    }
 
 
     vehicle_params = {
@@ -176,7 +212,8 @@ def main():
                            vehicle_params = vehicle_params,
                            LPV_LQR_params=LPV_LQR_params,
                            GP_LPV_LQR_params=GP_LPV_LQR_params,
-                           MPCC_params = MPCC_params)
+                           MPCC_params = MPCC_params,
+                           MPCC_reverse_params = MPCC_reverse_params)
     try:
         rclpy.spin(manager)
     except Exception:

@@ -16,13 +16,13 @@ def paperclip_forward(r = 1.5, mirror = False):
     
     alpha = np.linspace(-np.pi/4, np.pi, 20)
     for i in range(np.shape(alpha)[0]):
-        point = np.array([r*np.cos(alpha[i]), r*np.sin(alpha[i])+np.pow(2, 0.5)*r])
+        point = np.array([r*np.cos(alpha[i]), r*np.sin(alpha[i])+2**0.5*r])
         path_points = np.vstack([path_points, point])
 
     path_points = path_points[:-1, :]
 
     for i in range(np.shape(t)[0]):
-        point = np.array([-r, np.pow(2, 0.5)*r- (2*np.pow(2, 0.5)*r+r)*t[i]])
+        point = np.array([-r, 2**0.5*r- (2*2**0.5*r+r)*t[i]])
         path_points = np.vstack([path_points, point])
     
     if mirror == True:
@@ -35,6 +35,8 @@ def paperclip_forward(r = 1.5, mirror = False):
     
     vel = np.ones([path_points.shape[0],1])
 
+    for i in range(vel.shape[0]):
+        vel[i] = -vel[i]
     
     return path_points, vel
 

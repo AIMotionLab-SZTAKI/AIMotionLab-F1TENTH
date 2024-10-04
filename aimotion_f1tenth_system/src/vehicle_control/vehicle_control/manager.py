@@ -41,9 +41,9 @@ class ControlManager(Node):
             controller = MPCC_Controller(vehicle_params= kwargs["vehicle_params"],
                                          MPCC_params= kwargs["MPCC_params"])
             self.controllers["MPCC"] = controller
-
+        if "MPCC_reverse_params" in kwargs:
             controller = MPCC_reverse_controller(vehicle_params= kwargs["vehicle_params"],
-                                         MPCC_params= kwargs["MPCC_params"], index = 2)
+                                         MPCC_params= kwargs["MPCC_reverse_params"], index = 2)
             self.controllers["MPCC_reverse"] = controller
 
 
@@ -136,6 +136,9 @@ class ControlManager(Node):
         # set MPCC parameters
         elif cmd == "MPCC_param_update":
             if "MPCC" in self.controllers.keys(): #Check for the MPCC controller
+                if self.active_controller != self.controllers["MPCC"] and self.active_controller != self.controllers["MPCC_reverse"]:
+                    return{"status": False, "error": "select MPCC controller"}
+                #TODO finish up
                 try:
                     old_params = self.controllers["MPCC"].MPCC_params 
                     self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
@@ -362,7 +365,7 @@ class ControlManager(Node):
         else:
             current_heading = self.current_state[2]
 
-        if abs(np.dot(current_pos-ref_pos, z0))>0.5 or abs(normalize(theta_p-normalize(current_heading)))>0.5:
+        if abs(np.dot(current_pos-ref_pos, z0))>0.5: #or abs(normalize(theta_p-normalize(current_heading)))>0.5 #TODO add 
             self.get_logger().warning("Too much deviation from trajectory reference, execution terminalted!")
             self.get_logger().info("Current position:   {0}, {1}".format(current_pos[0],current_pos[1]))
             self.get_logger().info("Reference position: {0}, {1}".format(ref_pos[0],ref_pos[1]))
@@ -371,7 +374,7 @@ class ControlManager(Node):
             self.get_logger().info("Lateral error:      {0},  Heading error: {1}".format(abs(np.dot(current_pos-ref_pos, z0)),
                                                                                          normalize(theta_p-normalize(current_heading))))
             return False, "Too much deviation from trajectory reference!"
-       
+
         if self.active_controller == None:
             self.active_controller = self.controllers["GP_LPV_LQR"]
             self.get_logger().info(f"No controller selected, defaulting to GP_LPV_LQR!") # TODO: this should not be hard coded
@@ -414,7 +417,6 @@ class ControlManager(Node):
             # publish the control input
                 self.pub.publish(InputValues(d = float(u[0]), delta = float(u[1])))
         
-            #print(f"e_lat: {errors[0]}, heading: {errors[1]}, position: {errors[2]}, q: {errors[4]}") #TODO: what should the MPCC return in error? 
     
         except Exception as e:
             self._logger.warning(str(e))

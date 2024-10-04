@@ -78,12 +78,40 @@ parameter_server:
         N: 15 #number of shooting nodes
         Tf: 0.75 #[s] time lenght of the opt. horizon
         #Cost weights:
-        q_con: 200.0
+        q_con: 60.0
         q_long: 200.0
         q_theta: 2.3
         q_d: 0.005
-        q_delta: 0.02
+        q_delta: 0.5
 
+      MPCC_reverse:
+        res_limit: 1000.0
+        freq_limit: 0
+        #Input constraints
+        delta_max: 0.6 # [rad]
+        d_max: 0.15 #maximum motor reference for driving forward
+        
+        d_min: 0.05       
+        opt_tol: 0.001
+        #Incremental input constraints        
+
+        ddot_max: 10000.0
+        deltadot_max: 10000.0
+        thetahatdot_min: 0.001
+        thetahatdot_max: 5
+
+        #Optimisation parameters:
+        max_QP_iter: 5
+        N: 15 #number of shooting nodes
+        Tf: 0.75 #[s] time lenght of the opt. horizon
+        #Cost weights:
+        q_con: 60.0
+        q_long: 150.0
+        q_theta: 1.2
+        q_d: 0.005
+        q_delta: 0.5
+
+        
       GP_LPV_LQR:
         GP_TYPE: "RLS_SGP" # GRAD_SGP, RLS_SGP
         FREQUENCY: 60.0
