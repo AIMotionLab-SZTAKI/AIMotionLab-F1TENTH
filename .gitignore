@@ -4,5 +4,5 @@ venv/
 /examples/logs
 .DS_Store
 logs/
-
+acados_c_generated/
 TRAILER_tutorial.md

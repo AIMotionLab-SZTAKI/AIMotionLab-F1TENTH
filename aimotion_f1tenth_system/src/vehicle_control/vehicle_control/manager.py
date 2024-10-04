@@ -8,6 +8,7 @@ from .utils import Controller, init_GP_LPV_LQR, CONTROLLER_MODE, Trajectory, sta
 from .controllers.utils import normalize, Controller
 from .TCPServer import TCPServer
 from .controllers.MPCC_controller import MPCC_Controller
+from .controllers.MPCC_reverse_controller import MPCC_reverse_controller
 
 class ControlManager(Node):
     def __init__(self, car_ID: str, TCP_params: dict, **kwargs):
@@ -40,6 +41,12 @@ class ControlManager(Node):
             controller = MPCC_Controller(vehicle_params= kwargs["vehicle_params"],
                                          MPCC_params= kwargs["MPCC_params"])
             self.controllers["MPCC"] = controller
+
+            controller = MPCC_reverse_controller(vehicle_params= kwargs["vehicle_params"],
+                                         MPCC_params= kwargs["MPCC_params"], index = 2)
+            self.controllers["MPCC_reverse"] = controller
+
+
             
         # declare controllers
         self.active_controller: Controller = None
@@ -102,17 +109,17 @@ class ControlManager(Node):
         # get current solution through the horizon
         elif cmd == "MPCC_get_current_horizon":
             try:
-                if self.active_controller != self.controllers["MPCC"]: #MPCC isn't the current active controller
+                if self.active_controller != self.controllers["MPCC"] and self.active_controller != self.controllers["MPCC_reverse"]: #MPCC isn't the current active controller
                     raise Exception(f"MPCC controller inactive!") 
                 
-                if self.controllers["MPCC"].ocp_solver == None: #No solver found-> trajectory hasn't been set
+                if self.active_controller.ocp_solver == None: #No solver found-> trajectory hasn't been set
                     raise Exception("Trajectory execution hasn't been started!")
                 
 
                 
-                states = np.reshape(self.controllers["MPCC"].ocp_solver.get(0, 'x'), (-1,1))
-                for i in range(self.controllers["MPCC"].MPCC_params["N"]-1):
-                    x = self.controllers["MPCC"].ocp_solver.get(i+1, 'x')
+                states = np.reshape(self.active_controller.ocp_solver.get(0, 'x'), (-1,1))
+                for i in range(self.active_controller.MPCC_params["N"]-1):
+                    x = self.active_controller.ocp_solver.get(i+1, 'x')
                     x = np.reshape(x, (-1,1))
                     states = np.append(states, x, axis=1)
                 return {"status": True, "states": states.tolist()} #If no error occured send back the state vectors converted to a list
@@ -133,11 +140,14 @@ class ControlManager(Node):
                     old_params = self.controllers["MPCC"].MPCC_params 
                     self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
                     self.controllers["MPCC"].load_parameters()
-
+                    self.controllers["MPCC_reverse"].MPCC_params = message["MPCC_params"]
+                    self.controllers["MPCC_reverse"].load_parameters()
                     return {"status": True, "params:": message["MPCC_params"]}
                 except Exception as e:
                     self.controllers["MPCC"].MPCC_params = old_params
                     self.controllers["MPCC"].load_parameters()
+                    self.controllers["MPCC_reverse"].MPCC_params = old_params
+                    self.controllers["MPCC_reverse"].load_parameters()
                     return {"status": False, "error": e}
             else:
                 return {"status": False, "error": "MPCC controller not available"}
@@ -324,12 +334,12 @@ class ControlManager(Node):
                                                trajectory["reversed"])
 
 
-        if self.active_controller == self.controllers["MPCC"]:
+        if self.active_controller == self.controllers["MPCC"] or self.active_controller == self.controllers["MPCC_reverse"]:
             x0 = self.current_state
-            x0[3] = 0.01 #To calculate the initial guess the car has to be moving
             x0[5] = 0.0
             x0[4] = 0.0 
  
+            
             self.active_controller.set_trajectory(pos_tck = trajectory["pos_tck"],
                                                     evol_tck = trajectory["evol_tck"],
                                                     x0 = x0,
