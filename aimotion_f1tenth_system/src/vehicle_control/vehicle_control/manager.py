@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import threading
 from .utils import Controller, init_GP_LPV_LQR, CONTROLLER_MODE, Trajectory, state2array, StateLogger
-from .controllers.utils import normalize, Controller
+from .controllers.utils import normalize, Controller, Base_MPCC_Controller
 from .TCPServer import TCPServer
 from .controllers.MPCC_controller import MPCC_Controller
 from .controllers.MPCC_reverse_controller import MPCC_reverse_controller
@@ -23,7 +23,7 @@ class ControlManager(Node):
         self.car_ID : str = car_ID
         self.controllers : dict[Controller] = {}
         self.MODE = CONTROLLER_MODE.PROCESSING
-
+        self.t0 = 0
         # setup tcp server for communication
         self.TCP_server = TCPServer(TCP_params["host"], TCP_params["port"], self._TCP_callback)
         self.TCP_thread = threading.Thread(target=self.TCP_server.start)
@@ -104,56 +104,68 @@ class ControlManager(Node):
         elif cmd == "get_controllers":
             controllers = list(self.controllers.keys())
             return {"status": True, "controllers": controllers}
-
-    
-        # get current solution through the horizon
-        elif cmd == "MPCC_get_current_horizon":
+ 
+        #set_trajectory
+        elif cmd == "set_trajectory":
+            if self.active_controller == None or self.active_controller != self.controllers["MPCC"] and self.active_controller != self.controllers["MPCC_reverse"]:
+                return {"status":False, "error": "No controller selected"}
+            pos_tck = message["trajectory"]["pos_tck"]
+            evol_tck = message["trajectory"]["evol_tck"]
+            self.current_trajectory.set_trajectory(pos_tck = pos_tck,
+                                               evol_tck= evol_tck,
+                                               reversed=reversed)
+            generate_solver= False #default value, no solver generation
+            if "optional" in message.keys():
+                if "generate_solver" in message["optional"].keys():
+                    generate_solver = message["optional"]["generate_solver"]
+            self.active_controller : Base_MPCC_Controller
             try:
-                if self.active_controller != self.controllers["MPCC"] and self.active_controller != self.controllers["MPCC_reverse"]: #MPCC isn't the current active controller
-                    raise Exception(f"MPCC controller inactive!") 
-                
-                if self.active_controller.ocp_solver == None: #No solver found-> trajectory hasn't been set
-                    raise Exception("Trajectory execution hasn't been started!")
-                
-
-                
-                states = np.reshape(self.active_controller.ocp_solver.get(0, 'x'), (-1,1))
-                for i in range(self.active_controller.MPCC_params["N"]-1):
-                    x = self.active_controller.ocp_solver.get(i+1, 'x')
-                    x = np.reshape(x, (-1,1))
-                    states = np.append(states, x, axis=1)
-                return {"status": True, "states": states.tolist()} #If no error occured send back the state vectors converted to a list
+                self.active_controller.set_trajectory(pos_tck= pos_tck, evol_tck= evol_tck, generate_solver= generate_solver)
             except Exception as e:
                 return {"status": False, "error": e}
- 
-        # set MPCC parameters
-        elif cmd == "MPCC_param_get":
+            return {"status": True, "error": ""}
+            
+        elif cmd == "start_controller":
+            if self.active_controller == None or self.active_controller != self.controllers["MPCC"] and self.active_controller != self.controllers["MPCC_reverse"]:
+                return {"status":False, "error": "No controller selected"}
+            self.active_controller: MPCC_Controller
             try:
-                return {"status": True, "MPCC_params": self.controllers["MPCC"].MPCC_params}
+                self.active_controller.init_controller(self.current_state)
             except Exception as e:
                 return {"status": False, "error": e}
             
+            self.t0 = self._get_time()
+            self.MODE = CONTROLLER_MODE.RUNNING
+            return {"status": True, "error": ""}
+
+        elif cmd == "generate_solver":
+            if self.active_controller == None or self.active_controller != self.controllers["MPCC"] and self.active_controller != self.controllers["MPCC_reverse"]:
+                return {"status":False, "error": "No controller selected"}
+            
+            self.active_controller: MPCC_Controller
+            try:
+                self.active_controller.generate_solver(self.current_state)
+            except Exception as e:
+                return {"status": False, "error": e}
+            return {"status": True, "error": ""}
+
+
         # set MPCC parameters
-        elif cmd == "MPCC_param_update":
-            if "MPCC" in self.controllers.keys(): #Check for the MPCC controller
-                if self.active_controller != self.controllers["MPCC"] and self.active_controller != self.controllers["MPCC_reverse"]:
-                    return{"status": False, "error": "select MPCC controller"}
-                #TODO finish up
+        elif cmd == "set_controller_params":
+            #Receive parameters for multiple controllers in one dictionary and set the parameters individually
+            
+            status = False
+
+            error_list = ""
+            controller_parameters : dict = message["controller_params"] 
+            for controller_name in controller_parameters.keys():
                 try:
-                    old_params = self.controllers["MPCC"].MPCC_params 
-                    self.controllers["MPCC"].MPCC_params = message["MPCC_params"]
-                    self.controllers["MPCC"].load_parameters()
-                    self.controllers["MPCC_reverse"].MPCC_params = message["MPCC_params"]
-                    self.controllers["MPCC_reverse"].load_parameters()
-                    return {"status": True, "params:": message["MPCC_params"]}
+                    self.controllers[controller_name].set_parameters(controller_parameters[controller_name])
+                    status = True                
                 except Exception as e:
-                    self.controllers["MPCC"].MPCC_params = old_params
-                    self.controllers["MPCC"].load_parameters()
-                    self.controllers["MPCC_reverse"].MPCC_params = old_params
-                    self.controllers["MPCC_reverse"].load_parameters()
-                    return {"status": False, "error": e}
-            else:
-                return {"status": False, "error": "MPCC controller not available"}
+                    error_list += e + "\n"
+            
+            return {"status": status, "error": error_list}
         
         # mode selection
         elif cmd == "set_mode":
@@ -342,12 +354,12 @@ class ControlManager(Node):
             x0[5] = 0.0
             x0[4] = 0.0 
  
+            self.active_controller : Base_MPCC_Controller
             
             self.active_controller.set_trajectory(pos_tck = trajectory["pos_tck"],
                                                     evol_tck = trajectory["evol_tck"],
-                                                    x0 = x0,
-                                                    theta_start = 0.05) #The class will convert the tck into its own trajectory format
-
+                                                    generate_solver= True) #The class will convert the tck into its own trajectory format
+            self.active_controller.init_controller()
 
         # check if the trajectory is valid
         setpoint = self.current_trajectory.evaluate(self.current_state, 0)
@@ -404,10 +416,7 @@ class ControlManager(Node):
         
         setpoint = self.current_trajectory.evaluate(self.current_state, t)
     
-        # check if the goal is reached
-        if not setpoint["running"]:
-            self._stop()
-            return
+    
         try:
             u, errors, finished = self.active_controller.compute_control(self.current_state, setpoint)
             if finished:

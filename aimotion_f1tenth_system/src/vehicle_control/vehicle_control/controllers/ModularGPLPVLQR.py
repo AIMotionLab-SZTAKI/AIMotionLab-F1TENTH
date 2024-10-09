@@ -458,3 +458,7 @@ class ModularGPLPVLQR(Controller):
     
     def set_trajectory(self, *args, **kwargs):
         raise NotImplementedError("")
+    
+
+    def set_parameters(self, parameters: dict):
+        raise NotImplementedError("")

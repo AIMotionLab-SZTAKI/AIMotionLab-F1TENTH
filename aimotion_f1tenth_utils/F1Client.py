@@ -96,31 +96,13 @@ class F1Client:
         return res["state"]
 
 
-    def get_MPCC_horizon(self):
-        """Get current solution through the optimization horizon
-        :return: states"""
+    def set_controller_parameters(self, params: dict):
+        """Set controller parameters. 
+        Args:
+            params(dict): a dictionary containing the parameters for the controllers. **Format {controller_name:controller_params(dict)}**
+        """
         
-        res = self.client.send({"command": "MPCC_get_current_horizon"})
-
-        
-        if res["status"] == False:
-            raise Exception(f"Could not get current solution horizon {res['error']}")
-        return res["states"]
-
-    def get_MPCC_params(self)->dict:
-        """Get the current parameter list of the acados optimiser.
-        :type: dict
-        :return: Current parameter dict"""
-        res = self.client.send({"command": "MPCC_param_get"})
-        if res["status"] == False:
-            raise Exception(f"Could not get the current parameters: {res['error']}")
-        return res['MPCC_params']
-
-    def set_MPCC_params(self, params: dict):
-        """Set the parameters for the acados and casadi solvers.
-        :param params: A dictionary of the parameters"""
-        
-        res = self.client.send({"command": "MPCC_param_update", "MPCC_params": params})
+        res = self.client.send({"command": "set_controller_params", "controller_params": params})
 
         if res["status"] == False:
             raise Exception(f"Could not set parameters: {res['error']}")
@@ -222,6 +204,43 @@ class F1Client:
                 raise Exception(f"Could not set manual control: {res['error']}")
         
         pygame.quit()
+
+    def set_trajectory(self, trajectory:Trajectory, generate_solver= False)->None:
+        """Set reference trajectory. *Optinaly* generate the ocp solver for the MPCC controller
+        Args:
+            trajectory(Trajectory): Trajectory
+            generate_solver(bool): generate ocp solver"""
+        message = {"command": "set_trajectory",
+                   "trajectory":{
+                       "pos_tck": trajectory.pos_tck,
+                        "evol_tck": trajectory.evol_tck,
+                        "reversed": trajectory.reversed},
+                    "optional": {
+                        "generate_solver": generate_solver
+                    }}
+        res = self.client.send(message=message)
+
+        if res["status"] == False:
+            raise Exception(f"Could not set trajectory: {res['error']}")
+        
+
+    def start_controller(self):
+        """Start MPCC controller"""
+        message = {"command": "start_controller"}
+        res = self.client.send(message=message)
+
+        if res["status"] == False:
+            raise Exception(f"Could not start controller: {res['error']}")
+
+    def generate_solver(self):
+        """Generate ocp solver"""
+
+        message = {"command": "generate_solver"}
+        res= self.client.send(message)
+
+        if res["status"] == False:
+            raise Exception(f"Could not initialize controller: {res['error']}")
+            
 
     def execute_trajectory(self, trajectory: Trajectory) -> None:
         """Execute a trajectory on the vehicle

@@ -1,0 +1,136 @@
+Detecting C compiler ABI info failed to compile with the following output:
+Change Dir: /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/ninja cmTC_e5a79 && [1/2] Building C object CMakeFiles/cmTC_e5a79.dir/CMakeCCompilerABI.c.o
+Using built-in specs.
+COLLECT_GCC=gcc.exe
+Target: x86_64-w64-mingw32
+Configured with: ../../../src/gcc-8.3.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --enable-shared --enable-static --disable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-libstdcxx-filesystem-ts=yes --disable-libstdcxx-pch --disable-libstdcxx-debug --disable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch=nocona --with-tune=core2 --with-libiconv --with-system-zlib --with-gmp=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-mpc=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-isl=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-seh, Built by strawberryperl.com project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/lib -L/opt/build/prerequisites/x86_64-zlib-static/lib -L/opt/build/prerequisites/x86_64-w64-mingw32-static/lib ' LD_FOR_TARGET=/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/bin/ld.exe
+Thread model: posix
+gcc version 8.3.0 (x86_64-posix-seh, Built by strawberryperl.com project) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_e5a79.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=core2' '-march=nocona'
+ C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/cc1.exe -quiet -v -iprefix C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/ -D_REENTRANT /usr/share/cmake-3.22/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mtune=core2 -march=nocona -auxbase-strip CMakeFiles/cmTC_e5a79.dir/CMakeCCompilerABI.c.o -version -o C:\Users\Bodlaire\AppData\Local\Temp\ccsPXNjy.s
+GNU C17 (x86_64-posix-seh, Built by strawberryperl.com project) version 8.3.0 (x86_64-w64-mingw32)
+	compiled by GNU C version 7.2.0, GMP version 6.1.2, MPFR version 4.0.2, MPC version 1.1.0, isl version isl-0.20-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/include"
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include"
+ignoring nonexistent directory "/mingw64/include"
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/include-fixed"
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/include"
+ignoring nonexistent directory ""
+#include "..." search starts here:
+#include <...> search starts here:
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include-fixed
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/include
+End of search list.
+GNU C17 (x86_64-posix-seh, Built by strawberryperl.com project) version 8.3.0 (x86_64-w64-mingw32)
+	compiled by GNU C version 7.2.0, GMP version 6.1.2, MPFR version 4.0.2, MPC version 1.1.0, isl version isl-0.20-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: 2b2b8fc336591179420b9cc1b35fa6e5
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_e5a79.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=core2' '-march=nocona'
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/bin/as.exe -v -o CMakeFiles/cmTC_e5a79.dir/CMakeCCompilerABI.c.o C:\Users\Bodlaire\AppData\Local\Temp\ccsPXNjy.s
+GNU assembler version 2.32 (x86_64-w64-mingw32) using BFD version (GNU Binutils) 2.32
+COMPILER_PATH=C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/;C:/Strawberry/c/bin/../libexec/gcc/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/bin/
+LIBRARY_PATH=C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/;C:/Strawberry/c/bin/../lib/gcc/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/../lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_e5a79.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=core2' '-march=nocona'
+[2/2] Linking C executable cmTC_e5a79
+Using built-in specs.
+COLLECT_GCC=gcc.exe
+COLLECT_LTO_WRAPPER=C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/lto-wrapper.exe
+Target: x86_64-w64-mingw32
+Configured with: ../../../src/gcc-8.3.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --enable-shared --enable-static --disable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-libstdcxx-filesystem-ts=yes --disable-libstdcxx-pch --disable-libstdcxx-debug --disable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch=nocona --with-tune=core2 --with-libiconv --with-system-zlib --with-gmp=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-mpc=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-isl=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-seh, Built by strawberryperl.com project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/lib -L/opt/build/prerequisites/x86_64-zlib-static/lib -L/opt/build/prerequisites/x86_64-w64-mingw32-static/lib ' LD_FOR_TARGET=/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/bin/ld.exe
+Thread model: posix
+gcc version 8.3.0 (x86_64-posix-seh, Built by strawberryperl.com project) 
+COMPILER_PATH=C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/;C:/Strawberry/c/bin/../libexec/gcc/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/bin/
+LIBRARY_PATH=C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/;C:/Strawberry/c/bin/../lib/gcc/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/../lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_e5a79.exe' '-mtune=core2' '-march=nocona'
+ C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/collect2.exe -plugin C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/liblto_plugin-0.dll -plugin-opt=C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/lto-wrapper.exe -plugin-opt=-fresolution=C:\Users\Bodlaire\AppData\Local\Temp\ccoLLkQF.res -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_eh -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-ladvapi32 -plugin-opt=-pass-through=-lshell32 -plugin-opt=-pass-through=-luser32 -plugin-opt=-pass-through=-lkernel32 -plugin-opt=-pass-through=-liconv -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_eh -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -m i386pep -Bdynamic -o cmTC_e5a79.exe C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/../lib/crt2.o C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/crtbegin.o -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0 -LC:/Strawberry/c/bin/../lib/gcc -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/../lib -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../lib -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../.. CMakeFiles/cmTC_e5a79.dir/CMakeCCompilerABI.c.o -lmingw32 -lgcc -lgcc_eh -lmoldname -lmingwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -liconv -lmingw32 -lgcc -lgcc_eh -lmoldname -lmingwex -lmsvcrt C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/crtend.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_e5a79.exe' '-mtune=core2' '-march=nocona'
+
+
+Cannot copy output executable
+  ''
+to destination specified by COPY_FILE:
+  '/home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/3.22.1/CMakeDetermineCompilerABI_C.bin'
+Unable to find the executable at any of:
+  /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp/cmTC_e5a79
+  /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp/Debug/cmTC_e5a79
+  /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp/Development/cmTC_e5a79
+
+
+Detecting CXX compiler ABI info failed to compile with the following output:
+Change Dir: /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/ninja cmTC_f9381 && [1/2] Building CXX object CMakeFiles/cmTC_f9381.dir/CMakeCXXCompilerABI.cpp.o
+Using built-in specs.
+COLLECT_GCC=g++.exe
+Target: x86_64-w64-mingw32
+Configured with: ../../../src/gcc-8.3.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --enable-shared --enable-static --disable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-libstdcxx-filesystem-ts=yes --disable-libstdcxx-pch --disable-libstdcxx-debug --disable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch=nocona --with-tune=core2 --with-libiconv --with-system-zlib --with-gmp=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-mpc=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-isl=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-seh, Built by strawberryperl.com project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/lib -L/opt/build/prerequisites/x86_64-zlib-static/lib -L/opt/build/prerequisites/x86_64-w64-mingw32-static/lib ' LD_FOR_TARGET=/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/bin/ld.exe
+Thread model: posix
+gcc version 8.3.0 (x86_64-posix-seh, Built by strawberryperl.com project) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f9381.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+ C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/cc1plus.exe -quiet -v -iprefix C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/ -D_REENTRANT /usr/share/cmake-3.22/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mtune=core2 -march=nocona -auxbase-strip CMakeFiles/cmTC_f9381.dir/CMakeCXXCompilerABI.cpp.o -version -o C:\Users\Bodlaire\AppData\Local\Temp\ccmQgRLa.s
+GNU C++14 (x86_64-posix-seh, Built by strawberryperl.com project) version 8.3.0 (x86_64-w64-mingw32)
+	compiled by GNU C version 7.2.0, GMP version 6.1.2, MPFR version 4.0.2, MPC version 1.1.0, isl version isl-0.20-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/include/c++"
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/include/c++/x86_64-w64-mingw32"
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/include/c++/backward"
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/include"
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include"
+ignoring nonexistent directory "/mingw64/include"
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/include-fixed"
+ignoring duplicate directory "C:/Strawberry/c/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/include"
+ignoring nonexistent directory ""
+#include "..." search starts here:
+#include <...> search starts here:
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include/c++
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include/c++/x86_64-w64-mingw32
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include/c++/backward
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include-fixed
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/include
+End of search list.
+GNU C++14 (x86_64-posix-seh, Built by strawberryperl.com project) version 8.3.0 (x86_64-w64-mingw32)
+	compiled by GNU C version 7.2.0, GMP version 6.1.2, MPFR version 4.0.2, MPC version 1.1.0, isl version isl-0.20-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: 157a953f7baac8915a5d933dc02b85b9
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f9381.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+ C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/bin/as.exe -v -o CMakeFiles/cmTC_f9381.dir/CMakeCXXCompilerABI.cpp.o C:\Users\Bodlaire\AppData\Local\Temp\ccmQgRLa.s
+GNU assembler version 2.32 (x86_64-w64-mingw32) using BFD version (GNU Binutils) 2.32
+COMPILER_PATH=C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/;C:/Strawberry/c/bin/../libexec/gcc/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/bin/
+LIBRARY_PATH=C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/;C:/Strawberry/c/bin/../lib/gcc/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/../lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f9381.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+[2/2] Linking CXX executable cmTC_f9381
+Using built-in specs.
+COLLECT_GCC=g++.exe
+COLLECT_LTO_WRAPPER=C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/lto-wrapper.exe
+Target: x86_64-w64-mingw32
+Configured with: ../../../src/gcc-8.3.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --enable-shared --enable-static --disable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-libstdcxx-filesystem-ts=yes --disable-libstdcxx-pch --disable-libstdcxx-debug --disable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch=nocona --with-tune=core2 --with-libiconv --with-system-zlib --with-gmp=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-mpc=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-isl=/opt/build/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-seh, Built by strawberryperl.com project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/include -I/opt/build/prerequisites/x86_64-zlib-static/include -I/opt/build/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/opt/lib -L/opt/build/prerequisites/x86_64-zlib-static/lib -L/opt/build/prerequisites/x86_64-w64-mingw32-static/lib ' LD_FOR_TARGET=/opt/build/x86_64-830-posix-seh-rt_v6/mingw64/bin/ld.exe
+Thread model: posix
+gcc version 8.3.0 (x86_64-posix-seh, Built by strawberryperl.com project) 
+COMPILER_PATH=C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/;C:/Strawberry/c/bin/../libexec/gcc/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/bin/
+LIBRARY_PATH=C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/;C:/Strawberry/c/bin/../lib/gcc/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/../lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/;C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f9381.exe' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+ C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/collect2.exe -plugin C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/liblto_plugin-0.dll -plugin-opt=C:/Strawberry/c/bin/../libexec/gcc/x86_64-w64-mingw32/8.3.0/lto-wrapper.exe -plugin-opt=-fresolution=C:\Users\Bodlaire\AppData\Local\Temp\ccCkX8Se.res -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-ladvapi32 -plugin-opt=-pass-through=-lshell32 -plugin-opt=-pass-through=-luser32 -plugin-opt=-pass-through=-lkernel32 -plugin-opt=-pass-through=-liconv -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -m i386pep -Bdynamic -o cmTC_f9381.exe C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/../lib/crt2.o C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/crtbegin.o -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0 -LC:/Strawberry/c/bin/../lib/gcc -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib/../lib -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../lib -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/lib -LC:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../.. CMakeFiles/cmTC_f9381.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -liconv -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt C:/Strawberry/c/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/crtend.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f9381.exe' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+
+
+Cannot copy output executable
+  ''
+to destination specified by COPY_FILE:
+  '/home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/3.22.1/CMakeDetermineCompilerABI_CXX.bin'
+Unable to find the executable at any of:
+  /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp/cmTC_f9381
+  /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp/Debug/cmTC_f9381
+  /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp/Development/cmTC_f9381
+
+

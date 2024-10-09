@@ -1,0 +1,43 @@
+The system is: Linux - 5.15.153.1-microsoft-standard-WSL2 - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /mnt/c/Strawberry/c/bin/gcc.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.exe"
+
+The C compiler identification is GNU, found in "/home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/3.22.1/CompilerIdC/a.exe"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /mnt/c/Strawberry/c/bin/g++.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.exe"
+
+The CXX compiler identification is GNU, found in "/home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/3.22.1/CompilerIdCXX/a.exe"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/ninja cmTC_15a3b && [1/2] Building C object CMakeFiles/cmTC_15a3b.dir/testCCompiler.c.o
+[2/2] Linking C executable cmTC_15a3b
+
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/bodlaire/AIMotionLab-F1TENTH/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/ninja cmTC_e504f && [1/2] Building CXX object CMakeFiles/cmTC_e504f.dir/testCXXCompiler.cxx.o
+[2/2] Linking CXX executable cmTC_e504f
+
+
+

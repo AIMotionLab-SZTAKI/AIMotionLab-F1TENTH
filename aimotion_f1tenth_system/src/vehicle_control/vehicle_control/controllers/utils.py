@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 import numpy as np
-
 class Controller(ABC):
     @abstractmethod
     def compute_control(self, state: np.ndarray, setpoint: dict, t:float) -> np.ndarray:
@@ -16,6 +15,74 @@ class Controller(ABC):
     
     @abstractmethod
     def reset(self):
+        pass
+
+    @abstractmethod
+    def set_parameters(self, parameters: dict):
+        """
+        Set controller parameters. 
+        Args:
+            parameters(dict): Parameters
+        """
+        pass
+
+
+class Base_MPCC_Controller(ABC):
+
+    @abstractmethod
+    def compute_control(self, state: np.ndarray, setpoint: dict, t:float) -> np.ndarray:
+        pass
+
+    @abstractmethod
+    def set_trajectory(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def train_GP_controllers(self, *args, **kwargs):
+        pass
+    
+    @abstractmethod
+    def reset(self):
+        pass
+
+    @abstractmethod
+    def set_parameters(self, parameters: dict):
+        """
+        Set controller parameters. 
+        Args:
+            parameters(dict): Parameters
+        """
+        pass
+
+    @abstractmethod
+    def set_trajectory(self, pos_tck, evol_tck, generate_solver = True):
+        """
+        Evaluete the reference spline from the given spline tck, and convert it into a Spline2D instance.
+        Args:
+            pos_tck(np.array): position spline
+            evol_tck(np.array): reference progress spline
+            generate_solver(bool): generate ocp solver
+        """
+        pass
+
+    @abstractmethod
+    def init_controller(self, x0):
+        """
+        Initialize the Acados SQP solver by solving the optimization problem with Casadi IPOPT
+        Args:
+            x0(np.array): Initial position of CoM
+        """
+
+        pass
+
+    @abstractmethod
+    def generate_solver(self, pos_tck = None, evol_tck = None, x0 = None):
+        """Create ocp solver
+        Args:
+            pos_tck(np.array): *optional* position spline
+            evol_tck(np.array): *optional* reference progress spline
+            x0(np.array): *optinal* starting state
+        """
         pass
 
 

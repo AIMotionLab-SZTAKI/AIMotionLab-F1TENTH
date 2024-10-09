@@ -2,6 +2,7 @@ import os
 from aimotion_f1tenth_utils.F1Client import F1Client
 from aimotion_f1tenth_utils.utils import CONTROLLER_MODE
 from trajectory_generators import null_infty, eight, null_paperclip, train8
+from complex_trajectories import paperclip_forward, paperclip_backward
 from aimotion_f1tenth_utils.Trajectory import Trajectory
 import matplotlib as mpl
 import os
@@ -12,17 +13,6 @@ import pickle
 import yaml
 
 mpl.rcParams["text.usetex"] = False 
-
-# Design / load the trajectory
-
-#traj_ID = "traj_1"
-#traj = Trajectory("traj1")
-#points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
-#traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
-##traj.load("paperclip.traj")
-#traj.plot_trajectory()
-#path, v = null_paperclip()
-##traj.plot_trajectory()
 
 
 parent_dir = os.path.dirname(os.path.dirname(__file__))
@@ -35,7 +25,7 @@ traj.load(traj_file)
 points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
 #traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
 
-path, v = null_paperclip()
+path, v = null_infty()
 traj.build_from_waypoints(path, v, 0, 5)
 
 
@@ -59,21 +49,11 @@ with open(file_name) as f:
 
     MPCC_params = full_params["parameter_server"]["ros__parameters"]["controllers"]["MPCC"]
 
-
-car_1.set_MPCC_params(MPCC_params)
-# select the controller
-car_1.select_controller("MPCC")
-#car_1.reinit_GP_LPV_LQR(vehicle_params=vehicle_params, GP_LPV_LQR_params=GP_LPV_LQR_params)
 car_1.reset_state_logger()
-#car_1.GP_reset()
-#car_1.GP_to_online()
-
-car_1.set_mode(CONTROLLER_MODE.IDLE)
-#car_1.reset_controller()
-#car_1.reset_state_logger()
-
-# execute_trajectory
-car_1.execute_trajectory(trajectory=traj)
+car_1.select_controller("MPCC")
+car_1.set_controller_parameters({"MPCC": MPCC_params})
+car_1.set_trajectory(trajectory=traj, generate_solver= True)
+car_1.start_controller()
 
 # block the script until the execution is finished
 car_1.wait_while_running()

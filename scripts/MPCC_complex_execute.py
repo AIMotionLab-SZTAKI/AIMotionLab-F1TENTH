@@ -14,17 +14,20 @@ import yaml
 
 mpl.rcParams["text.usetex"] = False 
 
+
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
 traj_name = "paperclip.traj"
 traj_file = os.path.join(parent_dir, "trajectories", traj_name)
 traj = Trajectory("traj_1")
 
+traj.load(traj_file)
+points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
 #traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
 
-#path, v = paperclip_backward(r = 1.1)
-path, v = null_infty()
-traj.build_from_waypoints(path, v, 0.001, 5)
+path, v = paperclip_forward(r = 1.1)
+traj.build_from_waypoints(path, v, 0, 5)
+
 
 traj.plot_trajectory()
 
@@ -44,29 +47,29 @@ file_name = os.path.join(parent_dir, "configs/JoeBush1.yaml")
 with open(file_name) as f:
     full_params = yaml.full_load(f)
 
+    MPCC_params = full_params["parameter_server"]["ros__parameters"]["controllers"]["MPCC"]
     MPCC_reverse_params = full_params["parameter_server"]["ros__parameters"]["controllers"]["MPCC_reverse"]
-
-
-
-# select the controller
 car_1.reset_state_logger()
 car_1.select_controller("MPCC_reverse")
-car_1.set_controller_parameters({"MPCC_reverse": MPCC_reverse_params})
+car_1.set_controller_parameters({"MPCC": MPCC_params, "MPCC_reverse":MPCC_reverse_params})
 car_1.set_trajectory(trajectory=traj, generate_solver= True)
 car_1.start_controller()
-#car_1.reinit_GP_LPV_LQR(vehicle_params=vehicle_params, GP_LPV_LQR_params=GP_LPV_LQR_params)
-#car_1.GP_reset()
-#car_1.GP_to_online()
-
-#car_1.set_mode(CONTROLLER_MODE.IDLE)
-#car_1.reset_controller()
-#car_1.reset_state_logger()
-
-# execute_trajectory
 
 # block the script until the execution is finished
 car_1.wait_while_running()
 
+#Reversing
+input("Press enter to start reverse execution")
+
+car_1.select_controller("MPCC")
+path, v = paperclip_backward(r = 1.1)
+traj.build_from_waypoints(path, v, 0, 5)
+car_1.set_trajectory(trajectory=traj, generate_solver= True)
+car_1.start_controller()
+
+
+
+#Plotting results
 states1, inputs1, c1, errors1 = car_1.get_logs() #errors1: {"contouring": lat_error, "heading": theta, "long": long_error, "velocity": computing_time}
 
 
@@ -100,13 +103,13 @@ fig, axs = plt.subplots(2,1, figsize = (10,6))
 axs[0].title.set_text("Computing time histogram")
 try:
     axs[0].hist(errors1[:,3]*1000)
-    axs[0].axvline(x = MPCC_reverse_params["Tf"]/MPCC_reverse_params["N"]*1000, color = 'r', label = 'sampling time [ms]')
+    axs[0].axvline(x = MPCC_params["Tf"]/MPCC_params["N"]*1000, color = 'r', label = 'sampling time [ms]')
     axs[0].set_ylabel("Iteration [-]")
     axs[0].set_xlabel("Computing time [ms]")
     axs[0].legend()
 
     axs[1].plot(np.arange(np.shape(errors1[:,3])[0]), errors1[:,3]*1000)
-    axs[1].axhline(y = MPCC_reverse_params["Tf"]/MPCC_reverse_params["N"]*1000, color = 'r', label = 'sampling time [ms]')
+    axs[1].axhline(y = MPCC_params["Tf"]/MPCC_params["N"]*1000, color = 'r', label = 'sampling time [ms]')
     axs[1].set_ylabel("Computing time [ms]")
     axs[1].set_xlabel("Iteration [-]")
     axs[1].legend()
