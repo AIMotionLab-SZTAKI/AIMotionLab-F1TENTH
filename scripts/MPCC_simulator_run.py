@@ -1,6 +1,7 @@
 from aimotion_f1tenth_system.src.vehicle_control.vehicle_control.controllers.MPCC_controller import MPCC_Controller
 from aimotion_f1tenth_utils.Trajectory import Trajectory
 from aimotion_f1tenth_system.src.vehicle_control.vehicle_control.MPCC.trajectory import Spline_2D
+from F1TENTH_sim import F1TENTH_sim
 import yaml
 import os
 import time
@@ -29,7 +30,7 @@ MOTOR_LIMIT = args["drive_bridge"]["MOTOR_LIMIT"]
 
 controller = MPCC_Controller(vehicle_params= args["vehicle_params"], mute = True, MPCC_params= args["MPCC_params"])
 
-
+simulator = F1TENTH_sim(vehicle_params= args["vehicle_params"])
 
 #Silverstone trajectory
 
@@ -67,14 +68,14 @@ phi = 0.84 #normal
 #phi = -2.87969 #Spielberg
 
 #phi =1.19 #Silverstone
-x0 = np.array([x,y-0.1,phi*1.1, 0, 0.0,0.0])
+x0 = np.array([x,y,phi, 0, 0.0,0.0])
 
 
 controller.set_trajectory(pos_tck = traj.pos_tck,
                         evol_tck = traj.evol_tck,
-                        x0 = x0,
-                        theta_start = theta_start) #The class will convert the tck into its own trajectory format
+                        generate_solver=True) #The class will convert the tck into its own trajectory format
 
+controller.init_controller(x0=x0)
 
 #print(controller.trajectory.get_path_parameters_ang(theta_start))
 #input("Press enter to start sim")
@@ -84,7 +85,6 @@ Tf = args["MPCC_params"]["Tf"]
 N = args["MPCC_params"]["N"]
 
 dt = Tf/N
-dt = 1/args["crazy_observer"]["FREQUENCY"]
 #input("Press enter to run sim")
 x_sim = np.array(np.reshape(x0, (-1,1)))
 
@@ -111,14 +111,11 @@ plotter.show()
 for i in range(iteration):
     u, error, finished = controller.compute_control(x0=x0)
 
-    if u[0] > MOTOR_LIMIT: #Limit the output to the drivebridge limit
-        u[0] = MOTOR_LIMIT  
-
 
     c_t = np.append(c_t, controller.c_t)
     
     
-    x0,t= controller.simulate(x0, u, dt)
+    x0,t= simulator.simulate(x0, u, dt)
 
     #Simulating noise: 
     #x0[3] = x0[3]*np.random.normal(1,0.05)

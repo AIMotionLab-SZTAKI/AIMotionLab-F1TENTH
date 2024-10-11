@@ -426,7 +426,7 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
         f1tenth_bicycle_model_acados_update_time_steps(capsule, N, new_time_steps);
     }
     else
-    {double time_step = 0.05;
+    {double time_step = 0.025;
         for (int i = 0; i < N; i++)
         {
             ocp_nlp_in_set(nlp_config, nlp_dims, nlp_in, i, "Ts", &time_step);
@@ -505,18 +505,8 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
     double* lbx0 = lubx0;
     double* ubx0 = lubx0 + NBX0;
     // change only the non-zero elements:
-    lbx0[0] = 0.1284983736189656;
-    ubx0[0] = 0.1284983736189656;
-    lbx0[1] = 0.0521679569012628;
-    ubx0[1] = 0.0521679569012628;
-    lbx0[2] = 0.924;
-    ubx0[2] = 0.924;
-    lbx0[3] = 0.1;
-    ubx0[3] = 0.1;
-    lbx0[6] = 0.03076956665889957;
-    ubx0[6] = 0.03076956665889957;
-    lbx0[7] = 0.3;
-    ubx0[7] = 0.3;
+    lbx0[7] = 0.25;
+    ubx0[7] = 0.25;
 
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "idxbx", idxbx0);
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "lbx", lbx0);
@@ -607,9 +597,9 @@ void f1tenth_bicycle_model_acados_create_5_set_nlp_in(f1tenth_bicycle_model_solv
     double* lbx = lubx;
     double* ubx = lubx + NBX;
     
-    ubx[0] = 30.073091438737023;
+    ubx[0] = 33.641039465463834;
     lbx[1] = 0.08;
-    ubx[1] = 0.3;
+    ubx[1] = 0.25;
     lbx[2] = -0.6;
     ubx[2] = 0.6;
 
@@ -798,12 +788,7 @@ void f1tenth_bicycle_model_acados_create_7_set_nlp_out(f1tenth_bicycle_model_sol
 
     // initialize with x0
     
-    x0[0] = 0.1284983736189656;
-    x0[1] = 0.0521679569012628;
-    x0[2] = 0.924;
-    x0[3] = 0.1;
-    x0[6] = 0.03076956665889957;
-    x0[7] = 0.3;
+    x0[7] = 0.25;
 
 
     double* u0 = xu0 + NX;

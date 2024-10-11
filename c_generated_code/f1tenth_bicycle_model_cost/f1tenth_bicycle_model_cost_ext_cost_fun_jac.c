@@ -51,6 +51,8 @@ extern "C" {
 #define casadi_f4 CASADI_PREFIX(f4)
 #define casadi_f5 CASADI_PREFIX(f5)
 #define casadi_f6 CASADI_PREFIX(f6)
+#define casadi_f7 CASADI_PREFIX(f7)
+#define casadi_f8 CASADI_PREFIX(f8)
 #define casadi_fill CASADI_PREFIX(fill)
 #define casadi_fill_casadi_int CASADI_PREFIX(fill_casadi_int)
 #define casadi_low CASADI_PREFIX(low)
@@ -416,14 +418,68 @@ static int casadi_f6(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   return 0;
 }
 
+/* jac_jac_traj:(x,out_f[1x1,0nz],out_jac_f_x[1x1,0nz])->(jac_jac_f_x_x,jac_jac_f_x_out_f[1x1,0nz]) */
+static int casadi_f7(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
+  casadi_real *rr, *ss;
+  casadi_real w0, w1, w2, w3;
+  /* #0: @0 = zeros(2x1,1nz) */
+  w0 = 0.;
+  /* #1: @1 = input[0][0] */
+  w1 = arg[0] ? arg[0][0] : 0;
+  /* #2: @2 = BSpline(@1) */
+  casadi_clear((&w2), 1);
+  CASADI_PREFIX(nd_boor_eval)((&w2),1,casadi_c6,casadi_s5,casadi_s2,casadi_s2,casadi_c8,1,(&w1),casadi_s1, iw, w);
+  /* #3: @1 = ones(2x1,1nz) */
+  w1 = 1.;
+  /* #4: {@3, NULL} = vertsplit(@1) */
+  w3 = w1;
+  /* #5: @2 = (@2*@3) */
+  w2 *= w3;
+  /* #6: (@0[0] = @2) */
+  for (rr=(&w0)+0, ss=(&w2); rr!=(&w0)+1; rr+=1) *rr = *ss++;
+  /* #7: @0 = @0' */
+  /* #8: {@2, NULL} = horzsplit(@0) */
+  w2 = w0;
+  /* #9: output[0][0] = @2 */
+  if (res[0]) res[0][0] = w2;
+  return 0;
+}
+
+/* jac_jac_traj:(x,out_f[1x1,0nz],out_jac_f_x[1x1,0nz])->(jac_jac_f_x_x,jac_jac_f_x_out_f[1x1,0nz]) */
+static int casadi_f8(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
+  casadi_real *rr, *ss;
+  casadi_real w0, w1, w2, w3;
+  /* #0: @0 = zeros(2x1,1nz) */
+  w0 = 0.;
+  /* #1: @1 = input[0][0] */
+  w1 = arg[0] ? arg[0][0] : 0;
+  /* #2: @2 = BSpline(@1) */
+  casadi_clear((&w2), 1);
+  CASADI_PREFIX(nd_boor_eval)((&w2),1,casadi_c6,casadi_s5,casadi_s2,casadi_s2,casadi_c7,1,(&w1),casadi_s1, iw, w);
+  /* #3: @1 = ones(2x1,1nz) */
+  w1 = 1.;
+  /* #4: {@3, NULL} = vertsplit(@1) */
+  w3 = w1;
+  /* #5: @2 = (@2*@3) */
+  w2 *= w3;
+  /* #6: (@0[0] = @2) */
+  for (rr=(&w0)+0, ss=(&w2); rr!=(&w0)+1; rr+=1) *rr = *ss++;
+  /* #7: @0 = @0' */
+  /* #8: {@2, NULL} = horzsplit(@0) */
+  w2 = w0;
+  /* #9: output[0][0] = @2 */
+  if (res[0]) res[0][0] = w2;
+  return 0;
+}
+
 /* f1tenth_bicycle_model_cost_ext_cost_fun_jac:(i0[9],i1[3],i2[],i3[])->(o0,o1[12]) */
 static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
   casadi_int i;
   casadi_real **res1=res+2, *rr;
   const casadi_real **arg1=arg+4, *cs;
   casadi_real w0, w1, w3, w5, *w6=w+16, *w7=w+18, *w8=w+20, w10, w12, *w13=w+24, *w14=w+26, w15, w16, w22, w23, w24, *w25=w+33, *w26=w+39;
-  /* #0: @0 = 80 */
-  w0 = 80.;
+  /* #0: @0 = 60 */
+  w0 = 60.;
   /* #1: @1 = input[0][6] */
   w1 = arg[0] ? arg[0][6] : 0;
   /* #2: @2 = 00 */
@@ -474,8 +530,8 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   w5 = casadi_sq( w3 );
   /* #19: @0 = (@0*@5) */
   w0 *= w5;
-  /* #20: @5 = 200 */
-  w5 = 200.;
+  /* #20: @5 = 100 */
+  w5 = 100.;
   /* #21: @9 = 00 */
   /* #22: @10 = jac_traj(@1, @9) */
   arg1[0]=(&w1);
@@ -516,16 +572,16 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   w5 *= w12;
   /* #35: @0 = (@0+@5) */
   w0 += w5;
-  /* #36: @5 = 2.3 */
-  w5 = 2.2999999999999998e+00;
+  /* #36: @5 = 1.6 */
+  w5 = 1.6000000000000001e+00;
   /* #37: @12 = input[1][0] */
   w12 = arg[1] ? arg[1][0] : 0;
   /* #38: @5 = (@5*@12) */
   w5 *= w12;
   /* #39: @0 = (@0-@5) */
   w0 -= w5;
-  /* #40: @5 = 0.005 */
-  w5 = 5.0000000000000001e-03;
+  /* #40: @5 = 0.05 */
+  w5 = 5.0000000000000003e-02;
   /* #41: @12 = input[1][1] */
   w12 = arg[1] ? arg[1][1] : 0;
   /* #42: @15 = sq(@12) */
@@ -534,8 +590,8 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   w5 *= w15;
   /* #44: @0 = (@0+@5) */
   w0 += w5;
-  /* #45: @5 = 0.6 */
-  w5 = 5.9999999999999998e-01;
+  /* #45: @5 = 0.2 */
+  w5 = 2.0000000000000001e-01;
   /* #46: @15 = input[1][2] */
   w15 = arg[1] ? arg[1][2] : 0;
   /* #47: @16 = sq(@15) */
@@ -546,22 +602,22 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   w0 += w5;
   /* #50: output[0][0] = @0 */
   if (res[0]) res[0][0] = w0;
-  /* #51: @0 = -2.3 */
-  w0 = -2.2999999999999998e+00;
-  /* #52: @5 = 0.005 */
-  w5 = 5.0000000000000001e-03;
+  /* #51: @0 = -1.6 */
+  w0 = -1.6000000000000001e+00;
+  /* #52: @5 = 0.05 */
+  w5 = 5.0000000000000003e-02;
   /* #53: @12 = (2.*@12) */
   w12 = (2.* w12 );
   /* #54: @5 = (@5*@12) */
   w5 *= w12;
-  /* #55: @12 = 0.6 */
-  w12 = 5.9999999999999998e-01;
+  /* #55: @12 = 0.2 */
+  w12 = 2.0000000000000001e-01;
   /* #56: @15 = (2.*@15) */
   w15 = (2.* w15 );
   /* #57: @12 = (@12*@15) */
   w12 *= w15;
-  /* #58: @15 = 80 */
-  w15 = 80.;
+  /* #58: @15 = 60 */
+  w15 = 60.;
   /* #59: @3 = (2.*@3) */
   w3 = (2.* w3 );
   /* #60: @15 = (@15*@3) */
@@ -570,8 +626,8 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   for (i=0, rr=w6, cs=w6; i<2; ++i) (*rr++)  = (w15*(*cs++));
   /* #62: @8 = (-@6) */
   for (i=0, rr=w8, cs=w6; i<2; ++i) *rr++ = (- *cs++ );
-  /* #63: @3 = 200 */
-  w3 = 200.;
+  /* #63: @3 = 100 */
+  w3 = 100.;
   /* #64: @10 = (2.*@10) */
   w10 = (2.* w10 );
   /* #65: @3 = (@3*@10) */
@@ -670,7 +726,7 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   arg1[2]=0;
   res1[0]=(&w24);
   res1[1]=0;
-  if (casadi_f6(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f7(arg1, res1, iw, w, 0)) return 1;
   /* #105: @7 = (@15*@7) */
   for (i=0, rr=w7, cs=w7; i<2; ++i) (*rr++)  = (w15*(*cs++));
   /* #106: @7 = @7' */
@@ -688,7 +744,7 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   arg1[2]=0;
   res1[0]=(&w24);
   res1[1]=0;
-  if (casadi_f5(arg1, res1, iw, w, 0)) return 1;
+  if (casadi_f8(arg1, res1, iw, w, 0)) return 1;
   /* #112: @24 = (@24*@15) */
   w24 *= w15;
   /* #113: @22 = (@22+@24) */

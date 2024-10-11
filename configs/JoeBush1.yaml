@@ -61,7 +61,7 @@ parameter_server:
         freq_limit: 0
         #Input constraints
         delta_max: 0.6 # [rad]
-        d_max: 0.2 #maximum motor reference for driving forward        
+        d_max: 0.25 #maximum motor reference for driving forward        
         d_min: 0.08       
         opt_tol: 0.001
         #Incremental input constraints        
@@ -73,17 +73,17 @@ parameter_server:
 
         #Optimisation parameters:
         max_QP_iter: 5
-        N: 14 #number of shooting nodes
-        Tf: 0.7 #[s] time lenght of the opt. horizon
+        N: 20 #number of shooting nodes
+        Tf: 0.5 #[s] time lenght of the opt. horizon
         #Cost weights:
         q_con: 60.0
         q_long: 100.0
-        q_theta: 1.3
+        q_theta: 1.6
         q_d: 0.05
-        q_delta: 0.1
+        q_delta: 0.2
 
       MPCC_reverse:
-        res_limit: 10.0
+        res_limit: 100.0
         freq_limit: 0
         #Input constraints
         delta_max: 0.6 # [rad]
@@ -96,17 +96,16 @@ parameter_server:
         deltadot_max: 10000.0
         thetahatdot_min: 0.001
         thetahatdot_max: 5
-
         #Optimisation parameters:
         max_QP_iter: 5
-        N: 22 #number of shooting nodes
-        Tf: 1.1 #[s] time lenght of the opt. horizon
+        N: 24 #number of shooting nodes
+        Tf: 0.6 #[s] time lenght of the opt. horizon
         #Cost weights:
-        q_con: 60.0
-        q_long: 200.0
-        q_theta: 2
+        q_con: 120.0
+        q_long: 100.0
+        q_theta: 1.4
         q_d: 0.005
-        q_delta: 0.9
+        q_delta: 0.001
 
         
       GP_LPV_LQR:

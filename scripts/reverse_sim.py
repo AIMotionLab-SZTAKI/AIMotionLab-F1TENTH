@@ -1,5 +1,5 @@
 from aimotion_f1tenth_system.src.vehicle_control.vehicle_control.controllers.MPCC_reverse_controller import MPCC_reverse_controller
-from aimotion_f1tenth_system.src.vehicle_control.vehicle_control.controllers.MPCC_controller import MPCC_Controller
+from F1TENTH_sim import F1TENTH_sim
 from aimotion_f1tenth_utils.Trajectory import Trajectory
 from aimotion_f1tenth_system.src.vehicle_control.vehicle_control.MPCC.trajectory import Spline_2D
 import yaml
@@ -23,27 +23,20 @@ with open(file_name) as file:
 args = {}
 
 args["vehicle_params"] = params["parameter_server"]["ros__parameters"]["vehicle_params"]
-args["MPCC_params"] = params["parameter_server"]["ros__parameters"]["controllers"]["MPCC"]
+args["MPCC_params"] = params["parameter_server"]["ros__parameters"]["controllers"]["MPCC_reverse"]
 args["drive_bridge"] = params["parameter_server"]["ros__parameters"]["drive_bridge"]
 args["crazy_observer"] = params["parameter_server"]["ros__parameters"]["crazy_observer"]
 MOTOR_LIMIT = args["drive_bridge"]["MOTOR_LIMIT"]
 
-controller = MPCC_reverse_controller(vehicle_params= args["vehicle_params"], mute = True, MPCC_params= args["MPCC_params"])
+controller = MPCC_reverse_controller(vehicle_params= args["vehicle_params"], mute = False, MPCC_params= args["MPCC_params"])
 
-sim_con = MPCC_Controller(vehicle_params=args["vehicle_params"], MPCC_params= args["MPCC_params"])
-
+simulator = F1TENTH_sim(vehicle_params=args["vehicle_params"])
 #Silverstone trajectory
 
-traj = Trajectory("Silverstone")
-traj.load("trajectories/Silverstone.traj")
-
-# Spielberg trajectory
-
-traj = Trajectory("Spielberg")
-traj.load("trajectories/Spielberg.traj")
+traj = Trajectory("trajectory")
 
 #traj.plot_trajectory()
-theta_start = 0.05
+theta_start = 0.1
 
 
 # Normal trajectory
@@ -61,13 +54,14 @@ phi = 0.84 #normal
 #phi = -2.87969 #Spielberg
 
 #phi =1.19 #Silverstone
-x0 = np.array([x,y-0.1,phi+np.pi, -2, 0.0,0.0])
+x0 = np.array([x,y,phi+np.pi, 0, 0.0,0.0])
 
 
 controller.set_trajectory(pos_tck = traj.pos_tck,
                         evol_tck = traj.evol_tck,
-                        x0 = x0) #The class will convert the tck into its own trajectory format
+                        generate_solver=True) #The class will convert the tck into its own trajectory format
 
+controller.init_controller(x0 = x0)
 
 #print(controller.trajectory.get_path_parameters_ang(theta_start))
 #input("Press enter to start sim")
@@ -77,7 +71,7 @@ Tf = args["MPCC_params"]["Tf"]
 N = args["MPCC_params"]["N"]
 
 dt = Tf/N
-dt = 1/args["crazy_observer"]["FREQUENCY"]
+
 #input("Press enter to run sim")
 x_sim = np.array(np.reshape(x0, (-1,1)))
 
@@ -111,7 +105,7 @@ for i in range(iteration):
     c_t = np.append(c_t, controller.c_t)
     
     
-    x0,t= sim_con.simulate(x0, u, dt)
+    x0,t= simulator.simulate(x0, u, dt)
 
     #Simulating noise: 
     #x0[3] = x0[3]*np.random.normal(1,0.05)
@@ -139,7 +133,7 @@ for i in range(iteration):
     time.sleep(dt/sim_speed)
     plotter.ax.set_title(f"Current speed: {x_sim[3,-1]:.3f}m/s")
 
-    input("next step")
+    #input(f"x:{x_sim[0][-1]} y:{x_sim[1][-1]} phi:{x_sim[2][-1]} v_xi:{x_sim[3][-1]} v_eta:{x_sim[4][-1]} omega: {x_sim[5][-1]}")
 
 #Creating simulation result plots
 s = np.linspace(0, controller.trajectory.L,1000)
@@ -158,7 +152,7 @@ segments = np.concatenate([points[:-1], points[1:]], axis = 1)
 
 norm = plt.Normalize(vmin =0, vmax=5)
 lc = LineCollection(segments=segments, cmap = "turbo", norm=norm)
-lc.set_array(x_sim[3,:])
+lc.set_array(-x_sim[3,:])
 lc.set_linewidth(2)
 
 plt.gca().add_collection(lc)

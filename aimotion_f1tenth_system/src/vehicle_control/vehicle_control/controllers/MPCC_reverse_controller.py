@@ -348,8 +348,8 @@ class MPCC_reverse_controller(Base_MPCC_Controller):
 
         self.x0 = np.array([shifted_CoM[0], shifted_CoM[1], x0[2], x0[3]])
         self.prev_phi = self.x0[2]
-        if self.x0[3] > -0.3:
-            self.x0[3] = -0.3
+        if self.x0[3] > -0.5:
+            self.x0[3] = -0.5
 
 
         self.input = np.array([self.parameters.d_min,0])
@@ -494,7 +494,9 @@ class MPCC_reverse_controller(Base_MPCC_Controller):
 
         if (1/t < self.MPCC_params["freq_limit"]) or (max(res) > self.MPCC_params["res_limit"]):
             raise Exception(f"Slow computing, emergency shut down, current freq: {1/t}, residuals: {res}")
-        print(f"\rFrequency: {(1/(t)):4f}, solver time: {t:.5f}, QP iterations: {num_iter:2}, progress: {self.theta/self.trajectory.L*100:.2f}%, input: {u_opt}, residuals: {res}               \r", end = '', flush=True)
+        
+        if not self.mute:
+            print(f"\rFrequency: {(1/(t)):4f}, solver time: {t:.5f}, QP iterations: {num_iter:2}, progress: {self.theta/self.trajectory.L*100:.2f}%, input: {u_opt}, residuals: {res}               \r", end = '', flush=True)
         
         for i in range(self.parameters.N-1):
             x_i = self.ocp_solver.get(i+1, "x")
@@ -518,7 +520,7 @@ class MPCC_reverse_controller(Base_MPCC_Controller):
         self.theta_dot = self.ocp_solver.get(0, "u")[0]
         
         if self.theta >= self.trajectory.L:
-            errors = np.array([0.0, 0.0,0.0,float(self.theta), 0.0])
+            errors = np.array([float(e_con),float(e_long),float(self.theta), float(t)])
             u_opt = np.array([0,0])
             self.input = np.array([0,0])
             self.errors = {"contouring" : 0, "longitudinal": 0, "progress": 0, "c_t": 0}
