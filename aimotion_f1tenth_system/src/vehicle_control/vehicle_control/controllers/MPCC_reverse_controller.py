@@ -279,11 +279,13 @@ class MPCC_reverse_controller(Base_MPCC_Controller):
             generate_solver(bool): generate ocp solver
         """
 
-        #Transform ref trajectory
+         #Transform ref trajectory
         t_end = evol_tck[0][-1]
-        t_eval=np.linspace(0, t_end, 10000)
+        s_end = splev(t_end, evol_tck)
+        t_eval=np.linspace(0, t_end, int(s_end+1))
         s=splev(t_eval, evol_tck)
         (x,y) = splev(s, pos_tck)
+
 
         points_list = []
 
@@ -452,7 +454,14 @@ class MPCC_reverse_controller(Base_MPCC_Controller):
 
         x0 = np.array([x0[0]-self.parameters.l_r*cs.cos(x0[2]), x0[1]-self.parameters.l_r*cs.sin(x0[2]), x0[2], x0[3]])
 
-
+        if self.theta >= self.trajectory.L:
+            errors = np.array([float(e_con),float(e_long),float(self.theta), float(t)])
+            u_opt = np.array([0,0])
+            self.input = np.array([0,0])
+            self.errors = {"contouring" : 0, "longitudinal": 0, "progress": 0, "c_t": 0}
+            self.finished = True
+            return u_opt, errors, True 
+        
         while x0[2]-self.prev_phi > np.pi:
             x0[2] = x0[2]-2*np.pi
         while x0[2]-self.prev_phi < -np.pi:
@@ -519,13 +528,7 @@ class MPCC_reverse_controller(Base_MPCC_Controller):
 
         self.theta_dot = self.ocp_solver.get(0, "u")[0]
         
-        if self.theta >= self.trajectory.L:
-            errors = np.array([float(e_con),float(e_long),float(self.theta), float(t)])
-            u_opt = np.array([0,0])
-            self.input = np.array([0,0])
-            self.errors = {"contouring" : 0, "longitudinal": 0, "progress": 0, "c_t": 0}
-            self.finished = True
-            return u_opt, errors, True  
+         
 
         return u_opt, errors, False
     

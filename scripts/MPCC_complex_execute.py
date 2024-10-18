@@ -24,7 +24,7 @@ traj = Trajectory("traj_1")
 traj.load(traj_file)
 points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
 #traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
-
+traj.plot_trajectory()
 path, v = paperclip_forward(r = 1.1)
 traj.build_from_waypoints(path, v, 0, 5)
 
@@ -50,7 +50,9 @@ with open(file_name) as f:
     MPCC_params = full_params["parameter_server"]["ros__parameters"]["controllers"]["MPCC"]
     MPCC_reverse_params = full_params["parameter_server"]["ros__parameters"]["controllers"]["MPCC_reverse"]
 car_1.reset_state_logger()
-car_1.select_controller("MPCC_reverse")
+
+
+car_1.select_controller("MPCC")
 car_1.set_controller_parameters({"MPCC": MPCC_params, "MPCC_reverse":MPCC_reverse_params})
 car_1.set_trajectory(trajectory=traj, generate_solver= True)
 car_1.start_controller()
@@ -59,13 +61,35 @@ car_1.start_controller()
 car_1.wait_while_running()
 
 #Reversing
-input("Press enter to start reverse execution")
 
-car_1.select_controller("MPCC")
+car_1.select_controller("MPCC_reverse")
 path, v = paperclip_backward(r = 1.1)
 traj.build_from_waypoints(path, v, 0, 5)
 car_1.set_trajectory(trajectory=traj, generate_solver= True)
 car_1.start_controller()
+
+car_1.wait_while_running()
+
+
+path, v = paperclip_forward(r=1.1, mirror= True)
+traj.build_from_waypoints(path, v, 0, 5)
+car_1.select_controller("MPCC")
+car_1.reset_controller()
+car_1.set_trajectory(trajectory=traj, generate_solver= True)
+car_1.start_controller()
+
+car_1.wait_while_running()
+
+car_1.select_controller("MPCC_reverse")
+car_1.reset_controller()
+path, v = paperclip_backward(r = 1.1, mirror= True)
+traj.build_from_waypoints(path, v, 0, 5)
+car_1.set_trajectory(trajectory=traj, generate_solver= True)
+car_1.start_controller()
+
+car_1.wait_while_running()
+
+
 
 
 

@@ -128,7 +128,15 @@ class MPCC_Controller(Base_MPCC_Controller):
         :return finished (trajectory execution finished)
         """
 
+        
+        if self.theta >= self.trajectory.L:
+            errors = np.array([0.0, self.theta,0.0, 0.0])
+            u_opt = np.array([0,0])
+            self.input = np.array([0,0])
+            self.errors = {"lateral" : 0, "heading" : self.theta, "velocity" : 0, "longitudinal": float(0)}
 
+            self.finished = True
+            return u_opt, errors, True
         
         if x0[3] <0.1:
             x0[3] = 0.1
@@ -188,17 +196,7 @@ class MPCC_Controller(Base_MPCC_Controller):
         errors = np.array([float(e_con),float(e_long),float(self.theta), float(c_t)])
 
         self.errors = {"lateral" : float(e_con), "heading" : float(self.theta), "velocity" : float(self.c_t), "longitudinal": float(e_long)}
-        self.c_t = c_t
-
-        if self.theta >= self.trajectory.L:
-            errors = np.array([0.0, self.theta,0.0, 0.0])
-            u_opt = np.array([0,0])
-            self.input = np.array([0,0])
-            self.errors = {"lateral" : 0, "heading" : self.theta, "velocity" : 0, "longitudinal": float(0)}
-
-            self.finished = True
-            return u_opt, errors, True
-        
+        self.c_t = c_t        
         
         return u_opt, errors, False 
 
@@ -568,11 +566,13 @@ class MPCC_Controller(Base_MPCC_Controller):
             generate_solver(bool): generate ocp solver
         """
 
-        #Transform ref trajectory
+         #Transform ref trajectory
         t_end = evol_tck[0][-1]
-        t_eval=np.linspace(0, t_end, 10000)
+        s_end = splev(t_end, evol_tck)
+        t_eval=np.linspace(0, t_end, int(s_end+1))
         s=splev(t_eval, evol_tck)
         (x,y) = splev(s, pos_tck)
+
 
         points_list = []
 
