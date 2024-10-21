@@ -89,8 +89,8 @@ static const casadi_int casadi_s5[3] = {2, 0, 0};
 static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
   casadi_real *rr, *ss;
   casadi_real w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, *w16=w+16, w17;
-  /* #0: @0 = 52.4282 */
-  w0 = 5.2428199999999997e+01;
+  /* #0: @0 = 45 */
+  w0 = 45.;
   /* #1: @1 = input[0][7] */
   w1 = arg[0] ? arg[0][7] : 0;
   /* #2: @1 = (@0*@1) */

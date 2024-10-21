@@ -23,7 +23,7 @@ traj = Trajectory("traj_1")
 #traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
 
 #path, v = paperclip_backward(r = 1.1)
-path, v = null_infty()
+path, v = null_paperclip()
 traj.build_from_waypoints(path, v, 0.001, 5)
 
 traj.plot_trajectory()
@@ -82,7 +82,7 @@ segments = np.concatenate([points[:-1], points[1:]], axis = 1)
 
 norm = plt.Normalize(vmin =0, vmax=3.5)
 lc = LineCollection(segments=segments, cmap = "turbo", norm=norm)
-lc.set_array(states1[:,3])
+lc.set_array(np.abs(states1[:,3]))
 lc.set_linewidth(2)
 
 plt.gca().add_collection(lc)

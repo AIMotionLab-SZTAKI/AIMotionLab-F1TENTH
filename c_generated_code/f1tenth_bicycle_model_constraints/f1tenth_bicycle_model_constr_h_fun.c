@@ -64,8 +64,8 @@ static const casadi_int casadi_s3[6] = {2, 1, 0, 2, 0, 1};
 /* f1tenth_bicycle_model_constr_h_fun:(i0[9],i1[3],i2[],i3[])->(o0[2]) */
 static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
   casadi_real w0, w1, w2, w3, w4, w5, w6, w7, w8;
-  /* #0: @0 = 52.4282 */
-  w0 = 5.2428199999999997e+01;
+  /* #0: @0 = 45 */
+  w0 = 45.;
   /* #1: @1 = input[0][7] */
   w1 = arg[0] ? arg[0][7] : 0;
   /* #2: @0 = (@0*@1) */

@@ -18,14 +18,11 @@ mpl.rcParams["text.usetex"] = False
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
 traj_name = "paperclip.traj"
-traj_file = os.path.join(parent_dir, "trajectories", traj_name)
 traj = Trajectory("traj_1")
 
-traj.load(traj_file)
 points = np.array([[0, -1.5],[0, 0],[0, 1.5],[0,2]])
 #traj.build_from_points_const_speed(points, 0.0001, 3, 0.5)
-traj.plot_trajectory()
-path, v = paperclip_forward(r = 1.1)
+path, v = paperclip_forward(r = 1.1, nop= 30)
 traj.build_from_waypoints(path, v, 0, 5)
 
 
@@ -63,15 +60,15 @@ car_1.wait_while_running()
 #Reversing
 
 car_1.select_controller("MPCC_reverse")
-path, v = paperclip_backward(r = 1.1)
+path, v = paperclip_backward(r = 1.1, nop= 30)
 traj.build_from_waypoints(path, v, 0, 5)
 car_1.set_trajectory(trajectory=traj, generate_solver= True)
 car_1.start_controller()
 
 car_1.wait_while_running()
 
-
-path, v = paperclip_forward(r=1.1, mirror= True)
+"""
+path, v = paperclip_forward(r=1.1, mirror= True, nop= 30)
 traj.build_from_waypoints(path, v, 0, 5)
 car_1.select_controller("MPCC")
 car_1.reset_controller()
@@ -82,13 +79,13 @@ car_1.wait_while_running()
 
 car_1.select_controller("MPCC_reverse")
 car_1.reset_controller()
-path, v = paperclip_backward(r = 1.1, mirror= True)
+path, v = paperclip_backward(r = 1.1, mirror= True, nop= 30)
 traj.build_from_waypoints(path, v, 0, 5)
 car_1.set_trajectory(trajectory=traj, generate_solver= True)
 car_1.start_controller()
 
 car_1.wait_while_running()
-
+"""
 
 
 
@@ -100,8 +97,23 @@ states1, inputs1, c1, errors1 = car_1.get_logs() #errors1: {"contouring": lat_er
 #Path following figure:
 plt.figure()
 
-plt.plot(x_r, y_r, label = "reference trajectory")
+plt.plot(x_r, y_r, 'b')
+path, v = paperclip_backward(r = 1.1)
+traj.build_from_waypoints(path, v, 0, 5)
+x_r, y_r, *_ = traj.get_trajectory()
+plt.plot(x_r, y_r, 'b')
 
+path, v = paperclip_forward(r = 1.1, mirror= True)
+traj.build_from_waypoints(path, v, 0, 5)
+x_r, y_r, *_ = traj.get_trajectory()
+plt.plot(x_r, y_r, 'b')
+
+path, v = paperclip_backward(r = 1.1, mirror = True)
+traj.build_from_waypoints(path, v, 0, 5)
+x_r, y_r, *_ = traj.get_trajectory()
+plt.plot(x_r, y_r, 'b')
+
+#plt.legend()
 #Create continious colorbarmapping
 
 points = np.array([states1[:,0], states1[:,1]]).T.reshape(-1,1,2)
@@ -109,7 +121,7 @@ segments = np.concatenate([points[:-1], points[1:]], axis = 1)
 
 norm = plt.Normalize(vmin =0, vmax=3.5)
 lc = LineCollection(segments=segments, cmap = "turbo", norm=norm)
-lc.set_array(states1[:,3])
+lc.set_array(np.abs(states1[:,3]))
 lc.set_linewidth(2)
 
 plt.gca().add_collection(lc)
