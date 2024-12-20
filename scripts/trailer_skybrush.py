@@ -7,6 +7,7 @@ import motioncapture
 import csv
 from aimotion_f1tenth_utils.utils import CONTROLLER_MODE
 import numpy as np
+import struct
 
 
 def quat_2_yaw(quat):
@@ -99,16 +100,16 @@ def cosine_arc_length(amplitude, frequency, start, end):
 
 
 traj = Trajectory("paperclip")
-traj.load(os.path.join(os.path.dirname(__file__), "paperclip.traj"))
+#traj.load(os.path.join(os.path.dirname(__file__), "..", "trajectories", "paperclip.traj"))
 #traj.plot_trajectory(True)
-""" # Generate and save new trajectory
+# Generate and save new trajectory
 path_points = np.roll(paperclip(), shift=13, axis=0)
-path_points = np.hstack((np.atleast_2d(path_points[:, 1]).T, -np.atleast_2d(path_points[:, 0]).T))
-traj.build_from_points_const_speed(path_points=path_points, path_smoothing=1e-4, path_degree=5, const_speed=1.0)
-traj.save("")
-traj.plot_trajectory(True)
-exit()
-"""
+#path_points = np.hstack((np.atleast_2d(path_points[:, 1]).T, -np.atleast_2d(path_points[:, 0]).T))
+traj.build_from_points_const_speed(path_points=path_points, path_smoothing=1e-4, path_degree=5, const_speed=0.6)
+#traj.save("")
+#traj.plot_trajectory(True)
+#exit()
+
 
 # SKYBRUSH PARAMS
 skybrush_ip = "192.168.2.77"
@@ -117,10 +118,10 @@ skybrush_port = 6001
 # establish connetion to manger
 
 # create car object 
-car_1 = F1Client("192.168.2.62", 8069)
+car_1 = F1Client(host="192.168.2.62", port=8069)
 print(f"Connected to {car_1.car_ID}")
 
-car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "trailer_control_params.yaml"))
+car_1.reinit_LPV_LQR_from_yaml(os.path.join(os.path.dirname(__file__), "..", "params", "trailer_control_params.yaml"))
 
 
 # select the controller
@@ -164,11 +165,11 @@ if wait_for_skybrush:
         exit()
     print("Waiting for Skybrush signal...")
 
-    msg=skybrush_client_socket.recv(1024)
+    msg = struct.unpack("f", skybrush_client_socket.recv(1024).strip())[0]
     skybrush_client_socket.close()
 
-    print(f"Waiting {float(msg)} to launch!")
-    time.sleep(float(msg))
+    print(f"Waiting {msg} to launch!")
+    time.sleep(msg)
 
 # execute trajectory
 res = car_1.execute_trajectory(trajectory=traj)

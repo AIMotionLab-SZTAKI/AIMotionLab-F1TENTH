@@ -50,7 +50,7 @@ class F1Client:
         if not self.client.connect(host, port):
             raise Exception(f"Could not connect to {host}:{port}")
         
-        if self.car_ID is None:
+        if car_ID is None:
             self.car_ID = self._get_ID()
        
         
